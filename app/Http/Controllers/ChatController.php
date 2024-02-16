@@ -23,31 +23,29 @@ class ChatController extends Controller
         $stringArr['text'] = $message;
         $stringArr['milisecondtime'] = $currentTimeMillis;
 
-        $data = [
-            'user_id' => $user_id,
-            'sender_id' => $sender_id,
-            'message_from' => $user_id,
-            'message_to' => $sender_id,
-            'message' => $message,
-            'milisecondtime' => $currentTimeMillis,
-        ];
+        // $data = [
+        //     'user_id' => $user_id,
+        //     'sender_id' => $sender_id,
+        //     'message_from' => $user_id,
+        //     'message_to' => $sender_id,
+        //     'message' => $message,
+        //     'milisecondtime' => $currentTimeMillis,
+        // ];
         
-        $endpoint = env('APP_URL').'/chat/webhook/message?' . http_build_query($data);
+        // $endpoint = env('APP_URL').'/chat/webhook/message?' . http_build_query($data);
         
-        $ch = curl_init($endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPGET, true);
+        // $ch = curl_init($endpoint);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($ch, CURLOPT_HTTPGET, true);
         
-        $response = curl_exec($ch);
+        // $response = curl_exec($ch);
         
-        if ($response === false) {
-            echo 'Error: ' . curl_error($ch);
-        }
+        // if ($response === false) {
+        //     echo 'Error: ' . curl_error($ch);
+        // }
         
-        curl_close($ch);
-    
+        // curl_close($ch);
         Messages::create($stringArr);
-
         return response()->json(['status' => 'true' , 'message_from' => $user_id, 'message_to' => $sender_id, 'message' => $message , 'milisecondtime' => $currentTimeMillis]);
     }
 
