@@ -2,8 +2,8 @@
 <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
         <a href="{{ route('admin.dashboard') }}" class="logo d-flex align-items-center">
-        <!-- <img src="{{ URL::to('public/assets/img/site-logo.png') }}" alt=""> -->
-        <span>sugerElite</span>
+        <img src="{{ URL::to('public/assets/img/site-logo.png') }}" alt="">
+        <!-- <span>sugerElite</span> -->
         <!-- <span class="d-none d-lg-block">NiceAdmin</span> -->
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>

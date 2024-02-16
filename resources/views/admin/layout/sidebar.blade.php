@@ -4,7 +4,7 @@
 <ul class="sidebar-nav" id="sidebar-nav">
 
   <li class="nav-item">
-    <a class="nav-link " href="index.html">
+    <a class="nav-link " href="#">
       <i class="bi bi-grid"></i>
       <span>Dashboard</span>
     </a>
@@ -94,12 +94,12 @@
     </a>
     <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
       <li>
-        <a href="forms-elements.html">
+        <a href="#">
           <i class="bi bi-circle"></i><span>Add Profile</span>
         </a>
       </li>
       <li>
-        <a href="forms-layouts.html">
+        <a href="#">
           <i class="bi bi-circle"></i><span>Profile list</span>
         </a>
       </li>

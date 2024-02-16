@@ -7,8 +7,8 @@
         <meta content="" name="description">
         <meta content="" name="keywords">
         <!-- Favicons -->
-        <link href="{{ URL::to('assets/img/site-logo-favicon.png') }}" rel="icon">
-        <link href="{{ URL::to('assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+        <link href="{{ URL::to('public/assets/img/site-logo-favicon.png') }}" rel="icon">
+        <link href="{{ URL::to('public/assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
         <!-- Google Fonts -->
         <link href="https://fonts.gstatic.com" rel="preconnect">
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
@@ -45,19 +45,18 @@
                                 </div> -->
                                 <!-- End Logo -->
                                 <div class="card mb-3">
-                                    <div class="card-body">
+                                    <div class="card-body" style="background: #2D2D2D;border-radius: 10px;">
                                         <div class="pt-4 pb-2">
                                             <h5 class="card-title text-center pb-0 fs-4">
-                                                <label for="">SugarElite</label>
-                                                <!-- <img src="{{ URL::to('public/assets/img/site-logo.png') }}" alt=""> -->
+                                                <!-- <label for="">SugarElite</label> -->
+                                                <img src="{{ URL::to('public/assets/img/site-logo.png') }}" alt="">
                                             </h5>
-                                            <p class="text-center small">Enter your username & password to admin login</p>
                                         </div>
                                         @include('flash-message')
                                         <form class="row g-3 needs-validation" novalidate method="POST" action="{{ route('login.custom')}}">
                                             {!! csrf_field() !!}
                                             <div class="col-12">
-                                                <label for="yourUsername" class="form-label">Email</label>
+                                                <label for="yourUsername" class="form-label clr-white">Email</label>
                                                 <div class="input-group has-validation">
                                                     <!-- <span class="input-group-text" id="inputGroupPrepend">@</span> -->
                                                     <input type="text" name="email" class="form-control" id="yourUsername" required>
@@ -65,7 +64,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-12">
-                                                <label for="yourPassword" class="form-label">Password</label>
+                                                <label for="yourPassword" class="form-label clr-white">Password</label>
                                                 <input type="password" name="password" class="form-control" id="yourPassword" required>
                                                 <div class="invalid-feedback">Please enter your password!</div>
                                             </div>
@@ -76,7 +75,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-12">
-                                                <button class="btn btn-primary w-100" type="submit">Login</button>
+                                                <button class="btn w-100" style="background: #F16667;color: white;" type="submit">Login</button>
                                             </div>
                                             <!-- <div class="col-12">
                                                 <p class="small mb-0">Don't have account? <a href="pages-register.html">Create an account</a></p>
