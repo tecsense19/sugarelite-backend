@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['prefix' => 'V1'], function () {
     Route::post('/profile/register', [SugareliteController::class, 'register']);
+    Route::post('/login', [SugareliteController::class, 'login']);
     Route::post('/chat/send', [SugareliteController::class, 'sendMessage']);
     Route::get('/chat/list', [SugareliteController::class, 'messageList']);
 });

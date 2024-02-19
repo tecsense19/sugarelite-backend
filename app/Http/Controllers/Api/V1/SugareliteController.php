@@ -22,36 +22,71 @@ class SugareliteController extends BaseController
 {
     public function register(Request $request)
     {
-        $input = $request->all();
-        // Check if the email already exists in the database
-        $existingUser = User::where('email', $input['email'])->first();
-        if ($existingUser) {
-            return response()->json(['error' => 'User already exists with this email.'], 422);
-        }
+        try {
 
-        if ($files = $request->file('avatar_url')) {
-                $path = 'storage/app/public';
-                $filename = time() . '_' . $files->getClientOriginalName();
-                $files->move($path, $filename);
-                $img = 'storage/app/public/' . $filename;
+            $input = $request->all();
+            // Check if the email already exists in the database
+            $existingUser = User::where('email', $input['email'])->first();
+            if ($existingUser) {
+                return response()->json(['error' => 'User already exists with this email.'], 422);
+            }
+
+            if ($files = $request->file('avatar_url')) {
+                    $path = 'storage/app/public';
+                    $filename = time() . '_' . $files->getClientOriginalName();
+                    $files->move($path, $filename);
+                    $img = 'storage/app/public/' . $filename;
+            }
+
+            $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
+            $input['avatar_url'] = $imgUrl;
+            $input['user_role'] = "user";
+            // Create the user
+            $user = User::create($input);
+        
+            return response()->json(['message' => 'User registered successfully.', 'user' => $user], 200);
+            
+            } catch (\Exception $e) {
+                return $this->sendError($e->getMessage());
+            }
+    }
+
+    public function login(Request $request)
+    {
+        try {
+
+            $input = $request->all();
+
+            $validator = Validator::make($input, [
+                'email' => 'required',
+                'password' => 'required',
+            ]);
+        
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+
+            $getUser = User::where('email', $input['email'])->where('user_role', 'user')->first();
+
+            if($getUser)
+            {
+                if(Hash::check($input['password'], $getUser->password))
+                {
+                    return $this->sendResponse($getUser, 'Login Successfully.');
+                }
+                else
+                {
+                    return $this->sendError('Invalid password! please try again.');
+                }
+            }
+            else
+            {
+                return $this->sendError('Invalid email address! please try again.');
+            }
+
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
         }
-        // Proceed with user registration if email is unique
-        // $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['avatar_url']));
-        // $imageName = uniqid() . '.png';
-        // $image = Image::make(imagecreatefromstring($imageData));
-        // $modifiedImagePath = storage_path($imageName);
-        // $image->save($modifiedImagePath);
-        // $image->exif([]);
-        // $image->response('png');
-        //$saveimage = "storage/app/public/img".uniqid().".png";
-        //file_put_contents($saveimage, $imageData);
-        sleep(1);
-        $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-        $input['avatar_url'] = $imgUrl;
-        // Create the user
-        $user = User::create($input);
-    
-        return response()->json(['message' => 'User registered successfully.', 'user' => $user], 200);
     }
 
     public function sendMessage(Request $request)
