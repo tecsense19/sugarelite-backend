@@ -4,7 +4,7 @@
 <ul class="sidebar-nav" id="sidebar-nav">
 
   <li class="nav-item">
-    <a class="nav-link " href="#">
+    <a class="nav-link " href="{{route('admin.dashboard')}}">
       <i class="bi bi-grid"></i>
       <span>Dashboard</span>
     </a>
@@ -89,17 +89,18 @@
   </li>End Components Nav -->
 
   <li class="nav-item">
-    <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+    <a class="nav-link collapsed " data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
       <i class="bi bi-journal-text"></i><span>Profile</span><i class="bi bi-chevron-down ms-auto"></i>
     </a>
-    <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+    <ul id="forms-nav" class="nav-content collapse {{ request()->is('list-profile') || request()->is('profile') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
       <li>
-        <a href="#">
+        <a href="{{ route('profile.profile') }}" class="{{ request()->is('profile') ? 'active' : ''}}">
           <i class="bi bi-circle"></i><span>Add Profile</span>
         </a>
       </li>
+     
       <li>
-        <a href="#">
+        <a href="{{ route('profile.list-profile') }}" class="{{ request()->is('list-profile') ? 'active' : '' }}">
           <i class="bi bi-circle"></i><span>Profile list</span>
         </a>
       </li>
