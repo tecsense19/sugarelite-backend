@@ -26,6 +26,17 @@ class SugareliteController extends BaseController
 
             $input = $request->all();
             // Check if the email already exists in the database
+
+            $validator = Validator::make($input, [
+                'email' => 'required',
+                'password' => 'required',
+            ]);
+        
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+
+            
             $existingUser = User::where('email', $input['email'])->first();
             if ($existingUser) {
                 return response()->json(['error' => 'User already exists with this email.'], 422);
