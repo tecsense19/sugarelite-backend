@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\User;
+use App\Models\User_images;
 
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -54,6 +55,39 @@ class SugareliteController extends BaseController
             $input['user_role'] = "user";
             // Create the user
             $user = User::create($input);
+
+            if (!empty($request->hasFile('public_images'))) {
+                $path = 'storage/app/public';
+            
+                foreach ($request->file('public_images') as $file) {
+                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $file->move($path, $filename);
+            
+                    $img = 'storage/app/public/' . $filename;
+                    $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
+                    // Store the array of new file paths in the database or perform other actions
+                    $attachment['user_id'] = $user->id;
+                    $attachment['public_images'] = $imgUrl;
+                    $attachment['image_type'] = 'public';
+                    User_images::create($attachment);
+                }
+            }
+            if (!empty($request->hasFile('total_private_images'))) {
+                $path = 'storage/app/public';
+            
+                foreach ($request->file('total_private_images') as $file) {
+                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $file->move($path, $filename);
+            
+                    $img = 'storage/app/public/' . $filename;
+                    $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
+                    // Store the array of new file paths in the database or perform other actions
+                    $attachment['user_id'] = $user->id;
+                    $attachment['public_images'] = $imgUrl;
+                    $attachment['image_type'] = 'private';
+                    User_images::create($attachment);
+                }
+            }
         
             return response()->json(['message' => 'User registered successfully.', 'user' => $user], 200);
             

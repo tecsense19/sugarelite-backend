@@ -24,12 +24,23 @@ Route::get('/admin/signout', [AdminAuthController::class, 'signOut'])->name('sig
 
 Route::group(['middleware' => ['admin']], function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('admin.dashboard');
+
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.profile');
     Route::post('/add-profile', [ProfileController::class, 'profileregister'])->name('profile.add-profile');
-    Route::get('/list-profile', [ProfileController::class, 'profilelist'])->name('profile.list-profile');
+
+
+    Route::get('/profiles', [ProfileController::class, 'profileindex'])->name('profile.profiles');
+    Route::post('/list-profile', [ProfileController::class, 'profilelist'])->name('profile.list-profile');
+
+    // update prodile
     Route::get('profile/edit/{id}', [ProfileController::class, 'profileedit'])->name('profile.edit-profile');
     Route::Post('/update-profile', [ProfileController::class, 'profileupdate'])->name('profile.update-profile');
-    Route::get('profile/delete/{id}', [ProfileController::class, 'profiledelete'])->name('profile.delete-profile');
+
+    // delete profile
+    Route::post('/profile/delete', [ProfileController::class, 'profiledelete'])->name('profile.delete-profile');
+    // remove user image
+    Route::post('/remove-user-images', [ProfileController::class, 'removeuserimage']);
+
 
 });
 

@@ -42,6 +42,18 @@
                     <input class="form-control" type="file" id="formFile" name="avatar_url" required>
                   </div>
                 </div>
+                <div class="row mb-3">
+                  <label for="inputNumber" class="col-sm-2 col-form-label">Public Images</label>
+                  <div class="col-sm-10">
+                    <input class="form-control" type="file" id="formFile" name="public_images[]" multiple required>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputNumber" class="col-sm-2 col-form-label">Private Images</label>
+                  <div class="col-sm-10">
+                    <input class="form-control" type="file" id="formFile" name="total_private_images[]" multiple required>
+                  </div>
+                </div>
                 <fieldset class="row mb-3">
                   <legend class="col-form-label col-sm-2 pt-0">Sex</legend>
                   <div class="col-sm-10">
@@ -227,7 +239,7 @@
                 <div class="row mb-3">
                   <label class="col-sm-2 col-form-label">Submit Button</label>
                   <div class="col-sm-10">
-                    <button type="submit" class="btn btn-primary">Submit Form</button>
+                    <button type="submit" class="btn btn-primary custom-submit-button">Submit Form</button>
                   </div>
                 </div>
               </form><!-- End General Form Elements -->
