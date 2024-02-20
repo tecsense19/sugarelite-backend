@@ -43,6 +43,38 @@
                     <img src="{{$list_profiles->avatar_url}}" height="30px" width="30px" alt="">
                   </div>
                 </div>
+                <div class="row mb-3">
+                  <label for="inputNumber" class="col-sm-2 col-form-label">Public Image</label>
+                  <div class="col-sm-10">
+                    <input class="form-control" type="file" id="formFile" name="public_images[]" multiple>
+                      <div class="d-flex gap-2 mt-2">
+                        @foreach ($getimage as $imgs) 
+                          @if($imgs->image_type == 'public')
+                          <div class="display_img" data-id ="{{$imgs->id}}">
+                              <img src="{{$imgs->public_images}}" height="30px" width="30px" alt="">
+                              <a class="img_remove" data-id ="{{$imgs->id}}"><i class="ri-close-circle-line"></i></a>
+                          </div>
+                          @endif
+                        @endforeach
+                      </div>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputNumber" class="col-sm-2 col-form-label">Private Image</label>
+                  <div class="col-sm-10">
+                    <input class="form-control" type="file" id="formFile" name="total_private_images[]" multiple>
+                    <div class="d-flex gap-2 mt-2">
+                      @foreach ($getimage as $imgs) 
+                        @if($imgs->image_type == 'private')
+                        <div class="display_img" data-id ="{{$imgs->id}}">
+                            <img src="{{$imgs->public_images}}" height="30px" width="30px" alt="">
+                            <a class="img_remove" data-id ="{{$imgs->id}}"><i class="ri-close-circle-line"></i></a>
+                        </div>
+                        @endif
+                      @endforeach
+                    </div>
+                  </div>
+                </div>
                 <fieldset class="row mb-3">
                   <legend class="col-form-label col-sm-2 pt-0">Sex</legend>
                   <div class="col-sm-10">
@@ -229,7 +261,7 @@
                 <div class="row mb-3">
                   <label class="col-sm-2 col-form-label">Submit Button</label>
                   <div class="col-sm-10">
-                    <button type="submit" class="btn btn-primary">Update Form</button>
+                    <button type="submit" class="btn btn-primary custom-submit-button">Update Form</button>
                   </div>
                 </div>
               </form><!-- End General Form Elements -->
@@ -243,6 +275,32 @@
       </div>
     </section>
 </main>
+
+<script>
+    $(".img_remove").on('click', function() {
+        var userimageid = $(this).data('id');
+        var url = "{{ url('/remove-user-images') }}";
+        console.log(url);
+        var isConfirmed = confirm('Are you sure you want to remove this PDF?');
+        if(isConfirmed){
+            $.ajax({
+                type: 'POST',
+                url: url, 
+                data: {
+                    id: userimageid,
+                    _token: '{{ csrf_token() }}' 
+                },
+                success: function(response) {
+                    $("div[data-id='" + userimageid + "']").remove();
+                },
+                error: function(error) {
+                    // Handle error
+                    console.log(error);
+                }
+            });
+        }
+    });
+</script>
 
 <!-- End #main -->
 @include('admin.layout.footer')
