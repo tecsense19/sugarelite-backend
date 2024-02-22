@@ -34,7 +34,10 @@
                 <div class="row mb-3">
                   <label for="inputEmail" class="col-sm-2 col-form-label">User Role</label>
                   <div class="col-sm-10">
-                    <input type="text" class="form-control" name="user_role" value="{{$list_profiles->user_role}}" required>
+                    <!-- <input type="text" class="form-control" name="user_role" value="{{$list_profiles->user_role}}" required> -->
+                      <select id="entries-per-page" class="form-control" name="user_role" required>
+                        <option value="user" <?php echo ($list_profiles->user_role == 'user') ? 'selected' : ''; ?>>User</option>
+                      </select>
                   </div>
                 </div>
                 <div class="row mb-3">

@@ -30,33 +30,12 @@ class SugareliteController extends BaseController
 
             $validator = Validator::make($input, [
                 'username' => 'required',
-                'user_role' => 'required',
-                'avatar_url' => 'required',
-                'public_images' => 'required',
-                'total_private_images' => 'required',
-                'sex' => 'required',
-                'height' => 'required',
-                'premium' => 'required',
-                'age' => 'required',
-                'weight' => 'required',
                 'country' => 'required',
                 'sugar_type' => 'required',
                 'birthdate' => 'required|date|before_or_equal:today',
                 'email' => 'required',
                 'password' => 'required',
                 'region' => 'required',
-                'bio' => 'required',
-                'ethnicity' => 'required',
-                'body_structure' => 'required',
-                'hair_color' => 'required',
-                'piercings' => 'required',
-                'tattoos' => 'required',
-                'education' => 'required',
-                'smoking' => 'required',
-                'drinks' => 'required',
-                'employment' => 'required',
-                'civil_status' => 'required',
-                'user_status' => 'required',
             ]);
         
             if ($validator->fails()) {
