@@ -425,6 +425,11 @@
                 form.submit();
             }
     });
+    $.validator.addMethod("maxToday", function(value, element) {
+        var today = new Date();
+        var inputDate = new Date(value);
+        return inputDate <= today;
+    }, "Please specify a date before today.");
   });
 </script>
 @include('admin.layout.end')
