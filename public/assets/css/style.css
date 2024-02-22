@@ -1301,3 +1301,8 @@ select.minimal:focus {
   background-color: #F16667;
   border-color: #F16667;
 }
+
+.btn:hover{
+  background-color: #F16667;
+  border-color: #F16667;
+}

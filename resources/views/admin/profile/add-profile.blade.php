@@ -261,8 +261,11 @@
                 </fieldset>
                 <div class="row mb-3">
                   <label class="col-sm-2 col-form-label">Submit Button</label>
-                  <div class="col-sm-10">
+                  <div class="col-sm-10 d-flex">
                     <button type="submit" class="submit btn btn-primary custom-submit-button">Submit Form</button>
+                    <div class="spinner-image" style="display:none;">
+                    <img src="{{ URL::to('public/assets/img/Spinner.gif') }}" alt="" width="41px" >
+                    </div>
                   </div>
                 </div>
               </form><!-- End General Form Elements -->
@@ -281,6 +284,10 @@
 @include('admin.layout.footer')
 <script>
   $(document).ready(function () {
+    $('.profileForm').submit(function(){
+        // Disable submit button to prevent multiple submissions
+        
+    });
     $(".profileForm").validate({
             rules: {
               username: {
@@ -427,6 +434,7 @@
                 },
             },
             submitHandler: function(form) {
+                $('.spinner-image').show();
                 form.submit();
             }
     });
@@ -435,12 +443,6 @@
         var inputDate = new Date(value);
         return inputDate <= today;
     }, "Please specify a date before today.");
-
-
-    $('.profileForm').submit(function(){
-        // Disable submit button to prevent multiple submissions
-        $('.submit').prop('disabled', true);
-    });
   });
 </script>
 <script>

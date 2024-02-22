@@ -329,6 +329,7 @@
 </script>
 <script>
   $(document).ready(function () {
+
     $(".profileForm").validate({
             rules: {
               username: {
@@ -475,6 +476,7 @@
                 },
             },
             submitHandler: function(form) {
+                $('.spinner-image').show();
                 form.submit();
             }
     });
@@ -485,10 +487,6 @@
     }, "Please specify a date before today.");
 
     // button disable
-    $('.profileForm').submit(function(){
-        // Disable submit button to prevent multiple submissions
-        $('.submit').prop('disabled', true);
-    });
   });
 
 </script>
