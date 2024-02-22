@@ -26,7 +26,8 @@ class ProfileController extends Controller
         // Check if the email already exists in the database
         $existingUser = User::where('email', $input['email'])->first();
         if ($existingUser) {
-            return response()->json(['error' => 'User already exists with this email.'], 422);
+            // return response()->json(['error' => 'User already exists with this email.'], 422);
+            return redirect()->back()->with('error', 'User already exists with this email.');
         }
 
         
@@ -35,11 +36,11 @@ class ProfileController extends Controller
                 $filename = time() . '_' . $files->getClientOriginalName();
                 $files->move($path, $filename);
                 $img = 'storage/app/public/' . $filename;
+                sleep(1);
+                $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
+                $input['avatar_url'] = $imgUrl;
         }
         
-        sleep(1);
-        $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-        $input['avatar_url'] = $imgUrl;
 
         $input['username'] = isset($_POST['username']) ? $_POST['username'] : '';
         $input['user_role'] = isset($_POST['user_role']) ? $_POST['user_role'] : '';
