@@ -42,19 +42,22 @@
                 <div class="row mb-3">
                   <label for="inputNumber" class="col-sm-2 col-form-label">Avatar</label>
                   <div class="col-sm-10">
-                    <input class="form-control" type="file" id="formFile" name="avatar_url" required>
+                    <input class="form-control" type="file" id="formFile" name="avatar_url" accept="image/png, image/jpeg" required>
+                    <span class="error-message" style="color: red;"></span>
                   </div>
                 </div>
                 <div class="row mb-3">
                   <label for="inputNumber" class="col-sm-2 col-form-label">Public Images</label>
                   <div class="col-sm-10">
-                    <input class="form-control" type="file" id="formFile" name="public_images[]" multiple required>
+                    <input class="form-control" type="file" id="formFile" name="public_images[]" accept="image/png, image/jpeg" multiple required>
+                    <span class="error-message" style="color: red;"></span>
                   </div>
                 </div>
                 <div class="row mb-3">
                   <label for="inputNumber" class="col-sm-2 col-form-label">Private Images</label>
                   <div class="col-sm-10">
-                    <input class="form-control" type="file" id="formFile" name="total_private_images[]" multiple required>
+                    <input class="form-control" type="file" id="formFile" name="total_private_images[]" accept="image/png, image/jpeg" multiple required>
+                    <span class="error-message" style="color: red;"></span>
                   </div>
                 </div>
                 <fieldset class="row mb-3">
@@ -432,6 +435,44 @@
         var inputDate = new Date(value);
         return inputDate <= today;
     }, "Please specify a date before today.");
+
+
+    $('.profileForm').submit(function(){
+        // Disable submit button to prevent multiple submissions
+        $('.submit').prop('disabled', true);
+    });
   });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get all file inputs
+        var fileInputs = document.querySelectorAll('input[type="file"]');
+
+        // Function to validate file extension and display error message
+        function validateFileExtension(fileInput) {
+            var validExtensions = ['jpg', 'jpeg', 'png'];
+            var fileName = fileInput.value;
+            var fileExtension = fileName.split('.').pop().toLowerCase();
+            var errorSpan = fileInput.parentElement.querySelector('.error-message');
+
+            if (validExtensions.indexOf(fileExtension) == -1) {
+                errorSpan.textContent = "Please select a file with a valid extension (jpg, jpeg, png).";
+                fileInput.value = ''; // Clear the input field
+                return false;
+            } else {
+                errorSpan.textContent = ""; // Clear the error message
+            }
+
+            return true;
+        }
+
+        // Attach change event listener to file inputs
+        fileInputs.forEach(function(input) {
+            input.addEventListener('change', function() {
+                validateFileExtension(input);
+            });
+        });
+    });
+</script>
+
 @include('admin.layout.end')

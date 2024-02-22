@@ -44,13 +44,17 @@
                   <label for="inputNumber" class="col-sm-2 col-form-label">Avatar</label>
                   <div class="col-sm-10">
                     <input class="form-control" type="file" id="formFile" name="avatar_url">
+                    <span class="error-message" style="color: red;"></span>
+                    <div>
                     <img src="{{$list_profiles->avatar_url}}" height="30px" width="30px" alt="">
+                    </div>
                   </div>
                 </div>
                 <div class="row mb-3">
                   <label for="inputNumber" class="col-sm-2 col-form-label">Public Image</label>
                   <div class="col-sm-10">
                     <input class="form-control" type="file" id="formFile" name="public_images[]" multiple>
+                    <span class="error-message" style="color: red;"></span>
                       <div class="d-flex gap-2 mt-2">
                         @foreach ($getimage as $imgs) 
                           @if($imgs->image_type == 'public')
@@ -67,6 +71,7 @@
                   <label for="inputNumber" class="col-sm-2 col-form-label">Private Image</label>
                   <div class="col-sm-10">
                     <input class="form-control" type="file" id="formFile" name="total_private_images[]" multiple>
+                    <span class="error-message" style="color: red;"></span>
                     <div class="d-flex gap-2 mt-2">
                       @foreach ($getimage as $imgs) 
                         @if($imgs->image_type == 'private')
@@ -282,7 +287,7 @@
                 <div class="row mb-3">
                   <label class="col-sm-2 col-form-label">Submit Button</label>
                   <div class="col-sm-10">
-                    <button type="submit" class="btn btn-primary custom-submit-button">Update Form</button>
+                    <button type="submit" class="submit btn btn-primary custom-submit-button">Update Form</button>
                   </div>
                 </div>
               </form><!-- End General Form Elements -->
@@ -478,8 +483,46 @@
         var inputDate = new Date(value);
         return inputDate <= today;
     }, "Please specify a date before today.");
+
+    // button disable
+    $('.profileForm').submit(function(){
+        // Disable submit button to prevent multiple submissions
+        $('.submit').prop('disabled', true);
+    });
   });
 
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get all file inputs
+        var fileInputs = document.querySelectorAll('input[type="file"]');
+
+        // Function to validate file extension and display error message
+        function validateFileExtension(fileInput) {
+            var validExtensions = ['jpg', 'jpeg', 'png'];
+            var fileName = fileInput.value;
+            var fileExtension = fileName.split('.').pop().toLowerCase();
+            var errorSpan = fileInput.parentElement.querySelector('.error-message');
+
+            if (validExtensions.indexOf(fileExtension) == -1) {
+                errorSpan.textContent = "Please select a file with a valid extension (jpg, jpeg, png).";
+                fileInput.value = ''; // Clear the input field
+                return false;
+            } else {
+                errorSpan.textContent = ""; // Clear the error message
+            }
+
+            return true;
+        }
+
+        // Attach change event listener to file inputs
+        fileInputs.forEach(function(input) {
+            input.addEventListener('change', function() {
+                validateFileExtension(input);
+            });
+        });
+    });
 </script>
 <!-- End #main -->
 @include('admin.layout.footer')
