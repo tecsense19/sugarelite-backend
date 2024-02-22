@@ -286,7 +286,7 @@
                 <input type="hidden" name="user_id" value="{{ $list_profiles->id }}">
                 <div class="row mb-3">
                   <label class="col-sm-2 col-form-label">Submit Button</label>
-                  <div class="col-sm-10">
+                  <div class="col-sm-10 d-flex">
                     <button type="submit" class="submit btn btn-primary custom-submit-button">Update Form</button>
                     <div class="spinner-image" style="display:none;">
                     <img src="{{ URL::to('public/assets/img/Spinner.gif') }}" alt="" width="41px" >
