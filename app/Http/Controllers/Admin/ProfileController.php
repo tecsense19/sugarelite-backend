@@ -132,8 +132,9 @@ class ProfileController extends Controller
 
     public function profileedit($id)
     {
-        $list_profiles = User::where('id', $id)->first();
-        $getimage = User_images::where('user_id', $id)->get();
+        $decrypted_id = Crypt::decrypt($id);
+        $list_profiles = User::where('id', $decrypted_id)->first();
+        $getimage = User_images::where('user_id', $decrypted_id)->get();
         return view('admin.profile.edit-profile',compact('list_profiles', 'getimage'));
     }
 

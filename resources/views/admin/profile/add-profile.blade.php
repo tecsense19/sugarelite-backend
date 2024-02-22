@@ -22,7 +22,8 @@
               <h5 class="card-title">General Form Elements</h5>
 
               <!-- General Form Elements -->
-              <form method="POST" action="{{ route('profile.add-profile') }}" enctype="multipart/form-data">
+              @include('flash-message')
+              <form method="POST" class="profileForm" action="{{ route('profile.add-profile') }}" enctype="multipart/form-data">
               {!! csrf_field() !!}
                 <div class="row mb-3">
                   <label for="inputText" class="col-sm-2 col-form-label">Name</label>
@@ -31,7 +32,7 @@
                   </div>
                 </div>
                 <div class="row mb-3">
-                  <label for="inputEmail" class="col-sm-2 col-form-label">User Role</label>
+                  <label for="inputText" class="col-sm-2 col-form-label">User Role</label>
                   <div class="col-sm-10">
                     <input type="text" class="form-control" name="user_role" required>
                   </div>
@@ -130,7 +131,6 @@
                     <input type="date" class="form-control" name="birthdate" required>
                   </div>
                 </div>
-                sasasas
                 <div class="row mb-3">
                   <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
                   <div class="col-sm-10">
@@ -257,7 +257,7 @@
                 <div class="row mb-3">
                   <label class="col-sm-2 col-form-label">Submit Button</label>
                   <div class="col-sm-10">
-                    <button type="submit" class="btn btn-primary custom-submit-button">Submit Form</button>
+                    <button type="submit" class="submit btn btn-primary custom-submit-button">Submit Form</button>
                   </div>
                 </div>
               </form><!-- End General Form Elements -->
@@ -274,4 +274,157 @@
 
 <!-- End #main -->
 @include('admin.layout.footer')
+<script>
+  $(document).ready(function () {
+    $(".profileForm").validate({
+            rules: {
+              username: {
+                    required: true,
+                },
+                user_role: {
+                    required: true,
+                },
+                avatar_url : {
+                    required: true,
+                },
+                public_images : {
+                    required: true,
+                },
+                total_private_images : {
+                    required: true,
+                },
+                height : {
+                    required: true,
+                },
+                age : {
+                    required: true,
+                },
+                weight: {
+                    required: true,
+                },
+                country: {
+                    required: true,
+                },
+                sugar_type: {
+                    required: true,
+                },
+                birthdate: {
+                    required: true,
+                    maxToday: true
+                },
+                email: {
+                    required: true,
+                },
+                password: {
+                    required: true,
+                },
+                region: {
+                    required: true,
+                },
+                bio: {
+                    required: true,
+                },
+                ethnicity: {
+                    required: true,
+                },
+                body_structure: {
+                    required: true,
+                },
+                hair_color: {
+                    required: true,
+                },
+                education: {
+                    required: true,
+                },
+                smoking: {
+                    required: true,
+                },
+                drinks: {
+                    required: true,
+                },
+                employment: {
+                    required: true,
+                },
+                civil_status: {
+                    required: true,
+                },
+            },
+            messages: {
+              username: {
+                    required: "Full name is required!",
+                },
+                user_role: {
+                    required: "User Role is required!",
+                },
+                avatar_url : {
+                    required: 'Profile Picture is required!',
+                },
+                public_images : {
+                    required: 'Public Picture is required!',
+                },
+                total_private_images : {
+                    required: 'Private Picture is required!!',
+                },
+                height : {
+                    required: 'Height is required!',
+                },
+                age : {
+                    required: 'Age is required!',
+                },
+                weight : {
+                    required: 'Weight is required!',
+                },
+                sugar_type: {
+                    required: 'Sugar Type is required!',
+                },
+                birthdate: {
+                    required: 'Birthdate is required!',
+                    maxToday: "Birth date should be today or before today!"
+                },
+                email: {
+                    required: 'Email is required!',
+                },
+                password: {
+                    required: 'Password is required!',
+                },
+                country: {
+                    required: 'Country is required!',
+                },
+                region: {
+                    required: 'Region is required!',
+                },
+                bio: {
+                    required: 'Bio is required!',
+                },
+                ethnicity: {
+                    required: 'Ethnicity is required!',
+                },
+                body_structure: {
+                    required: 'Body Structure is required!',
+                },
+                hair_color: {
+                    required: 'Hair Color is required!',
+                },
+                education: {
+                    required: 'Education is required!',
+                },
+                smoking: {
+                    required: 'Smoking is required!',
+                },
+                drinks: {
+                    required: 'Drinks is required!',
+                },
+                employment: {
+                    required: 'Employment is required!',
+                },
+                civil_status: {
+                    required: 'Civil Status is required!',
+                },
+            },
+            submitHandler: function(form) {
+                form.submit();
+            }
+    });
+  });
+</script>
 @include('admin.layout.end')
