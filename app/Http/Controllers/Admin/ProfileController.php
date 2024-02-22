@@ -120,11 +120,11 @@ class ProfileController extends Controller
         $entries_per_page = $input['entries_per_page'];
         if(isset($search) && $search != '')
         {
-            $list_profiles = User::with(['getUsersreport'])->where('username', 'like', '%' . $search . '%')->orWhere('email', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate($entries_per_page);
+            $list_profiles = User::with(['getUsersreport'])->where('user_role', 'user')->where('username', 'like', '%' . $search . '%')->orWhere('email', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate($entries_per_page);
         }
         else
         {
-            $list_profiles = User::with(['getUsersreport'])->paginate($entries_per_page);
+            $list_profiles = User::with(['getUsersreport'])->where('user_role', 'user')->paginate($entries_per_page);
         }
         // echo '<pre>';print_r($list_profiles);echo '</pre>';
         return view('admin.profile.list-profile',compact('list_profiles'));
