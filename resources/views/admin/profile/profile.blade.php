@@ -14,35 +14,42 @@
     </div>
     @include('flash-message')
     <section class="section">
-    {!! csrf_field() !!}
+        {!! csrf_field() !!}
       <div class="row">
         <div class="col-lg-12">
 
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Datatables</h5>
-                <div class="d-flex justify-content-end align-items-center">
-                    <div class="d-flex">
-                        <input name="search" id="search" class="form-control me-2" placeholder="Search Booking"/>
-                        <button name="clear-button" id="clear-button" class="btn btn-danger">Clear</button>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title" style="color:black;!important">ProfileList</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div id="pagination-controls">
+                            <select id="entries-per-page" name="pagination" style="padding:6px !important;">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="15" selected>15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            </select>
+                            <label for="">Entries per page:</label>
+                        </div>
+                        <div class="d-flex">
+                            <input name="search" id="search" class="form-control me-2" placeholder="Search"/>
+                            <button name="clear-button" id="clear-button" class="btn btn-danger clear-button">Clear</button>
+                        </div>
                     </div>
-                    <div>
-                        
+                    <div class="tab-content profileDataList">
+
                     </div>
                 </div>
-              <div class="tab-content profileDataList">
-
-              </div>
-              
             </div>
-          </div>
 
         </div>
       </div>
     </section>
-<main>
-
+</main>
 <!-- End #main -->
+
 @include('admin.layout.footer')
 
 
@@ -78,51 +85,18 @@
     function profileList()
     {
         var search = $('#search').val();
+        var entries_per_page = $('#entries-per-page').val();
         $.ajax({
             type:'post',
             headers: {'X-CSRF-TOKEN': jQuery('input[name=_token]').val()},
             url:'{{ route("profile.list-profile") }}',
-            data: { search: search },
+            data: { search: search, entries_per_page: entries_per_page },
             success:function(data)
             {
                 $('.profileDataList').html(data);
             }
         });
     }
-
-    $(document).ready(function () {
-        $('.delete-profile').click(function (e) {
-            e.preventDefault(); // Prevent the default action of the link
-            var profileId = $(this).data('id');
-            
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'You won\'t be able to revert this!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: 'profile/delete/' + profileId,
-                        type: 'get',
-                        data: {
-                            "_token": "{{ csrf_token() }}"
-                        },
-                        success: function (data) {
-                            Swal.fire('Deleted!', 'Your profile has been deleted.', 'success');
-                            profileList
-                        },
-                        error: function (data) {
-                            Swal.fire('Error!', 'An error occurred while deleting the profile.', 'error');
-                        }
-                    });
-                }
-            });
-        });
-    });
 
     function deleteprofile(profile_id)
     {
@@ -174,5 +148,11 @@
         $('#search').val('');
         profileList();
     });
+
+    $('body').on('change', '#entries-per-page', function (e) 
+    {
+        profileList();
+    });
 </script>
+
 @include('admin.layout.end')

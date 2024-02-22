@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\UserreportController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\Api\V1\NewslettersController;
 
 
 /*
@@ -41,6 +43,10 @@ Route::group(['middleware' => ['admin']], function () {
     // remove user image
     Route::post('/remove-user-images', [ProfileController::class, 'removeuserimage']);
 
+    // user report
+    Route::get('/userreport', [UserreportController::class, 'index'])->name('userreport.user-report');
+    Route::post('/list-userreport', [UserreportController::class, 'userreportList'])->name('userreport.list-userreport');
+
 
 });
 
@@ -48,5 +54,6 @@ Route::get('/chat/send', [ChatController::class, 'sendMessage']);
 Route::get('/chat/webhook/message', [ChatController::class, 'webhook']);
 Route::get('/chat/list', [ChatController::class, 'messageList']);
 
+Route::get('/unsubscribe', [NewslettersController::class, 'unsubscribe']);
 
 // Route::get('/dashboard', [HomeController::class, 'index'])->name('admin.dashboard');

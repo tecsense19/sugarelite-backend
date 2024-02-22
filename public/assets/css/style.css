@@ -1229,7 +1229,7 @@ h6 {
 
 .footer .copyright {
   text-align: center;
-  color: #fff;
+  color: #2D2D2D;
 }
 
 .footer .credits {
@@ -1284,6 +1284,20 @@ select.minimal:focus {
 }
 
 .custom-submit-button{
+  background-color: #F16667;
+  border-color: #F16667;
+}
+.active>.page-link{
+  background-color: #F16667 !important;
+  border-color: #F16667 !important;
+  color: #fff !important;
+}
+
+.page-link{
+  color: #F16667 !important;
+}
+
+.clear-button{
   background-color: #F16667;
   border-color: #F16667;
 }

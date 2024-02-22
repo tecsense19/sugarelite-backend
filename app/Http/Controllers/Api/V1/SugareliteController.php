@@ -29,8 +29,32 @@ class SugareliteController extends BaseController
             // Check if the email already exists in the database
 
             $validator = Validator::make($input, [
+                'username' => 'required',
+                'user_role' => 'required',
+                'avatar_url' => 'required',
+                'sex' => 'required',
+                'height' => 'required',
+                'premium' => 'required',
+                'age' => 'required',
+                'weight' => 'required',
+                'country' => 'required',
+                'sugar_type' => 'required',
+                'birthdate' => 'required',
                 'email' => 'required',
                 'password' => 'required',
+                'region' => 'required',
+                'bio' => 'required',
+                'ethnicity' => 'required',
+                'body_structure' => 'required',
+                'hair_color' => 'required',
+                'piercings' => 'required',
+                'tattoos' => 'required',
+                'education' => 'required',
+                'smoking' => 'required',
+                'drinks' => 'required',
+                'employment' => 'required',
+                'civil_status' => 'required',
+                'user_status' => 'required',
             ]);
         
             if ($validator->fails()) {
@@ -115,13 +139,17 @@ class SugareliteController extends BaseController
 
             if($getUser)
             {
-                if(Hash::check($input['password'], $getUser->password))
-                {
-                    return $this->sendResponse($getUser, 'Login Successfully.');
-                }
-                else
-                {
-                    return $this->sendError('Invalid password! please try again.');
+                if($getUser->user_status == 'active'){
+                    if(Hash::check($input['password'], $getUser->password))
+                    {
+                        return $this->sendResponse($getUser, 'Login Successfully.');
+                    }
+                    else
+                    {
+                        return $this->sendError('Invalid password! please try again.');
+                    }
+                }else{
+                    return $this->sendError('User account deactivated');
                 }
             }
             else

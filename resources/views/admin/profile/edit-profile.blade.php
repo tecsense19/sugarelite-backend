@@ -257,6 +257,23 @@
                     <input type="text" class="form-control" name="civil_status" value="{{$list_profiles->civil_status}}" required>
                   </div>
                 </div>
+                <fieldset class="row mb-3">
+                  <legend class="col-form-label col-sm-2 pt-0">User Status</legend>
+                  <div class="col-sm-10">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="user_status" id="user_status" value="active" {{$list_profiles->user_status == 'active' ? 'checked' : ''}}>
+                      <label class="form-check-label" for="user_status">
+                      Active
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="user_status" id="user_status" value="deactive" {{$list_profiles->user_status == 'deactive' ? 'checked' : ''}}>
+                      <label class="form-check-label" for="user_status">
+                      Deactive
+                      </label>
+                    </div>
+                  </div>
+                </fieldset>
                 <input type="hidden" name="user_id" value="{{ $list_profiles->id }}">
                 <div class="row mb-3">
                   <label class="col-sm-2 col-form-label">Submit Button</label>

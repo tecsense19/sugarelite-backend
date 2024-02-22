@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Models\User_images;
+use App\Models\User_Report;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -64,6 +65,7 @@ class ProfileController extends Controller
         $input['drinks'] = isset($_POST['drinks']) ? $_POST['drinks'] : '';
         $input['employment'] = isset($_POST['employment']) ? $_POST['employment'] : '';
         $input['civil_status'] = isset($_POST['civil_status']) ? $_POST['civil_status'] : '';
+        $input['user_status'] = isset($_POST['user_status']) ? $_POST['user_status'] : '';
         // Create the user
         $lastUserId = User::create($input);
 
@@ -115,14 +117,16 @@ class ProfileController extends Controller
         $input = $request->all();
         $list_profiles = [];
         $search = $input['search'];
+        $entries_per_page = $input['entries_per_page'];
         if(isset($search) && $search != '')
         {
-            $list_profiles = User::where('username', 'like', '%' . $search . '%')->orWhere('email', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate(2);
+            $list_profiles = User::with(['getUsersreport'])->where('username', 'like', '%' . $search . '%')->orWhere('email', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate($entries_per_page);
         }
         else
         {
-            $list_profiles = User::paginate(2);
+            $list_profiles = User::with(['getUsersreport'])->paginate($entries_per_page);
         }
+        // echo '<pre>';print_r($list_profiles);echo '</pre>';
         return view('admin.profile.list-profile',compact('list_profiles'));
     }
 
@@ -172,6 +176,7 @@ class ProfileController extends Controller
         $input['drinks'] = isset($_POST['drinks']) ? $_POST['drinks'] : '';
         $input['employment'] = isset($_POST['employment']) ? $_POST['employment'] : '';
         $input['civil_status'] = isset($_POST['civil_status']) ? $_POST['civil_status'] : '';
+        $input['user_status'] = isset($_POST['user_status']) ? $_POST['user_status'] : '';
         
         // update the user
         $user = User::where('id', $user_id)->update($input);
@@ -209,7 +214,7 @@ class ProfileController extends Controller
             }
         }
     
-        return redirect('list-profile');
+        return redirect('profiles');
     }
 
     public function profiledelete(Request $request){

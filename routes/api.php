@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\SugareliteController;
+use App\Http\Controllers\Api\V1\NewslettersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,5 +25,7 @@ Route::group(['prefix' => 'V1'], function () {
     Route::post('/login', [SugareliteController::class, 'login']);
     Route::post('/chat/send', [SugareliteController::class, 'sendMessage']);
     Route::get('/chat/list', [SugareliteController::class, 'messageList']);
+
+    Route::post('/newsletter', [NewslettersController::class, 'newsletter']);
 });
 

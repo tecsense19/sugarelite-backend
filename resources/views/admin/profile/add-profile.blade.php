@@ -236,6 +236,23 @@
                     <input type="text" class="form-control" name="civil_status" required>
                   </div>
                 </div>
+                <fieldset class="row mb-3">
+                  <legend class="col-form-label col-sm-2 pt-0">User Status</legend>
+                  <div class="col-sm-10">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="user_status" id="user_status" value="active" checked>
+                      <label class="form-check-label" for="user_status">
+                      Active
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="user_status" id="user_status" value="deactive">
+                      <label class="form-check-label" for="user_status">
+                      Deactive
+                      </label>
+                    </div>
+                  </div>
+                </fieldset>
                 <div class="row mb-3">
                   <label class="col-sm-2 col-form-label">Submit Button</label>
                   <div class="col-sm-10">
