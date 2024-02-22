@@ -288,6 +288,9 @@
                   <label class="col-sm-2 col-form-label">Submit Button</label>
                   <div class="col-sm-10">
                     <button type="submit" class="submit btn btn-primary custom-submit-button">Update Form</button>
+                    <div class="spinner-image" style="display:none;">
+                    <img src="{{ URL::to('public/assets/img/Spinner.gif') }}" alt="" width="41px" >
+                    </div>
                   </div>
                 </div>
               </form><!-- End General Form Elements -->
