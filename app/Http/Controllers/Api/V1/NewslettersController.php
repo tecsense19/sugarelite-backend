@@ -43,7 +43,7 @@ class NewslettersController extends BaseController
 
 
 
-            return response()->json(['message' => 'Email send successfully.'], 200);
+            return response()->json(['success' => true, 'message' => 'Email send successfully.'], 200);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

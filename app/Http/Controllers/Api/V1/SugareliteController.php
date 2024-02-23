@@ -181,12 +181,12 @@ class SugareliteController extends BaseController
         
         curl_close($ch);
         Messages::create($stringArr);
-        return response()->json(['status' => 'true' , 'message_from' => $user_id, 'message_to' => $sender_id, 'message' => $message , 'milisecondtime' => $currentTimeMillis]);
+        return response()->json(['success' => true , 'message_from' => $user_id, 'message_to' => $sender_id, 'message' => $message , 'milisecondtime' => $currentTimeMillis]);
     }
 
     public function messageList(Request $request)
     {
         $messageList = Messages::get();
-        return response()->json(['status' => 'true', 'data' => $messageList]);
+        return response()->json(['success' => true, 'data' => $messageList]);
     }
 }
