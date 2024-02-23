@@ -47,6 +47,11 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('/userreport', [UserreportController::class, 'index'])->name('userreport.user-report');
     Route::post('/list-userreport', [UserreportController::class, 'userreportList'])->name('userreport.list-userreport');
 
+    // admin profile
+    Route::get('/admin-profile', [HomeController::class, 'profile'])->name('admin.profile');
+    Route::post('/admin-profile/update', [HomeController::class, 'profileUpdate'])->name('admin.profile.update');
+    Route::post('/update/password', [HomeController::class, 'updatePassword'])->name('admin.update.password');
+
 
 });
 

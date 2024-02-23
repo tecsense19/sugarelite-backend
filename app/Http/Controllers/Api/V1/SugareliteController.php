@@ -53,10 +53,10 @@ class SugareliteController extends BaseController
                     $filename = time() . '_' . $files->getClientOriginalName();
                     $files->move($path, $filename);
                     $img = 'storage/app/public/' . $filename;
+                    $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
+                    $input['avatar_url'] = $imgUrl;
             }
 
-            $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-            $input['avatar_url'] = $imgUrl;
             $input['user_role'] = "user";
             // Create the user
             $user = User::create($input);
@@ -94,7 +94,7 @@ class SugareliteController extends BaseController
                 }
             }
         
-            return response()->json(['message' => 'User registered successfully.', 'user' => $user], 200);
+            return response()->json(['success'=> true, 'message' => 'User registered successfully.', 'user' => $user], 200);
             
             } catch (\Exception $e) {
                 return $this->sendError($e->getMessage());

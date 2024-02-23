@@ -86,11 +86,15 @@
     function getPerPageUserreportList(get_pagination_url) 
     {
         var search = $('#search').val();
+        var fromDate = $('#from_date').val();
+        var toDate = $('#to_date').val();
+        var user_status = $('#user_status').val();
+        var entries_per_page = $('#entries-per-page').val();
         $.ajax({
             type:'post',
             headers: {'X-CSRF-TOKEN': jQuery('input[name=_token]').val()},
             url:get_pagination_url,
-            data: { search: search },
+            data: { search: search, from_date: fromDate, to_date: toDate, user_status: user_status, entries_per_page: entries_per_page },
             success:function(data)
             {
                 $('.userReportList').html(data);

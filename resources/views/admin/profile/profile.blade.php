@@ -70,11 +70,12 @@
     function getPerPageProfileList(get_pagination_url) 
     {
         var search = $('#search').val();
+        var entries_per_page = $('#entries-per-page').val();
         $.ajax({
             type:'post',
             headers: {'X-CSRF-TOKEN': jQuery('input[name=_token]').val()},
             url:get_pagination_url,
-            data: { search: search },
+            data: { search: search, entries_per_page: entries_per_page },
             success:function(data)
             {
                 $('.profileDataList').html(data);

@@ -92,7 +92,7 @@
     <a class="nav-link collapsed " data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
       <i class="bi bi-journal-text"></i><span>Profile</span><i class="bi bi-chevron-down ms-auto"></i>
     </a>
-    <ul id="forms-nav" class="nav-content collapse {{ request()->is('profiles') || request()->is('profile') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
+    <ul id="forms-nav" class="nav-content collapse {{ request()->is('profile/edit*') || request()->is('profiles') || request()->is('profile') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
       <li>
         <a href="{{ route('profile.profile') }}" class="{{ request()->is('profile') ? 'active' : ''}}">
           <i class="bi bi-circle"></i><span>Add Profile</span>
@@ -100,7 +100,7 @@
       </li>
      
       <li>
-        <a href="{{ route('profile.profiles') }}" class="{{ request()->is('profiles') ? 'active' : '' }}">
+        <a href="{{ route('profile.profiles') }}" class="{{ request()->is('profile/edit*') || request()->is('profiles') ? 'active' : '' }}">
           <i class="bi bi-circle"></i><span>Profile list</span>
         </a>
       </li>
