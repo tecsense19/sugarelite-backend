@@ -45,7 +45,7 @@ class SugareliteController extends BaseController
             
             $existingUser = User::where('email', $input['email'])->first();
             if ($existingUser) {
-                return response()->json(['error' => 'User already exists with this email.'], 422);
+                return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
             }
 
             if ($files = $request->file('avatar_url')) {
@@ -96,6 +96,30 @@ class SugareliteController extends BaseController
         
             return response()->json(['success'=> true, 'message' => 'User registered successfully.', 'user' => $user], 200);
             
+            } catch (\Exception $e) {
+                return $this->sendError($e->getMessage());
+            }
+    }
+
+    public function checkUser(Request $request)
+    {
+        try {
+
+            $input = $request->all();
+            // Check if the email already exists in the database
+            $validator = Validator::make($input, [
+                'email' => 'required',
+            ]);
+        
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+            $existingUser = User::where('email', $input['email'])->first();
+            if ($existingUser) {
+                return response()->json(['success'=> false,'message' => 'User already exists with this email.'], 422);
+            }else{
+                return response()->json(['success'=> true, 'message' => 'User not exists with this email.'], 200);
+            }
             } catch (\Exception $e) {
                 return $this->sendError($e->getMessage());
             }

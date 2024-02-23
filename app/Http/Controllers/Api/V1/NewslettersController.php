@@ -29,7 +29,7 @@ class NewslettersController extends BaseController
 
             $existingUser = Newsletter::where('email', $_POST['email'])->first();
             if ($existingUser) {
-                return response()->json(['error' => 'User already exists with this email.'], 422);
+                return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
             }
 
             $input['email'] = isset($_POST['email']) ? $_POST['email'] : '';
