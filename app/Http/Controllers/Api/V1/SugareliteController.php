@@ -58,6 +58,7 @@ class SugareliteController extends BaseController
             }
 
             $input['user_role'] = "user";
+            $input['user_status'] = "active";
             // Create the user
             $user = User::create($input);
 
