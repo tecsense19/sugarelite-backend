@@ -28,5 +28,7 @@ Route::group(['prefix' => 'V1'], function () {
     Route::get('/chat/list', [SugareliteController::class, 'messageList']);
     
     Route::post('/newsletter', [NewslettersController::class, 'newsletter']);
+
+    Route::post('/forgot/password', [SugareliteController::class, 'forgotPassword']);
 });
 

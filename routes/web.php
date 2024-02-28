@@ -52,8 +52,15 @@ Route::group(['middleware' => ['admin']], function () {
     Route::post('/admin-profile/update', [HomeController::class, 'profileUpdate'])->name('admin.profile.update');
     Route::post('/update/password', [HomeController::class, 'updatePassword'])->name('admin.update.password');
 
+   
+    
+
 
 });
+
+ //forgot password
+ Route::get('forgot/password/view/{id}', [HomeController::class, 'view_SubmitforgotPassword']);
+ Route::post('forgot/password', [HomeController::class, 'Submit_forgotPassword'])->name('admin.forgot.password');
 
 Route::get('/chat/send', [ChatController::class, 'sendMessage']);
 Route::get('/chat/webhook/message', [ChatController::class, 'webhook']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller as Controller;
 
@@ -101,6 +102,46 @@ class HomeController extends Controller
 
         } catch (\Exception $e) {
             return redirect()->back()->withError($e->getMessage());
+        }
+    }
+
+    public function view_SubmitforgotPassword($id,)
+    {
+        try {
+            $decrypted_id = Crypt::decryptString($id);
+            return view('mail.view_forgot_pass',compact('decrypted_id'));
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function Submit_forgotPassword(Request $request)
+    {
+    try {
+            $input = $request->all();
+            $getUserDetails = User::where('id', $input['id'])->first();
+                if($getUserDetails->forgot_pass == 0)
+                {
+                    if($input['newpass'] == $input['confirmpass'])
+                    {
+                        $dataArr = [];
+                        $dataArr['forgot_pass_date'] = date('Y-m-d H:i:s');
+                        $dataArr['password'] = Hash::make($input['newpass']);
+                        $dataArr['forgot_pass'] = 1;
+                        User::where('id', $input['id'])->update($dataArr);
+                        return redirect('/')->withSuccess('Password updated successfully.');
+                    }
+                    else
+                    {
+                        return redirect()->back()->withError('Confirm password are not match.');
+                    }
+                }
+                else
+                {
+                    return redirect()->back()->withError('Your link has been expired');
+                }
+            } catch (\Exception $e) {
+                return $this->sendError($e->getMessage());
         }
     }
 

@@ -121,9 +121,9 @@ class SugareliteController extends BaseController
             }else{
                 return response()->json(['success'=> true, 'message' => 'User not exists with this email.'], 200);
             }
-            } catch (\Exception $e) {
-                return $this->sendError($e->getMessage());
-            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
     }
 
     public function login(Request $request)
@@ -213,5 +213,52 @@ class SugareliteController extends BaseController
     {
         $messageList = Messages::get();
         return response()->json(['success' => true, 'data' => $messageList]);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        try {
+            $input = $request->all();
+
+            $validator = Validator::make($input, [
+                'email' => 'required'
+            ]);
+        
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+
+            $checkEmail = User::where('email', $input['email'])->where('user_role', 'user')->first();
+
+            if($checkEmail)
+            {
+                $redToken = Str::random(8);
+
+                $dataArr = [];
+                $dataArr['forgot_pass_date'] = date('Y-m-d H:i:s');
+                $dataArr['forgot_pass'] = 0;
+
+                User::where('email', $input['email'])->update($dataArr);
+
+                $respoArr['full_name'] = $checkEmail->username;
+                $respoArr['pass_link'] = url('/').'/'.'forgot/password/view/'.Crypt::encryptString($checkEmail->id);
+                $respoArr['logo_link'] = url('/').'/'.'public/assets/img/site-logo.png';
+
+                Mail::send('mail/forgot_pass_mail', ['user' => $respoArr], function ($m) use ($respoArr, $input) {
+                    $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+
+                    $m->to( $input['email'] )->subject('Forgot Password');
+                });
+
+                return $this->sendResponse($input['email'], 'A password reset link has been sent to your email address. Please check your email for further instructions.');
+            }
+            else
+            {
+                return $this->sendError('Invalid user.');
+            }
+
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
     }
 }
