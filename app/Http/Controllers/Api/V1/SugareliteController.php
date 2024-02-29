@@ -173,6 +173,9 @@ class SugareliteController extends BaseController
         $user_id = $request->input('message_from');
         $sender_id = $request->input('message_to');
         $message = $request->input('message');
+        $type = $request->input('type');
+        $id = $request->input('id') ?? '';
+
         $currentTimeMillis = round(microtime(true) * 1000);
 
         $stringArr = [];
@@ -181,6 +184,7 @@ class SugareliteController extends BaseController
         $stringArr['message_from'] = $user_id;
         $stringArr['message_to'] = $sender_id;
         $stringArr['text'] = $message;
+        $stringArr['type'] = $type;
         $stringArr['milisecondtime'] = $currentTimeMillis;
 
         $data = [
@@ -189,24 +193,39 @@ class SugareliteController extends BaseController
             'message_from' => $user_id,
             'message_to' => $sender_id,
             'message' => $message,
+            'type' => $type,
             'milisecondtime' => $currentTimeMillis,
         ];
-        
-        $endpoint = env('APP_URL').'/chat/webhook/message?' . http_build_query($data);
-        
-        $ch = curl_init($endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPGET, true);
-        
-        $response = curl_exec($ch);
-        
-        if ($response === false) {
-            echo 'Error: ' . curl_error($ch);
+        if($type == "regular"){
+            $message = Messages::create($stringArr);
+            $lastInsertedId = $message->id;
+            return response()->json(['success' => true ,'message' => $message]);
         }
-        
-        curl_close($ch);
-        Messages::create($stringArr);
-        return response()->json(['success' => true , 'message_from' => $user_id, 'message_to' => $sender_id, 'message' => $message , 'milisecondtime' => $currentTimeMillis]);
+        else if($type == "edited")
+        {
+            $getMessage = Messages::where('id', $id)->first();
+
+                if ($getMessage) {
+                    $newText = $request->input('message'); // Replace this with the updated text
+                    $getMessage->update(['text' => $newText, 'type' => $type]);
+                    return response()->json(['success' => true , 'message' => $getMessage]);
+                } else {
+                    return response()->json(['success' => false , 'message' => 'message not found! Please enter message id']);
+                }                
+              
+        }
+        else if($type == "deleted" && $id != null)
+        {
+            $getMessage = Messages::where('id', $id)->first();
+            if ($getMessage) {
+                $getMessage->update(['deleted_at' => 1]);
+                return response()->json(['success' => true, 'message' => 'Message deleted successfully']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Message already deleted']);
+            }      
+        }else{
+            return response()->json(['success' => false, 'message' => 'please added message type with message id']);
+        }       
     }
 
     public function messageList(Request $request)
