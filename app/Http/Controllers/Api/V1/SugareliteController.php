@@ -234,6 +234,12 @@ class SugareliteController extends BaseController
         return response()->json(['success' => true, 'data' => $messageList]);
     }
 
+    public function profileList(Request $request)
+    {
+        $profileList = User::with('getAllProfileimg')->get();
+        return response()->json(['success' => true, 'data' => $profileList]);
+    }
+
     public function forgotPassword(Request $request)
     {
         try {

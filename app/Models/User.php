@@ -45,4 +45,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(User_Report::class, 'user_id', 'id');
     }
+
+    public function getAllProfileimg()
+    {
+        return $this->hasMany(User_images::class, 'user_id', 'id');
+    }
 }
