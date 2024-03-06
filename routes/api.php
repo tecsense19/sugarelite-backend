@@ -29,6 +29,14 @@ Route::group(['prefix' => 'V1'], function () {
 
     ///profileList
     Route::get('/profile/list', [SugareliteController::class, 'profileList']);
+
+    //friendLlist
+    Route::post('/friends', [SugareliteController::class, 'friend_list']);
+    Route::post('/profile/friends', [SugareliteController::class, 'friend_profile_list']);
+    
+    Route::post('/privateimages/access', [SugareliteController::class, 'private_album']);
+    
+    
     
     Route::post('/newsletter', [NewslettersController::class, 'newsletter']);
 

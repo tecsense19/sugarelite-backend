@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Models\User;
 use App\Models\User_images;
-
+use App\Models\Messages;
+use App\Models\Friend_list;
+use App\Models\Privatealbumaccess;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
-use App\Models\Messages;
 use Intervention\Image\Facades\Image;
 use DateTime;
 
@@ -174,54 +175,60 @@ class SugareliteController extends BaseController
 
     public function sendMessage(Request $request)
     {
-        $user_id = $request->input('message_from');
-        $sender_id = $request->input('message_to');
+        $sender_id = $request->input('message_from');
+        $receiver_id = $request->input('message_to');
         $message = $request->input('message');
         $type = $request->input('type');
         $id = $request->input('id') ?? '';
-
         $currentTimeMillis = round(microtime(true) * 1000);
 
-        $stringArr = [];
-        $stringArr['user_id'] = $user_id;
-        $stringArr['sender_id'] = $user_id;
-        $stringArr['recevier_id'] = $sender_id;
-        $stringArr['message_from'] = $user_id;
-        $stringArr['message_to'] = $sender_id;
-        $stringArr['text'] = $message;
-        $stringArr['type'] = $type;
-        $stringArr['milisecondtime'] = $currentTimeMillis;
-        
-        if($type == "regular"){
-            $message = Messages::create($stringArr);
-            $lastInsertedId = $message->id;
-            return response()->json(['success' => true ,'message' => $message]);
-        }
-        else if($type == "edited")
+        $senderCheck = User::where('id', $sender_id)->first();
+        $recevierCheck = User::where('id', $sender_id)->first();
+        if($senderCheck && $recevierCheck)
         {
-            $getMessage = Messages::where('id', $id)->first();
-
+            $stringArr = [];
+            $stringArr['sender_id'] = $sender_id;
+            $stringArr['receiver_id'] = $receiver_id;
+            $stringArr['text'] = $message;
+            $stringArr['type'] = $type;
+            $stringArr['milisecondtime'] = $currentTimeMillis;
+    
+            
+            
+            if($type == "regular"){
+                $message = Messages::create($stringArr);
+                $lastInsertedId = $message->id;
+                return response()->json(['success' => true ,'message' => $message]);
+            }
+            else if($type == "edited")
+            {
+                $getMessage = Messages::where('id', $id)->first();
+    
+                    if ($getMessage) {
+                        $newText = $request->input('message'); // Replace this with the updated text
+                        $getMessage->update(['text' => $newText, 'type' => $type]);
+                        return response()->json(['success' => true , 'message' => $getMessage]);
+                    } else {
+                        return response()->json(['success' => false , 'message' => 'message not found! Please enter message id']);
+                    }                
+                  
+            }
+            else if($type == "deleted" && $id != null)
+            {
+                $getMessage = Messages::where('id', $id)->first();
                 if ($getMessage) {
-                    $newText = $request->input('message'); // Replace this with the updated text
-                    $getMessage->update(['text' => $newText, 'type' => $type]);
-                    return response()->json(['success' => true , 'message' => $getMessage]);
+                    $getMessage->update(['deleted_at' => 1]);
+                    return response()->json(['success' => true, 'message' => 'Message deleted successfully']);
                 } else {
-                    return response()->json(['success' => false , 'message' => 'message not found! Please enter message id']);
-                }                
-              
-        }
-        else if($type == "deleted" && $id != null)
-        {
-            $getMessage = Messages::where('id', $id)->first();
-            if ($getMessage) {
-                $getMessage->update(['deleted_at' => 1]);
-                return response()->json(['success' => true, 'message' => 'Message deleted successfully']);
-            } else {
-                return response()->json(['success' => false, 'message' => 'Message already deleted']);
-            }      
+                    return response()->json(['success' => false, 'message' => 'Message already deleted']);
+                }      
+            }else{
+                return response()->json(['success' => false, 'message' => 'please added message type with message id']);
+            }       
         }else{
-            return response()->json(['success' => false, 'message' => 'please added message type with message id']);
-        }       
+            return response()->json(['success' => false, 'message' => 'User not exit']);
+        }
+       
     }
 
     public function messageList(Request $request)
@@ -237,11 +244,17 @@ class SugareliteController extends BaseController
         if(isset($input['id']))
         {
             $profileList = User::where('id', $input['id'])->with('getAllProfileimg')->first();
-            $birthdate = new DateTime($profileList['birthdate']);
-            $currentDate = new DateTime();
-            $age = $currentDate->diff($birthdate)->y;
-            $profileList['age'] = $age;
-            return response()->json(['success' => true, 'data' => $profileList]);
+            if($profileList)
+            {
+                $birthdate = new DateTime($profileList['birthdate']);
+                $currentDate = new DateTime();
+                $age = $currentDate->diff($birthdate)->y;
+                $profileList['age'] = $age;
+                return response()->json(['success' => true, 'data' => $profileList]);
+            }else{
+                return response()->json(['success' => false, 'data' => 'User not exits']);
+            }
+           
         }else{
             $profileList = User::with('getAllProfileimg')->get();
 
@@ -306,6 +319,99 @@ class SugareliteController extends BaseController
 
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function friend_list(Request $request)
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'sender_id' => 'integer|required',
+            'receiver_id' => 'integer|required',
+        ]);
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first());
+        }
+        $getfriend = Friend_list::where('sender_id', $input['sender_id'])->where('receiver_id',$input['receiver_id'])->first();
+        $friends = Friend_list::where('receiver_id',$input['sender_id'])->where('sender_id',$input['receiver_id'])->first();
+        if(isset($getfriend)){
+            if($getfriend->is_friend == 1)
+            {
+                return response()->json(['success' => true, 'message' => 'Both are Friends']);
+            }else{
+                return response()->json(['success' => true, 'message' => 'Friend requrest already sent successfully']);
+            }
+        }
+        else if(isset($friends))
+        {
+            $friends->update(['is_friend' => 1]);
+            return response()->json(['success' => true, 'message' => 'Both are Friends']);
+        }
+        else{
+            Friend_list::create($input);
+            return response()->json(['success' => true, 'message' => 'Friend requrest sent successfully']);
+        }
+    }
+
+    public function friend_profile_list(Request $request)
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'id' => 'integer|required',
+        ]);
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first());
+        }
+      // Retrieve all friendships for the user
+        $friendships = Friend_list::forUser($input['id'])->get();
+
+        // Initialize an empty array to store friend IDs
+        $friendIds = [];
+
+        // Extract friend IDs from the friendships
+        foreach ($friendships as $friendship) {
+ 
+            // Add the sender ID if the user is the receiver, and vice versa
+            if ($friendship->sender_id == $input['id']) {
+                $friendIds[] = $friendship->receiver_id;
+            } else {
+                $friendIds[] = $friendship->sender_id;
+            }
+        }
+
+        $friendList = User::whereIn('id', $friendIds)->with('getAllProfileimg')->get();
+        return $this->sendResponse($friendList, 'success');
+   
+    }
+
+    public function private_album(Request $request)
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'sender_id' => 'integer|required',
+            'receiver_id' => 'integer|required',
+        ]);
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first());
+        }
+        $getfriend = Privatealbumaccess::where('sender_id', $input['sender_id'])->where('receiver_id',$input['receiver_id'])->first();
+        $friends = Privatealbumaccess::where('receiver_id',$input['sender_id'])->where('sender_id',$input['receiver_id'])->first();
+        if(isset($getfriend)){
+            if($getfriend->status == 'approved')
+            {
+                return response()->json(['success' => true, 'message' => 'Private album access granted']);
+            }else{
+                return response()->json(['success' => true, 'message' => 'Private album access request already sent successfully']);
+            }
+        }
+        else if(isset($friends))
+        {
+            $friends->update(['status' => 'approved']);
+            return response()->json(['success' => true, 'message' => 'private album access granted']);
+        }
+        else{
+            Privatealbumaccess::create($input);
+            return response()->json(['success' => true, 'message' => 'Private album access request sent successfully']);
         }
     }
 }

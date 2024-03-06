@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -50,4 +52,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(User_images::class, 'user_id', 'id');
     }
+
+  // Define sender relationship
+    public function sentFriendRequests() {
+        return $this->hasMany(Friend_list::class, 'sender_id', 'id');
+    }
+
+    // Define receiver relationship
+    public function receivedFriendRequests() {
+        return $this->hasMany(Friend_list::class, 'receiver_id', 'id');
+    }
+
+   
+
 }
