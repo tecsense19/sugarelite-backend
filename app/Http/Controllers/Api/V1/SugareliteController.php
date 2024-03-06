@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Messages;
 use Intervention\Image\Facades\Image;
+use DateTime;
 
 use App\Http\Controllers\Api\BaseController as BaseController;
 
@@ -26,8 +27,11 @@ class SugareliteController extends BaseController
         try {
 
             $input = $request->all();
-            // Check if the email already exists in the database
-
+            // Assuming $input['birthdate'] contains the birthdate in the format 'YYYY/MM/DD'
+            $birthdate = new DateTime($input['birthdate']);
+            $currentDate = new DateTime();
+            $age = $currentDate->diff($birthdate)->y;
+            
             $validator = Validator::make($input, [
                 'username' => 'required',
                 'country' => 'required',
@@ -56,7 +60,7 @@ class SugareliteController extends BaseController
                     $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
                     $input['avatar_url'] = $imgUrl;
             }
-
+            $input['age'] = $age;
             $input['user_role'] = "user";
             $input['user_status'] = "active";
             // Create the user
@@ -180,22 +184,14 @@ class SugareliteController extends BaseController
 
         $stringArr = [];
         $stringArr['user_id'] = $user_id;
-        $stringArr['sender_id'] = $sender_id;
+        $stringArr['sender_id'] = $user_id;
+        $stringArr['recevier_id'] = $sender_id;
         $stringArr['message_from'] = $user_id;
         $stringArr['message_to'] = $sender_id;
         $stringArr['text'] = $message;
         $stringArr['type'] = $type;
         $stringArr['milisecondtime'] = $currentTimeMillis;
-
-        $data = [
-            'user_id' => $user_id,
-            'sender_id' => $sender_id,
-            'message_from' => $user_id,
-            'message_to' => $sender_id,
-            'message' => $message,
-            'type' => $type,
-            'milisecondtime' => $currentTimeMillis,
-        ];
+        
         if($type == "regular"){
             $message = Messages::create($stringArr);
             $lastInsertedId = $message->id;
@@ -236,8 +232,34 @@ class SugareliteController extends BaseController
 
     public function profileList(Request $request)
     {
-        $profileList = User::with('getAllProfileimg')->get();
-        return response()->json(['success' => true, 'data' => $profileList]);
+        $input = $request->all();
+
+        if(isset($input['id']))
+        {
+            $profileList = User::where('id', $input['id'])->with('getAllProfileimg')->first();
+            $birthdate = new DateTime($profileList['birthdate']);
+            $currentDate = new DateTime();
+            $age = $currentDate->diff($birthdate)->y;
+            $profileList['age'] = $age;
+            return response()->json(['success' => true, 'data' => $profileList]);
+        }else{
+            $profileList = User::with('getAllProfileimg')->get();
+
+            // Iterate through each user to calculate age
+            $profileList->transform(function ($user) {
+                // Assuming 'birthdate' is a property of the User model
+                $birthdate = new DateTime($user->birthdate);
+                $currentDate = new DateTime();
+                $age = $currentDate->diff($birthdate)->y;
+                
+                // Add age to the user object
+                $user->age = $age;
+            
+                return $user;
+            });
+            
+            return response()->json(['success' => true, 'data' => $profileList]);
+        }
     }
 
     public function forgotPassword(Request $request)
