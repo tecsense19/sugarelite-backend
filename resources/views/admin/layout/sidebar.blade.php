@@ -106,13 +106,19 @@
         <li class="nav-item">
             <a class="nav-link " href="{{ route('userreport.user-report') }}">
             <i class="bi bi-grid"></i>
-                <span>Report</span>
+            <span>Report</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link " href="{{ route('admin.plans') }}">
             <i class="bi bi-grid"></i>
-                <span>Plans</span>
+            <span>Plans</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link " href="{{ route('admin.subscriptions') }}">
+            <i class="bi bi-grid"></i>
+            <span>Subscriptions</span>
             </a>
         </li>
         <!-- <li class="nav-item">
