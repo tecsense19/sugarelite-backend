@@ -17,7 +17,14 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        return view('admin.profile.add-profile');
+        if (Auth::check()) 
+        {
+            return view('admin.profile.add-profile');
+        }
+        else
+        {
+            return view('admin.login');
+        }
     }
 
     public function profileregister(Request $request)
@@ -30,20 +37,33 @@ class ProfileController extends Controller
             return redirect()->back()->with('error', 'User already exists with this email.');
         }
 
-        
-        if ($files = $request->file('avatar_url')) {
-                $path = 'storage/app/public';
-                $filename = time() . '_' . $files->getClientOriginalName();
-                $files->move($path, $filename);
-                $img = 'storage/app/public/' . $filename;
-                sleep(1);
-                $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-                $input['avatar_url'] = $imgUrl;
+        if($file = $request->file('avatar_url'))
+        {
+            $path = 'public/uploads/user/';
+
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move($path, $filename);
+
+            $img = 'public/uploads/user/' . $filename;
+            
+            $input['avatar_url'] = $img;
+
+            if(isset($input['user_id']) && $input['user_id']!= "")
+            {
+                $getUserDetails = User::where('id', $input['user_id'])->first();
+                if ($getUserDetails) {
+                    $proFilePath = $getUserDetails->avatar_url;
+                    $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+
+                    if (file_exists(public_path($proPath))) {
+                        \File::delete(public_path($proPath));
+                    }
+                }
+            }
         }
-        
 
         $input['username'] = isset($_POST['username']) ? $_POST['username'] : '';
-        $input['user_role'] = isset($_POST['user_role']) ? $_POST['user_role'] : '';
+        $input['user_role'] = 'user';
         $input['sex'] = isset($_POST['sex']) ? $_POST['sex'] : '';
         $input['height'] = isset($_POST['height']) ? $_POST['height'] : '';
         $input['premium'] = isset($_POST['premium']) ? $_POST['premium'] : '';
@@ -71,45 +91,81 @@ class ProfileController extends Controller
         $lastUserId = User::create($input);
 
         // 
-        if (!empty($request->hasFile('public_images'))) {
-            $path = 'storage/app/public';
-        
-            foreach ($request->file('public_images') as $file) {
+        if(!empty($request->file('public_images')))
+        {
+            foreach ($request->file('public_images') as $file)
+            {
+                $path = 'public/uploads/user/public_images/';
+
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move($path, $filename);
-        
-                $img = 'storage/app/public/' . $filename;
-                $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-                // Store the array of new file paths in the database or perform other actions
+
+                $img = 'public/uploads/user/public_images/' . $filename;
+
+                if(isset($input['user_id']) && $input['user_id']!= "")
+                {
+                    $getUserDetails = User::where('id', $input['user_id'])->first();
+                    if ($getUserDetails) {
+                        $proFilePath = $getUserDetails->public_images;
+                        $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+
+                        if (file_exists(public_path($proPath))) {
+                            \File::delete(public_path($proPath));
+                        }
+                    }
+                }
+
                 $attachment['user_id'] = $lastUserId->id;
-                $attachment['public_images'] = $imgUrl;
+                $attachment['public_images'] = $img;
                 $attachment['image_type'] = 'public';
                 User_images::create($attachment);
             }
         }
-        if (!empty($request->hasFile('total_private_images'))) {
-            $path = 'storage/app/public';
-        
-            foreach ($request->file('total_private_images') as $file) {
+
+        if(!empty($request->file('total_private_images')))
+        {
+            foreach ($request->file('total_private_images') as $file)
+            {
+                $path = 'public/uploads/user/private_images/';
+
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move($path, $filename);
-        
-                $img = 'storage/app/public/' . $filename;
-                $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-                // Store the array of new file paths in the database or perform other actions
+
+                $img = 'public/uploads/user/private_images/' . $filename;
+
+                if(isset($input['user_id']) && $input['user_id']!= "")
+                {
+                    $getUserDetails = User::where('id', $input['user_id'])->first();
+                    if ($getUserDetails) {
+                        $proFilePath = $getUserDetails->total_private_images;
+                        $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+
+                        if (file_exists(public_path($proPath))) {
+                            \File::delete(public_path($proPath));
+                        }
+                    }
+                }
+
                 $attachment['user_id'] = $lastUserId->id;
-                $attachment['public_images'] = $imgUrl;
+                $attachment['public_images'] = $img;
                 $attachment['image_type'] = 'private';
                 User_images::create($attachment);
             }
-        }
-    
+        }   
         
-        return redirect('profiles');
+        return redirect('profiles')->with('success', 'Profile added successfully.');
     }
 
-    public function profileindex(){
-        return view('admin.profile.profile');
+    public function profileindex()
+    {
+        if (Auth::check()) 
+        {
+            return view('admin.profile.profile');
+        }
+        else
+        {
+            return view('admin.login');
+        }
     }
 
     public function profilelist(Request $request)
@@ -119,44 +175,69 @@ class ProfileController extends Controller
         $list_profiles = [];
         $search = $input['search'];
         $entries_per_page = $input['entries_per_page'];
-        if(isset($search) && $search != '')
-        {
-            $list_profiles = User::with(['getUsersreport'])->where('user_role', 'user')->where('username', 'like', '%' . $search . '%')->orWhere('email', 'like', '%' . $search . '%')->orderBy('id', 'desc')->paginate($entries_per_page);
-        }
-        else
-        {
-            $list_profiles = User::with(['getUsersreport'])->where('user_role', 'user')->paginate($entries_per_page);
-        }
-        // echo '<pre>';print_r($list_profiles);echo '</pre>';
+
+        $list_profiles = User::where('user_role', 'user')
+                            ->when(isset($search) && $search != '', function ($query) use ($search) {
+                                $query->where(function ($subquery) use ($search) {
+                                    $subquery->where('username', 'like', '%' . $search . '%')
+                                            ->orWhere('email', 'like', '%' . $search . '%');
+                                });
+                            })
+                            ->orderBy('id', 'desc')
+                            ->paginate($entries_per_page);
+        
         return view('admin.profile.list-profile',compact('list_profiles'));
     }
 
     public function profileedit($id)
     {
-        $decrypted_id = Crypt::decrypt($id);
-        $list_profiles = User::where('id', $decrypted_id)->first();
-        $getimage = User_images::where('user_id', $decrypted_id)->get();
-        return view('admin.profile.edit-profile',compact('list_profiles', 'getimage'));
+        if (Auth::check()) 
+        {
+            $decrypted_id = Crypt::decrypt($id);
+            $list_profiles = User::where('id', $decrypted_id)->first();
+            $getimage = User_images::where('user_id', $decrypted_id)->get();
+            return view('admin.profile.edit-profile',compact('list_profiles', 'getimage'));
+        }
+        else
+        {
+            return view('admin.login');
+        }
     }
 
-    public function profileupdate(Request $request) {
+    public function profileupdate(Request $request) 
+    {
         $input = $request->all();
         
         $user_id = $input['user_id'];
         $input = [];
-        if (!empty($files = $request->file('avatar_url'))) {
-                $path = 'storage/app/public';
-                $filename = time() . '_' . $files->getClientOriginalName();
-                $files->move($path, $filename);
-                $img = 'storage/app/public/' . $filename;
-                $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-                $input['avatar_url'] = $imgUrl;
+
+        if($file = $request->file('avatar_url'))
+        {
+            $path = 'public/uploads/user/';
+
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move($path, $filename);
+
+            $img = 'public/uploads/user/' . $filename;
+            
+            $input['avatar_url'] = $img;
+
+            if(isset($input['user_id']) && $input['user_id']!= "")
+            {
+                $getUserDetails = User::where('id', $input['user_id'])->first();
+                if ($getUserDetails) {
+                    $proFilePath = $getUserDetails->avatar_url;
+                    $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+
+                    if (file_exists(public_path($proPath))) {
+                        \File::delete(public_path($proPath));
+                    }
+                }
+            }
         }
-        
-        
 
         $input['username'] = isset($_POST['username']) ? $_POST['username'] : '';
-        $input['user_role'] = isset($_POST['user_role']) ? $_POST['user_role'] : '';
+        $input['user_role'] = 'user';
         $input['sex'] = isset($_POST['sex']) ? $_POST['sex'] : '';
         $input['height'] = isset($_POST['height']) ? $_POST['height'] : '';
         $input['premium'] = isset($_POST['premium']) ? $_POST['premium'] : '';
@@ -183,51 +264,91 @@ class ProfileController extends Controller
         // update the user
         $user = User::where('id', $user_id)->update($input);
 
-        if (!empty($request->hasFile('public_images'))) {
-            $path = 'storage/app/public';
-        
-            foreach ($request->file('public_images') as $file) {
+        if(!empty($request->file('public_images')))
+        {
+            foreach ($request->file('public_images') as $file)
+            {
+                $path = 'public/uploads/user/public_images/';
+
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move($path, $filename);
-        
-                $img = 'storage/app/public/' . $filename;
-                $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-                // Store the array of new file paths in the database or perform other actions
+
+                $img = 'public/uploads/user/public_images/' . $filename;
+
+                if(isset($input['user_id']) && $input['user_id']!= "")
+                {
+                    $getUserDetails = User::where('id', $input['user_id'])->first();
+                    if ($getUserDetails) {
+                        $proFilePath = $getUserDetails->public_images;
+                        $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+
+                        if (file_exists(public_path($proPath))) {
+                            \File::delete(public_path($proPath));
+                        }
+                    }
+                }
+
                 $attachment['user_id'] = $user_id;
-                $attachment['public_images'] = $imgUrl;
+                $attachment['public_images'] = $img;
                 $attachment['image_type'] = 'public';
                 User_images::create($attachment);
             }
         }
-        if (!empty($request->hasFile('total_private_images'))) {
-            $path = 'storage/app/public';
-        
-            foreach ($request->file('total_private_images') as $file) {
+
+        if(!empty($request->file('total_private_images')))
+        {
+            foreach ($request->file('total_private_images') as $file)
+            {
+                $path = 'public/uploads/user/private_images/';
+
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move($path, $filename);
-        
-                $img = 'storage/app/public/' . $filename;
-                $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-                // Store the array of new file paths in the database or perform other actions
+
+                $img = 'public/uploads/user/private_images/' . $filename;
+
+                if(isset($input['user_id']) && $input['user_id']!= "")
+                {
+                    $getUserDetails = User::where('id', $input['user_id'])->first();
+                    if ($getUserDetails) {
+                        $proFilePath = $getUserDetails->total_private_images;
+                        $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+
+                        if (file_exists(public_path($proPath))) {
+                            \File::delete(public_path($proPath));
+                        }
+                    }
+                }
+
                 $attachment['user_id'] = $user_id;
-                $attachment['public_images'] = $imgUrl;
+                $attachment['public_images'] = $img;
                 $attachment['image_type'] = 'private';
                 User_images::create($attachment);
             }
-        }
-    
-        return redirect('profiles');
+        }    
+        return redirect('profiles')->with('success', 'Profile update successfully.');
     }
 
-    public function profiledelete(Request $request){
+    public function profiledelete(Request $request)
+    {
         $input = $request->all();
         User::where('id', $input['profile_id'])->delete();
-        return response()->json(['success' => true, 'message' => 'Booking deleted successfully.']);
+        return response()->json(['success' => true, 'message' => 'Profile deleted successfully.']);
     }
 
-    function removeuserimage(Request $request){
+    function removeuserimage(Request $request)
+    {
         $id = $request->input('id');
         $userimage = User_images::find($id);
+
+        if ($userimage) {
+            $proFilePath = $userimage->public_images;
+            $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+
+            if (file_exists(public_path($proPath))) {
+                \File::delete(public_path($proPath));
+            }
+        }
+
         $userimage->delete();
     }
     
