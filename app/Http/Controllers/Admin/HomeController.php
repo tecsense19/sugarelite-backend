@@ -24,7 +24,14 @@ class HomeController extends Controller
 
     public function profile()
     {
-        return view('admin.adminprofile.profile');
+        if (Auth::check()) 
+        {
+            return view('admin.adminprofile.profile');
+        }
+        else
+        {
+            return view('admin.login');
+        }
     }
 
     public function profileUpdate(Request $request)
@@ -39,15 +46,14 @@ class HomeController extends Controller
 
             if($file = $request->file('avatar_url'))
             {
-                $path = 'storage/app/public/';
+                $path = 'public/uploads/user/';
 
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move($path, $filename);
 
-                $img = 'storage/app/public/' . $filename;
-                $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
+                $img = 'public/uploads/user/' . $filename;
                 
-                $userData['avatar_url'] = $imgUrl;
+                $userData['avatar_url'] = $img;
 
                 if($input['user_id'])
                 {
@@ -117,34 +123,35 @@ class HomeController extends Controller
 
     public function Submit_forgotPassword(Request $request)
     {
-    try {
+        try {
             $input = $request->all();
             $getUserDetails = User::where('id', $input['id'])->first();
-                if($getUserDetails->forgot_pass == 0)
+            if($getUserDetails->forgot_pass == 0)
+            {
+                if($input['newpass'] == $input['confirmpass'])
                 {
-                    if($input['newpass'] == $input['confirmpass'])
-                    {
-                        $dataArr = [];
-                        $dataArr['forgot_pass_date'] = date('Y-m-d H:i:s');
-                        $dataArr['password'] = Hash::make($input['newpass']);
-                        $dataArr['forgot_pass'] = 1;
-                        User::where('id', $input['id'])->update($dataArr);
-                        return redirect('/')->withSuccess('Password updated successfully.');
-                    }
-                    else
-                    {
-                        return redirect()->back()->withError('Confirm password are not match.');
-                    }
+                    $dataArr = [];
+                    $dataArr['forgot_pass_date'] = date('Y-m-d H:i:s');
+                    $dataArr['password'] = Hash::make($input['newpass']);
+                    $dataArr['forgot_pass'] = 1;
+                    User::where('id', $input['id'])->update($dataArr);
+                    return redirect('/')->withSuccess('Password updated successfully.');
                 }
                 else
                 {
-                    return redirect()->back()->withError('Your link has been expired');
+                    return redirect()->back()->withError('Confirm password are not match.');
                 }
-            } catch (\Exception $e) {
-                return $this->sendError($e->getMessage());
+            }
+            else
+            {
+                return redirect()->back()->withError('Your link has been expired');
+            }
+        } 
+        catch (\Exception $e) 
+        {
+            return $this->sendError($e->getMessage());
         }
     }
-
 }
 
 

@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\UserreportController;
+use App\Http\Controllers\Admin\PlanController;
+
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Api\V1\NewslettersController;
 
@@ -52,10 +54,9 @@ Route::group(['middleware' => ['admin']], function () {
     Route::post('/admin-profile/update', [HomeController::class, 'profileUpdate'])->name('admin.profile.update');
     Route::post('/update/password', [HomeController::class, 'updatePassword'])->name('admin.update.password');
 
-   
-    
-
-
+    // Stripe Plan
+    Route::get('/plans', [PlanController::class, 'plans'])->name('admin.plans');
+    Route::post('/save/plans', [PlanController::class, 'savePlans'])->name('admin.price.store');
 });
 
  //forgot password

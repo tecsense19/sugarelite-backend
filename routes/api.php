@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\SugareliteController;
 use App\Http\Controllers\Api\V1\NewslettersController;
+use App\Http\Controllers\Api\V1\StripeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,5 +34,9 @@ Route::group(['prefix' => 'V1'], function () {
     Route::post('/newsletter', [NewslettersController::class, 'newsletter']);
 
     Route::post('/forgot/password', [SugareliteController::class, 'forgotPassword']);
+
+    Route::post('/create/subscription', [StripeController::class, 'createSubscription']);
+    Route::post('/start/stop/subscription', [StripeController::class, 'startStopSubscription']);
+    Route::post('/cancel/subscription', [StripeController::class, 'cancelSubscription']);
 });
 

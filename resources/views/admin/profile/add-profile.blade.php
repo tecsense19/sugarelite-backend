@@ -1,7 +1,11 @@
 @include('admin.layout.front')
 @include('admin.layout.header')
 @include('admin.layout.sidebar')
-
+<style>
+  .card-title {
+    color: black;
+  }
+</style>
 <main id="main" class="main">
     <div class="pagetitle">
         <h1>Profile</h1>
@@ -14,269 +18,213 @@
     </div>
 
     <section class="section">
-      <div class="row">
-        <div class="col-lg-12">
-
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">General Form Elements</h5>
-
-              <!-- General Form Elements -->
-              @include('flash-message')
-              <form method="POST" class="profileForm" action="{{ route('profile.add-profile') }}" enctype="multipart/form-data">
-              {!! csrf_field() !!}
-                <div class="row mb-3">
-                  <label for="inputText" class="col-sm-2 col-form-label">Name</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="username" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputText" class="col-sm-2 col-form-label">User Role</label>
-                  <div class="col-sm-10">
-                      <select id="entries-per-page" class="form-control" name="user_role" required>
-                        <option value="user">User</option>
-                      </select>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputNumber" class="col-sm-2 col-form-label">Avatar</label>
-                  <div class="col-sm-10">
-                    <input class="form-control" type="file" id="formFile" name="avatar_url" accept="image/png, image/jpeg" required>
-                    <span class="error-message" style="color: red;"></span>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputNumber" class="col-sm-2 col-form-label">Public Images</label>
-                  <div class="col-sm-10">
-                    <input class="form-control" type="file" id="formFile" name="public_images[]" accept="image/png, image/jpeg" multiple required>
-                    <span class="error-message" style="color: red;"></span>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputNumber" class="col-sm-2 col-form-label">Private Images</label>
-                  <div class="col-sm-10">
-                    <input class="form-control" type="file" id="formFile" name="total_private_images[]" accept="image/png, image/jpeg" multiple required>
-                    <span class="error-message" style="color: red;"></span>
-                  </div>
-                </div>
-                <fieldset class="row mb-3">
-                  <legend class="col-form-label col-sm-2 pt-0">Sex</legend>
-                  <div class="col-sm-10">
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="sex" id="sex1" value="male" checked>
-                      <label class="form-check-label" for="sex1">
-                      Male
-                      </label>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Create New Profile</h5>
+                        <!-- General Form Elements -->
+                        @include('flash-message')
+                        <form method="POST" class="profileForm" action="{{ route('profile.add-profile') }}" enctype="multipart/form-data">
+                            {!! csrf_field() !!}
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <label for="inputText" class="col-form-label">Name</label>
+                                    <input type="text" class="form-control" name="username" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputNumber" class="col-form-label">Avatar</label>
+                                    <input class="form-control" type="file" id="formFile" name="avatar_url" accept="image/png, image/jpeg" required>
+                                    <span class="error-message" style="color: red;"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputNumber" class="col-form-label">Public Images</label>
+                                    <input class="form-control" type="file" id="formFile" name="public_images[]" accept="image/png, image/jpeg" multiple required>
+                                    <span class="error-message" style="color: red;"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputNumber" class="col-form-label">Private Images</label>
+                                    <input class="form-control" type="file" id="formFile" name="total_private_images[]" accept="image/png, image/jpeg" multiple required>
+                                    <span class="error-message" style="color: red;"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputNumber" class="col-form-label">Sex</label>
+                                    <div class="d-flex">
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="sex" id="sex1" value="male" checked>
+                                            <label class="form-check-label" for="sex1">
+                                            Male
+                                            </label>
+                                        </div>
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="sex" id="sex2" value="female">
+                                            <label class="form-check-label" for="sex2">
+                                            Female
+                                            </label>
+                                        </div>
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="sex" id="sex" value="other">
+                                            <label class="form-check-label" for="sex3">
+                                            Others
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputEmail" class="col-form-label">Hight</label>
+                                    <input type="text" class="form-control" name="height" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputNumber" class="col-form-label">Premium</label>
+                                    <div class="d-flex">
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="premium" id="premium1" value="true" checked>
+                                            <label class="form-check-label" for="premium1">
+                                            True
+                                            </label>
+                                        </div>
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="premium" id="premium2" value="false">
+                                            <label class="form-check-label" for="premium2">
+                                            False
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Age</label>
+                                    <input type="number" class="form-control" name="age" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Weight</label>
+                                    <input type="number" class="form-control" name="weight" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Country</label>
+                                    <input type="text" class="form-control" name="country" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Sugar Type</label>
+                                    <input type="text" class="form-control" name="sugar_type" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputDate" class="col-form-label">Birth Date</label>
+                                    <input type="date" class="form-control" name="birthdate" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputEmail" class="col-form-label">Email</label>
+                                    <input type="email" class="form-control" name="email" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Password</label>
+                                    <input type="password" class="form-control" name="password" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Region</label>
+                                    <input type="text" class="form-control" name="region" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Bio</label>
+                                    <input type="text" class="form-control" name="bio" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Ethnicity</label>
+                                    <input type="text" class="form-control" name="ethnicity" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Body Structure</label>
+                                    <input type="text" class="form-control" name="body_structure" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Hair Color</label>
+                                    <input type="text" class="form-control" name="hair_color" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Piercings</label>
+                                    <div class="d-flex">
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="piercings" id="piercings1" value="yes" checked>
+                                            <label class="form-check-label" for="piercings1">
+                                            Yes
+                                            </label>
+                                        </div>
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="piercings" id="piercings2" value="no">
+                                            <label class="form-check-label" for="piercings2">
+                                            No
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Tattoos</label>
+                                    <div class="d-flex">
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="tattoos" id="tattoos1" value="yes" checked>
+                                            <label class="form-check-label" for="tattoos1">
+                                            Yes
+                                            </label>
+                                        </div>
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="tattoos" id="tattoos2" value="no">
+                                            <label class="form-check-label" for="tattoos2">
+                                            No
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">Education</label>
+                                    <input type="text" class="form-control" name="education" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputNumber" class="col-form-label">Smoking</label>
+                                    <input type="text" class="form-control" name="smoking" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputNumber" class="col-form-label">Drinks</label>
+                                    <input type="text" class="form-control" name="drinks" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputNumber" class="col-form-label">Employment</label>
+                                    <input type="text" class="form-control" name="employment" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputNumber" class="col-form-label">Civil Status</label>
+                                    <input type="text" class="form-control" name="civil_status" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="inputPassword" class="col-form-label">User Status</label>
+                                    <div class="d-flex">
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="user_status" id="user_status" value="active" checked>
+                                            <label class="form-check-label" for="user_status">
+                                            Active
+                                            </label>
+                                        </div>
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="radio" name="user_status" id="user_status" value="deactive">
+                                            <label class="form-check-label" for="user_status">
+                                            Deactive
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-5 mb-3">
+                                <div class="col-sm-12 d-flex">
+                                    <button type="submit" class="submit btn btn-primary custom-submit-button">Submit Form</button>
+                                    <div class="spinner-image" style="display:none;">
+                                        <img src="{{ URL::to('public/assets/img/Spinner.gif') }}" alt="" width="41px" >
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- End General Form Elements -->
                     </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="sex" id="sex2" value="female">
-                      <label class="form-check-label" for="sex2">
-                      Female
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="sex" id="sex" value="other">
-                      <label class="form-check-label" for="sex3">
-                      Others
-                      </label>
-                    </div>
-                  </div>
-                </fieldset>
-                <div class="row mb-3">
-                  <label for="inputEmail" class="col-sm-2 col-form-label">Hight</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="height" required>
-                  </div>
                 </div>
-                <fieldset class="row mb-3">
-                  <legend class="col-form-label col-sm-2 pt-0">Premium</legend>
-                  <div class="col-sm-10">
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="premium" id="premium1" value="true" checked>
-                      <label class="form-check-label" for="premium1">
-                      True
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="premium" id="premium2" value="false">
-                      <label class="form-check-label" for="premium2">
-                      False
-                      </label>
-                    </div>
-                  </div>
-                </fieldset>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Age</label>
-                  <div class="col-sm-10">
-                    <input type="number" class="form-control" name="age" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Weight</label>
-                  <div class="col-sm-10">
-                    <input type="number" class="form-control" name="weight" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Country</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="country" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Sugar Type</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="sugar_type" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputDate" class="col-sm-2 col-form-label">Birth Date</label>
-                  <div class="col-sm-10">
-                    <input type="date" class="form-control" name="birthdate" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
-                  <div class="col-sm-10">
-                    <input type="email" class="form-control" name="email" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
-                  <div class="col-sm-10">
-                    <input type="password" class="form-control" name="password" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Region</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="region" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Bio</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="bio" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Ethnicity</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="ethnicity" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Body Structure</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="body_structure" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Hair Color</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="hair_color" required>
-                  </div>
-                </div>
-                <fieldset class="row mb-3">
-                  <legend class="col-form-label col-sm-2 pt-0">Piercings</legend>
-                  <div class="col-sm-10">
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="piercings" id="piercings1" value="yes" checked>
-                      <label class="form-check-label" for="piercings1">
-                      Yes
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="piercings" id="piercings2" value="no">
-                      <label class="form-check-label" for="piercings2">
-                      No
-                      </label>
-                    </div>
-                  </div>
-                </fieldset>
-                <fieldset class="row mb-3">
-                  <legend class="col-form-label col-sm-2 pt-0">Tattoos</legend>
-                  <div class="col-sm-10">
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="tattoos" id="tattoos1" value="yes" checked>
-                      <label class="form-check-label" for="tattoos1">
-                      Yes
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="tattoos" id="tattoos2" value="no">
-                      <label class="form-check-label" for="tattoos2">
-                      No
-                      </label>
-                    </div>
-                  </div>
-                </fieldset>
-                <div class="row mb-3">
-                  <label for="inputPassword" class="col-sm-2 col-form-label">Education</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="education" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputNumber" class="col-sm-2 col-form-label">Smoking</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="smoking" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputNumber" class="col-sm-2 col-form-label">Drinks</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="drinks" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputNumber" class="col-sm-2 col-form-label">Employment</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="employment" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="inputNumber" class="col-sm-2 col-form-label">Civil Status</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" name="civil_status" required>
-                  </div>
-                </div>
-                <fieldset class="row mb-3">
-                  <legend class="col-form-label col-sm-2 pt-0">User Status</legend>
-                  <div class="col-sm-10">
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="user_status" id="user_status" value="active" checked>
-                      <label class="form-check-label" for="user_status">
-                      Active
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="user_status" id="user_status" value="deactive">
-                      <label class="form-check-label" for="user_status">
-                      Deactive
-                      </label>
-                    </div>
-                  </div>
-                </fieldset>
-                <div class="row mb-3">
-                  <label class="col-sm-2 col-form-label">Submit Button</label>
-                  <div class="col-sm-10 d-flex">
-                    <button type="submit" class="submit btn btn-primary custom-submit-button">Submit Form</button>
-                    <div class="spinner-image" style="display:none;">
-                    <img src="{{ URL::to('public/assets/img/Spinner.gif') }}" alt="" width="41px" >
-                    </div>
-                  </div>
-                </div>
-              </form><!-- End General Form Elements -->
-
             </div>
-          </div>
-
         </div>
-
-        
-      </div>
     </section>
 </main>
 

@@ -1,35 +1,45 @@
 <!-- Table with stripped rows -->
 <table class="table datatable">
-  <thead>
+<thead>
     <tr>
-      <th>
-        <b>N</b>ame
-      </th>
-      <th>Email</th>
-      <th>User Role</th>
-      <th>Profile Pic</th>
-      <th>User Status</th>
-      <th>Action</th>
+        <th>#</th>
+        <th>Profile Pic</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Action</th>
     </tr>
-  </thead>
-  <tbody>
-    @foreach($list_profiles as  $list_prof)
-      <tr>
-        <td class="text-capitalize">{{ $list_prof->username }}</td>
-        <td>{{ $list_prof->email }}</td>
-        <td class="text-capitalize">{{ $list_prof->user_role }}</td>
-        <td class="text-capitalize"><img height="50px" width="50px" src="{{$list_prof->avatar_url}}" alt=""></td>
-        <td class="text-capitalize">{{ $list_prof->user_status }}</td>
-        <td>
-            @php
-                $encrypted_id = encrypt($list_prof->id);
-            @endphp
-            <a href="{{route('profile.edit-profile',['id' => $encrypted_id])}}"><i class="bi bi-pencil-square"></i></a>
-            <a href="#" class="delete-profile" onclick="deleteprofile('{{ $list_prof->id }}')" ><i class="ri-delete-bin-6-fill"></i></a>
-        </td>
-      </tr>
-    @endforeach
-  </tbody>
+</thead>
+<tbody>
+    @if(count($list_profiles) > 0)
+        @foreach($list_profiles as $keys => $list_prof)
+        <tr>
+            <td>{{ ($keys+1) }}</td>
+            <td>
+                @if($list_prof->avatar_url)
+                    <img src="{{ url('/').'/'.$list_prof->avatar_url }}" alt="" style="height: 50px; width: 50px;">
+                @else
+                    -
+                @endif
+            </td>
+            <td>{{ $list_prof->username }}</td>
+            <td>{{ $list_prof->email }}</td>
+            <td>{{ $list_prof->user_status }}</td>
+            <td>
+                @php
+                    $encrypted_id = encrypt($list_prof->id);
+                @endphp
+                <a href="{{route('profile.edit-profile',['id' => $encrypted_id])}}"><i class="bi bi-pencil-square"></i></a>
+                <a href="#" class="delete-profile" onclick="deleteprofile('{{ $list_prof->id }}')" ><i class="ri-delete-bin-6-fill"></i></a>
+            </td>
+        </tr>
+        @endforeach
+    @else
+        <tr>
+            <td colspan="6" class="text-capitalize text-center">Profile Not Found.</td>
+        </tr>
+    @endif
+</tbody>
 </table>
 {!! $list_profiles->links('pagination') !!}
 <!-- End Table with stripped rows -->
