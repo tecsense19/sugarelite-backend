@@ -26,7 +26,6 @@ class SugareliteController extends BaseController
     public function register(Request $request)
     {
         try {
-
             $input = $request->all();
             // Assuming $input['birthdate'] contains the birthdate in the format 'YYYY/MM/DD'
             $birthdate = new DateTime($input['birthdate']);
@@ -53,54 +52,106 @@ class SugareliteController extends BaseController
                 return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
             }
 
-            if ($files = $request->file('avatar_url')) {
-                    $path = 'storage/app/public';
-                    $filename = time() . '_' . $files->getClientOriginalName();
-                    $files->move($path, $filename);
-                    $img = 'storage/app/public/' . $filename;
-                    $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-                    $input['avatar_url'] = $imgUrl;
+            if($file = $request->file('avatar_url'))
+            {
+                $path = 'public/uploads/user/';
+    
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move($path, $filename);
+    
+                $img = 'public/uploads/user/' . $filename;
+                
+                $input['avatar_url'] = $img;
+    
+                if(isset($input['user_id']) && $input['user_id']!= "")
+                {
+                    $getUserDetails = User::where('id', $input['user_id'])->first();
+                    if ($getUserDetails) {
+                        $proFilePath = $getUserDetails->avatar_url;
+                        $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+    
+                        if (file_exists(public_path($proPath))) {
+                            \File::delete(public_path($proPath));
+                        }
+                    }
+                }
             }
+
             $input['age'] = $age;
             $input['user_role'] = "user";
             $input['user_status'] = "active";
             // Create the user
-            $user = User::create($input);
-
-            if (!empty($request->hasFile('public_images'))) {
-                $path = 'storage/app/public';
+            if(isset($input['user_id']))
+            {
+                User::where('id',$input['user_id'])->update($input);
+                $lastUserId = $input['id'];
+            }else{
+                $lastUserId = User::create($input);
+                $lastUserId = $lastUserId->id;
+            }
             
-                foreach ($request->file('public_images') as $file) {
+            if(!empty($request->file('public_images')))
+            {
+                foreach ($request->file('public_images') as $file)
+                {
+                    $path = 'public/uploads/user/public_images/';
+    
                     $filename = time() . '_' . $file->getClientOriginalName();
                     $file->move($path, $filename);
-            
-                    $img = 'storage/app/public/' . $filename;
-                    $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-                    // Store the array of new file paths in the database or perform other actions
-                    $attachment['user_id'] = $user->id;
-                    $attachment['public_images'] = $imgUrl;
+    
+                    $img = 'public/uploads/user/public_images/' . $filename;
+    
+                    if(isset($input['user_id']) && $input['user_id']!= "")
+                    {
+                        $getUserDetails = User::where('id', $input['user_id'])->first();
+                        if ($getUserDetails) {
+                            $proFilePath = $getUserDetails->public_images;
+                            $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+    
+                            if (file_exists(public_path($proPath))) {
+                                \File::delete(public_path($proPath));
+                            }
+                        }
+                    }
+    
+                    $attachment['user_id'] = $lastUserId;
+                    $attachment['public_images'] = $img;
                     $attachment['image_type'] = 'public';
                     User_images::create($attachment);
                 }
             }
-            if (!empty($request->hasFile('total_private_images'))) {
-                $path = 'storage/app/public';
-            
-                foreach ($request->file('total_private_images') as $file) {
-                    $filename = time() . '_' . $file->getClientOriginalName();
-                    $file->move($path, $filename);
-            
-                    $img = 'storage/app/public/' . $filename;
-                    $imgUrl = env('APP_URL') ? env('APP_URL') . ('/'.$img) : url('/') . ('/'.$img);
-                    // Store the array of new file paths in the database or perform other actions
-                    $attachment['user_id'] = $user->id;
-                    $attachment['public_images'] = $imgUrl;
-                    $attachment['image_type'] = 'private';
-                    User_images::create($attachment);
+            if(!empty($request->file('total_private_images')))
+        {
+            foreach ($request->file('total_private_images') as $file)
+            {
+                $path = 'public/uploads/user/private_images/';
+
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move($path, $filename);
+
+                $img = 'public/uploads/user/private_images/' . $filename;
+
+                if(isset($input['user_id']) && $input['user_id']!= "")
+                {
+                    $getUserDetails = User::where('id', $input['user_id'])->first();
+                    if ($getUserDetails) {
+                        $proFilePath = $getUserDetails->total_private_images;
+                        $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+
+                        if (file_exists(public_path($proPath))) {
+                            \File::delete(public_path($proPath));
+                        }
+                    }
                 }
+
+                $attachment['user_id'] = $lastUserId;
+                $attachment['public_images'] = $img;
+                $attachment['image_type'] = 'private';
+                User_images::create($attachment);
             }
-        
-            return response()->json(['success'=> true, 'message' => 'User registered successfully.', 'user' => $user], 200);
+        }   
+            $getUser = User::where('id', $lastUserId)->first();
+            return response()->json(['success'=> true, 'message' => 'User registered successfully.', 'user' => $getUser], 200);
             
             } catch (\Exception $e) {
                 return $this->sendError($e->getMessage());
@@ -194,8 +245,6 @@ class SugareliteController extends BaseController
             $stringArr['type'] = $type;
             $stringArr['milisecondtime'] = $currentTimeMillis;
     
-            
-            
             if($type == "regular"){
                 $message = Messages::create($stringArr);
                 $lastInsertedId = $message->id;
@@ -245,13 +294,16 @@ class SugareliteController extends BaseController
         if(isset($input['id']))
         {
             $profileList = User::where('id', $input['id'])->with('getAllProfileimg')->first();
+
             if($profileList)
             {
                 $birthdate = new DateTime($profileList['birthdate']);
                 $currentDate = new DateTime();
                 $age = $currentDate->diff($birthdate)->y;
-                $profileList['age'] = $age;
-                return response()->json(['success' => true, 'data' => $profileList]);
+                $profileList->avatar_url = $profileList->avatar_url ? url('/').'/'.$profileList->avatar_url : '';
+                $profileList->age = $age;
+                $response[] = $profileList;
+                return response()->json(['success' => true, 'data' => $response]);
             }else{
                 return response()->json(['success' => false, 'data' => 'User not exits']);
             }
@@ -265,8 +317,8 @@ class SugareliteController extends BaseController
                 $birthdate = new DateTime($user->birthdate);
                 $currentDate = new DateTime();
                 $age = $currentDate->diff($birthdate)->y;
-                
                 // Add age to the user object
+                $user->avatar_url = $user->avatar_url ? url('/').'/'.$user->avatar_url : '';
                 $user->age = $age;
             
                 return $user;
@@ -369,7 +421,7 @@ class SugareliteController extends BaseController
                     $friends->update(['is_friend' => 1]);
                     return response()->json(['success' => true, 'message' => 'Both are Friends']);
                 }
-                if(isset($getfriend) && $getfriend->is_friend == 'approved'){
+                if(isset($getfriend) && $getfriend->is_friend == 1){
                     return response()->json(['success' => true, 'message' => 'Both are Friends']);
                 }
                 if(isset($getfriend) && $getfriend->is_friend == 1)
