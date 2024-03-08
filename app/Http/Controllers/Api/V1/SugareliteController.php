@@ -45,6 +45,25 @@ class SugareliteController extends BaseController
                 return $this->sendError($validator->errors()->first());
             }
 
+            if(isset($input['remove_images']))
+            {
+                $userImages = User_images::whereIn('id', explode(',', $input['remove_images']))
+                          ->get();
+
+                  foreach ($userImages as $key => $value) {
+                    if ($value) {
+                        $proFilePath = $value->public_images;
+                        $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+            
+                        if (file_exists(public_path($proPath))) {
+                            \File::delete(public_path($proPath));
+                        }
+                    }
+                    
+                  }     
+                 User_images::whereIn('id', explode(',', $input['remove_images']))->delete();   
+            }
+
             if(isset($input['user_id']))
             {
                 $existingUser = User::where('id', '!=', $input['user_id'])->where('email', $input['email'])->first();
