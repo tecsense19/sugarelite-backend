@@ -331,7 +331,7 @@ class SugareliteController extends BaseController
 
         if(isset($input['id']))
         {
-            $profileList = User::where('id', $input['id'])->with('getAllProfileimg')->first();
+            $profileList = User::where('id', $input['id'])->where('user_role', 'user')->with('getAllProfileimg')->first();
 
             if($profileList)
             {
@@ -347,7 +347,7 @@ class SugareliteController extends BaseController
             }
            
         }else{
-            $profileList = User::with('getAllProfileimg')->get();
+            $profileList = User::with('getAllProfileimg')->where('user_role', 'user')->get();
 
             // Iterate through each user to calculate age
             $profileList->transform(function ($user) {
