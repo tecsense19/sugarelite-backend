@@ -46,10 +46,19 @@ class SugareliteController extends BaseController
                 return $this->sendError($validator->errors()->first());
             }
 
-            
-            $existingUser = User::where('email', $input['email'])->first();
-            if ($existingUser) {
-                return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
+            if(isset($input['user_id']))
+            {
+                $existingUser = User::where('id', '!=', $input['user_id'])->where('email', $input['email'])->first();
+                if ($existingUser) {
+                    return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
+                }
+            }
+            else
+            {
+                $existingUser = User::where('email', $input['email'])->first();
+                if ($existingUser) {
+                    return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
+                }
             }
 
             if($file = $request->file('avatar_url'))
@@ -80,14 +89,44 @@ class SugareliteController extends BaseController
             $input['age'] = $age;
             $input['user_role'] = "user";
             $input['user_status'] = "active";
+
+            $userArr = [];
+            $userArr['username'] = $input['username'];
+            $userArr['email'] = $input['email'];
+            $userArr['sex'] = $input['sex'];
+            $userArr['height'] = $input['height'];
+            $userArr['premium'] = $input['premium'];
+            $userArr['age'] = $age;
+            $userArr['weight'] = $input['weight'];
+            $userArr['country'] = $input['country'];
+            $userArr['sugar_type'] = $input['sugar_type'];
+            $userArr['birthdate'] = $input['birthdate'];
+            $userArr['region'] = $input['region'];
+            $userArr['bio'] = $input['bio'];
+            $userArr['ethnicity'] = $input['ethnicity'];
+            $userArr['body_structure'] = $input['body_structure'];
+            $userArr['hair_color'] = $input['hair_color'];
+            $userArr['piercings'] = $input['piercings'];
+            $userArr['tattoos'] = $input['tattoos'];
+            $userArr['education'] = $input['education'];
+            $userArr['smoking'] = $input['smoking'];
+            $userArr['drinks'] = $input['drinks'];
+            $userArr['employment'] = $input['employment'];
+            $userArr['civil_status'] = $input['civil_status'];
+            $userArr['user_role'] = 'user';
+            $userArr['user_status'] = 'active';
             // Create the user
+            $messgae = '';
             if(isset($input['user_id']))
             {
-                User::where('id',$input['user_id'])->update($input);
-                $lastUserId = $input['id'];
+                User::where('id', $input['user_id'])->update($userArr);
+                $lastUserId = $input['user_id'];
+                $messgae = 'User updated successfully.';
             }else{
-                $lastUserId = User::create($input);
+                $userArr['password'] = $input['password'];
+                $lastUserId = User::create($userArr);
                 $lastUserId = $lastUserId->id;
+                $messgae ='User registered successfully.';
             }
             
             if(!empty($request->file('public_images')))
@@ -151,8 +190,7 @@ class SugareliteController extends BaseController
             }
         }   
             $getUser = User::where('id', $lastUserId)->first();
-            return response()->json(['success'=> true, 'message' => 'User registered successfully.', 'user' => $getUser], 200);
-            
+            return response()->json(['success'=> true, 'message' => $messgae, 'user' => $getUser], 200);
             } catch (\Exception $e) {
                 return $this->sendError($e->getMessage());
             }
