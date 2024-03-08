@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\UserreportController;
 use App\Http\Controllers\Admin\PlanController;
+use App\Http\Controllers\Admin\SubscriptionController;
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Api\V1\NewslettersController;
@@ -57,6 +58,10 @@ Route::group(['middleware' => ['admin']], function () {
     // Stripe Plan
     Route::get('/plans', [PlanController::class, 'plans'])->name('admin.plans');
     Route::post('/save/plans', [PlanController::class, 'savePlans'])->name('admin.price.store');
+
+    // Subscription
+    Route::get('/subscriptions', [SubscriptionController::class, 'subscriptions'])->name('admin.subscriptions');
+    Route::post('/get/subscriptions/list', [SubscriptionController::class, 'getSubscriptionsList'])->name('admin.subscriptions.list');
 });
 
  //forgot password
