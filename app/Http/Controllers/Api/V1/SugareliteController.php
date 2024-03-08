@@ -31,7 +31,6 @@ class SugareliteController extends BaseController
             $birthdate = new DateTime($input['birthdate']);
             $currentDate = new DateTime();
             $age = $currentDate->diff($birthdate)->y;
-            
             $validator = Validator::make($input, [
                 'username' => 'required',
                 'country' => 'required',
@@ -86,35 +85,32 @@ class SugareliteController extends BaseController
                 }
             }
 
-            $input['age'] = $age;
-            $input['user_role'] = "user";
-            $input['user_status'] = "active";
-
             $userArr = [];
-            $userArr['username'] = $input['username'];
-            $userArr['email'] = $input['email'];
-            $userArr['sex'] = $input['sex'];
-            $userArr['height'] = $input['height'];
-            $userArr['premium'] = $input['premium'];
+            $userArr['username'] = isset($input['username']) ? $input['username'] : '';
+            $userArr['email'] = isset($input['email']) ? $input['email'] : '';
+            $userArr['sex'] = isset($input['sex']) ? $input['sex'] : '';
+            $userArr['height'] = isset($input['height']) ? $input['height'] : '';
+            $userArr['premium'] = isset($input['premium']) ? $input['premium'] : '';
             $userArr['age'] = $age;
-            $userArr['weight'] = $input['weight'];
-            $userArr['country'] = $input['country'];
-            $userArr['sugar_type'] = $input['sugar_type'];
-            $userArr['birthdate'] = $input['birthdate'];
-            $userArr['region'] = $input['region'];
-            $userArr['bio'] = $input['bio'];
-            $userArr['ethnicity'] = $input['ethnicity'];
-            $userArr['body_structure'] = $input['body_structure'];
-            $userArr['hair_color'] = $input['hair_color'];
-            $userArr['piercings'] = $input['piercings'];
-            $userArr['tattoos'] = $input['tattoos'];
-            $userArr['education'] = $input['education'];
-            $userArr['smoking'] = $input['smoking'];
-            $userArr['drinks'] = $input['drinks'];
-            $userArr['employment'] = $input['employment'];
-            $userArr['civil_status'] = $input['civil_status'];
+            $userArr['weight'] = isset($input['weight'])? $input['weight'] : '';
+            $userArr['country'] = isset($input['country'])? $input['country'] : '';
+            $userArr['sugar_type'] = isset($input['sugar_type'])? $input['sugar_type'] : '';
+            $userArr['birthdate'] = isset($input['birthdate'])? $input['birthdate'] : '';
+            $userArr['region'] = isset($input['region'])? $input['region'] : '';
+            $userArr['bio'] = isset($input['bio'])? $input['bio'] : '';
+            $userArr['ethnicity'] = isset($input['ethnicity'])? $input['ethnicity'] : '';
+            $userArr['body_structure'] = isset($input['body_structure'])? $input['body_structure'] : '';
+            $userArr['hair_color'] = isset($input['hair_color'])? $input['hair_color'] : '';
+            $userArr['piercings'] = isset($input['piercings'])? $input['piercings'] : '';
+            $userArr['tattoos'] = isset($input['tattoos'])? $input['tattoos'] : '';
+            $userArr['education'] = isset($input['education'])? $input['education'] : '';
+            $userArr['smoking'] = isset($input['smoking'])? $input['smoking'] : '';
+            $userArr['drinks'] = isset($input['drinks'])? $input['drinks'] : '';
+            $userArr['employment'] = isset($input['employment'])? $input['employment'] : '';
+            $userArr['civil_status'] = isset($input['civil_status'])? $input['civil_status'] : '';
             $userArr['user_role'] = 'user';
             $userArr['user_status'] = 'active';
+
             // Create the user
             $messgae = '';
             if(isset($input['user_id']))
@@ -140,19 +136,6 @@ class SugareliteController extends BaseController
     
                     $img = 'public/uploads/user/public_images/' . $filename;
     
-                    if(isset($input['user_id']) && $input['user_id']!= "")
-                    {
-                        $getUserDetails = User::where('id', $input['user_id'])->first();
-                        if ($getUserDetails) {
-                            $proFilePath = $getUserDetails->public_images;
-                            $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
-    
-                            if (file_exists(public_path($proPath))) {
-                                \File::delete(public_path($proPath));
-                            }
-                        }
-                    }
-    
                     $attachment['user_id'] = $lastUserId;
                     $attachment['public_images'] = $img;
                     $attachment['image_type'] = 'public';
@@ -160,42 +143,29 @@ class SugareliteController extends BaseController
                 }
             }
             if(!empty($request->file('total_private_images')))
-        {
-            foreach ($request->file('total_private_images') as $file)
             {
-                $path = 'public/uploads/user/private_images/';
-
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move($path, $filename);
-
-                $img = 'public/uploads/user/private_images/' . $filename;
-
-                if(isset($input['user_id']) && $input['user_id']!= "")
+            foreach ($request->file('total_private_images') as $file)
                 {
-                    $getUserDetails = User::where('id', $input['user_id'])->first();
-                    if ($getUserDetails) {
-                        $proFilePath = $getUserDetails->total_private_images;
-                        $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+                    $path = 'public/uploads/user/private_images/';
 
-                        if (file_exists(public_path($proPath))) {
-                            \File::delete(public_path($proPath));
-                        }
-                    }
+                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $file->move($path, $filename);
+
+                    $img = 'public/uploads/user/private_images/' . $filename;
+
+                    $attachment['user_id'] = $lastUserId;
+                    $attachment['public_images'] = $img;
+                    $attachment['image_type'] = 'private';
+                    User_images::create($attachment);
                 }
-
-                $attachment['user_id'] = $lastUserId;
-                $attachment['public_images'] = $img;
-                $attachment['image_type'] = 'private';
-                User_images::create($attachment);
-            }
-        }   
+           }   
             $getUser = User::where('id', $lastUserId)->first();
             $getUser->avatar_url = $getUser->avatar_url ? url('/').'/'.$getUser->avatar_url : '';
 
             return response()->json(['success'=> true, 'message' => $messgae, 'user' => $getUser], 200);
             } catch (\Exception $e) {
                 return $this->sendError($e->getMessage());
-            }
+        }
     }
 
     public function checkUser(Request $request)

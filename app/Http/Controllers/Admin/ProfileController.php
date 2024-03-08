@@ -275,19 +275,6 @@ class ProfileController extends Controller
 
                 $img = 'public/uploads/user/public_images/' . $filename;
 
-                if(isset($input['user_id']) && $input['user_id']!= "")
-                {
-                    $getUserDetails = User::where('id', $input['user_id'])->first();
-                    if ($getUserDetails) {
-                        $proFilePath = $getUserDetails->public_images;
-                        $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
-
-                        if (file_exists(public_path($proPath))) {
-                            \File::delete(public_path($proPath));
-                        }
-                    }
-                }
-
                 $attachment['user_id'] = $user_id;
                 $attachment['public_images'] = $img;
                 $attachment['image_type'] = 'public';
@@ -305,19 +292,6 @@ class ProfileController extends Controller
                 $file->move($path, $filename);
 
                 $img = 'public/uploads/user/private_images/' . $filename;
-
-                if(isset($input['user_id']) && $input['user_id']!= "")
-                {
-                    $getUserDetails = User::where('id', $input['user_id'])->first();
-                    if ($getUserDetails) {
-                        $proFilePath = $getUserDetails->total_private_images;
-                        $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
-
-                        if (file_exists(public_path($proPath))) {
-                            \File::delete(public_path($proPath));
-                        }
-                    }
-                }
 
                 $attachment['user_id'] = $user_id;
                 $attachment['public_images'] = $img;
