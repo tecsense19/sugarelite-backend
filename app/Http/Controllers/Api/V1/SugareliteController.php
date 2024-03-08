@@ -190,6 +190,8 @@ class SugareliteController extends BaseController
             }
         }   
             $getUser = User::where('id', $lastUserId)->first();
+            $getUser->avatar_url = $getUser->avatar_url ? url('/').'/'.$getUser->avatar_url : '';
+
             return response()->json(['success'=> true, 'message' => $messgae, 'user' => $getUser], 200);
             } catch (\Exception $e) {
                 return $this->sendError($e->getMessage());
@@ -236,7 +238,9 @@ class SugareliteController extends BaseController
             }
 
             $getUser = User::where('email', $input['email'])->where('user_role', 'user')->first();
-
+            $getUser->avatar_url = $getUser->avatar_url ? url('/').'/'.$getUser->avatar_url : '';
+            // echo '<pre>';print_r($getUser);echo '</pre>';
+            // die;
             if($getUser)
             {
                 if($getUser->user_status == 'active'){
@@ -499,10 +503,11 @@ class SugareliteController extends BaseController
             }
         }
         $friendList = User::whereIn('id', $friendIds)->with('getAllProfileimg')->get();
-        
+
         foreach ($friendList as $key => $value) 
         {
             $value->is_private_album_access = '0';
+            $value->avatar_url = $value->avatar_url ? url('/').'/'.$value->avatar_url : '';
             $checkFriend = Privatealbumaccess::where('receiver_id', $value->id)->where('sender_id', $input['id'])->where('status', 'approved')->first();
             if($checkFriend)
             {
