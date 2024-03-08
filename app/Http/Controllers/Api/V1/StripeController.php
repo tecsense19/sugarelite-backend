@@ -90,7 +90,7 @@ class StripeController extends BaseController
                     if(!$stripeCustomerId)
                     {
                         // Create a customer with the card token
-                        $customer = $this->stripe->customer::create([
+                        $customer = $this->stripe->customers::create([
                             'name' => $getUser->username,
                             'email' => $getUser->email,
                             'source' => $input['stripe_token'], // Use the card token as the source
