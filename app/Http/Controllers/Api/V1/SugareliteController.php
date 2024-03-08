@@ -175,15 +175,16 @@ class SugareliteController extends BaseController
 
     public function sendMessage(Request $request)
     {
-        $sender_id = $request->input('message_from');
-        $receiver_id = $request->input('message_to');
+        $sender_id = $request->input('sender_id');
+        $receiver_id = $request->input('receiver_id');
         $message = $request->input('message');
         $type = $request->input('type');
         $id = $request->input('id') ?? '';
         $currentTimeMillis = round(microtime(true) * 1000);
 
         $senderCheck = User::where('id', $sender_id)->first();
-        $recevierCheck = User::where('id', $sender_id)->first();
+        $recevierCheck = User::where('id', $receiver_id)->first();
+        
         if($senderCheck && $recevierCheck)
         {
             $stringArr = [];
@@ -329,27 +330,53 @@ class SugareliteController extends BaseController
             'sender_id' => 'integer|required',
             'receiver_id' => 'integer|required',
         ]);
+        
         if ($validator->fails()) {
             return $this->sendError($validator->errors()->first());
         }
+
         $getfriend = Friend_list::where('sender_id', $input['sender_id'])->where('receiver_id',$input['receiver_id'])->first();
         $friends = Friend_list::where('receiver_id',$input['sender_id'])->where('sender_id',$input['receiver_id'])->first();
+
+        $senderCheck = User::where('id', $input['sender_id'])->first();
+        $recevierCheck = User::where('id', $input['receiver_id'])->first();
+
+        if($senderCheck && $recevierCheck)
+        {
         if(isset($getfriend)){
-            if($getfriend->is_friend == 1)
+            if($getfriend->is_friend == 0 && isset($input['is_approved']) == 1)
             {
                 return response()->json(['success' => true, 'message' => 'Both are Friends']);
-            }else{
+            }
+            else if($getfriend->is_friend == 1)
+            {
+                return response()->json(['success' => true, 'message' => 'Both are Friends']);
+            }
+            else{
                 return response()->json(['success' => true, 'message' => 'Friend requrest already sent successfully']);
             }
         }
         else if(isset($friends))
         {
+            if($friends->is_friend == 0 && isset($input['is_approved']) == 1)
+            {
             $friends->update(['is_friend' => 1]);
             return response()->json(['success' => true, 'message' => 'Both are Friends']);
+            }
+            else if($friends->is_friend == 1)
+            {
+                return response()->json(['success' => true, 'message' => 'Both are Friends']);
+            }
+            else{
+                return response()->json(['success' => true, 'message' => 'Friend requrest already sent successfully']);
+            }
         }
         else{
             Friend_list::create($input);
             return response()->json(['success' => true, 'message' => 'Friend requrest sent successfully']);
+        }
+        }else{
+            return response()->json(['success' => false, 'message' => 'User not exit']);
         }
     }
 
@@ -364,13 +391,13 @@ class SugareliteController extends BaseController
         }
       // Retrieve all friendships for the user
         $friendships = Friend_list::forUser($input['id'])->get();
-
+        
         // Initialize an empty array to store friend IDs
         $friendIds = [];
 
         // Extract friend IDs from the friendships
         foreach ($friendships as $friendship) {
- 
+            
             // Add the sender ID if the user is the receiver, and vice versa
             if ($friendship->sender_id == $input['id']) {
                 $friendIds[] = $friendship->receiver_id;
@@ -378,8 +405,17 @@ class SugareliteController extends BaseController
                 $friendIds[] = $friendship->sender_id;
             }
         }
-
         $friendList = User::whereIn('id', $friendIds)->with('getAllProfileimg')->get();
+        
+        foreach ($friendList as $key => $value) 
+        {
+            $value->is_private_album_access = '0';
+            $checkFriend = Privatealbumaccess::where('receiver_id', $value->id)->where('sender_id', $input['id'])->where('status', 'approved')->first();
+            if($checkFriend)
+            {
+                $value->is_private_album_access = '1';
+            }
+        }
         return $this->sendResponse($friendList, 'success');
    
     }
@@ -387,31 +423,56 @@ class SugareliteController extends BaseController
     public function private_album(Request $request)
     {
         $input = $request->all();
+        
         $validator = Validator::make($input, [
             'sender_id' => 'integer|required',
             'receiver_id' => 'integer|required',
         ]);
+
         if ($validator->fails()) {
             return $this->sendError($validator->errors()->first());
         }
         $getfriend = Privatealbumaccess::where('sender_id', $input['sender_id'])->where('receiver_id',$input['receiver_id'])->first();
         $friends = Privatealbumaccess::where('receiver_id',$input['sender_id'])->where('sender_id',$input['receiver_id'])->first();
+        $senderCheck = User::where('id', $input['sender_id'])->first();
+        $recevierCheck = User::where('id', $input['receiver_id'])->first();
+
+        if($senderCheck && $recevierCheck)
+        {
         if(isset($getfriend)){
-            if($getfriend->status == 'approved')
+            if($getfriend->status == 'pending' && isset($input['is_approved']) == 1)
+            {
+                $friends->update(['status' => 'approved']);
+                return response()->json(['success' => true, 'message' => 'Private album access granted']);
+            }else if($getfriend->status == 'approved')
             {
                 return response()->json(['success' => true, 'message' => 'Private album access granted']);
-            }else{
+            }
+            else{
                 return response()->json(['success' => true, 'message' => 'Private album access request already sent successfully']);
             }
         }
         else if(isset($friends))
         {
-            $friends->update(['status' => 'approved']);
-            return response()->json(['success' => true, 'message' => 'private album access granted']);
+            if($friends->status == 'pending' && isset($input['is_approved']) == 1)
+            {
+                $friends->update(['status' => 'approved']);
+                return response()->json(['success' => true, 'message' => 'private album access granted']);
+            }
+            else if($friends->status == 'approved')
+            {
+                return response()->json(['success' => true, 'message' => 'Private album access granted']);
+            }else{
+                return response()->json(['success' => true, 'message' => 'Private album access request already sent successfully']);
+            }
+           
         }
         else{
             Privatealbumaccess::create($input);
             return response()->json(['success' => true, 'message' => 'Private album access request sent successfully']);
-        }
+        } 
+        }else{
+                return response()->json(['success' => false, 'message' => 'User not exit']);
+     }
     }
 }
