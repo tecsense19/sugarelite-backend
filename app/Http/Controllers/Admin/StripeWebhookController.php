@@ -28,8 +28,8 @@ class StripeWebhookController extends Controller
             if($event)
             {
                 $userData = [];
-                $userData['subscription_end_date'] = $event['data']['object']['current_period_end'];
-                $userData['next_subscription_date'] = $event['data']['object']['current_period_end'];
+                $userData['subscription_end_date'] = date('Y-m-d', $event['data']['object']['current_period_end']);
+                $userData['next_subscription_date'] = date('Y-m-d', $event['data']['object']['current_period_end']);
 
                 User::where('stripe_subscription_id', $event['data']['object']['id'])->update($userData);
             }
