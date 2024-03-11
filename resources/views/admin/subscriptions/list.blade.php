@@ -3,9 +3,15 @@
 <thead>
     <tr>
         <th>#</th>
-        <th>Profile Pic</th>
         <th>Name</th>
-        <th>Email</th>
+        <th>Customer Id</th>
+        <th>Subscription Id</th>
+        <th>Plan Type</th>
+        <th>Plan Price</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Next Billing Date</th>
+        <th>Cancel Date</th>
         <th>Status</th>
         <th>Action</th>
     </tr>
@@ -13,25 +19,32 @@
 <tbody>
     @if(count($subscriptionList) > 0)
         @foreach($subscriptionList as $keys => $list_prof)
+            @php
+                $userId = Crypt::encryptString($list_prof->id);
+                if($list_prof->is_subscription_cancel == '1')
+                {
+                    $badgeColor = 'danger';
+                    $subscriptionStatus = 'Canceled';
+                }
+                else
+                {
+                    $badgeColor = $list_prof->is_subscription_stop == '0' ? 'success' : 'danger';
+                    $subscriptionStatus = $list_prof->is_subscription_stop == '0' ? 'Active' : 'Stop';
+                }
+            @endphp
         <tr>
             <td>{{ ($keys+1) }}</td>
-            <td>
-                @if($list_prof->avatar_url)
-                    <img src="{{ url('/').'/'.$list_prof->avatar_url }}" alt="" style="height: 50px; width: 50px;">
-                @else
-                    -
-                @endif
-            </td>
             <td>{{ $list_prof->username }}</td>
-            <td>{{ $list_prof->email }}</td>
-            <td>{{ $list_prof->user_status }}</td>
-            <td>
-                @php
-                    $encrypted_id = encrypt($list_prof->id);
-                @endphp
-                <a href="{{route('profile.edit-profile',['id' => $encrypted_id])}}"><i class="bi bi-pencil-square"></i></a>
-                <a href="#" class="delete-profile" onclick="deleteprofile('{{ $list_prof->id }}')" ><i class="ri-delete-bin-6-fill"></i></a>
-            </td>
+            <td><span class="badge bg-success">{{ $list_prof->stripe_customer_id }}</span></td>
+            <td><span class="badge bg-success">{{ $list_prof->stripe_subscription_id }}</span></td>
+            <td>{{ $list_prof->getLastSubscription->plan_type }}</td>
+            <td>{{ $list_prof->getLastSubscription->plan_price }}</td>
+            <td>{{ date('d-m-Y', strtotime($list_prof->subscription_start_date)) }}</td>
+            <td>{{ date('d-m-Y', strtotime($list_prof->subscription_end_date)) }}</td>
+            <td>{{ date('d-m-Y', strtotime($list_prof->next_subscription_date)) }}</td>
+            <td>{{ $list_prof->subscription_cancel_date ? date('d-m-Y', strtotime($list_prof->subscription_cancel_date)) : '-' }}</td>
+            <td><span class="badge bg-{{ $badgeColor }}">{{ $subscriptionStatus }}</span></td>
+            <td><a href="{{ route('admin.subscriptions.view', ['id' => $userId]) }}"><i class="bi bi-eye-fill" title="view" style="cursor: pointer; font-size: 20px;"></i></a></td>
         </tr>
         @endforeach
     @else

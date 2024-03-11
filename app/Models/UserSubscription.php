@@ -15,6 +15,7 @@ class UserSubscription extends Model
         'user_id',
         'price_id',
         'plan_type',
-        'plan_price'
+        'plan_price',
+        'upgrade_downgrade'
     ];   
 }

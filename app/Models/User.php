@@ -53,7 +53,7 @@ class User extends Authenticatable
         return $this->hasMany(User_images::class, 'user_id', 'id');
     }
 
-  // Define sender relationship
+    // Define sender relationship
     public function sentFriendRequests() {
         return $this->hasMany(Friend_list::class, 'sender_id', 'id');
     }
@@ -63,6 +63,13 @@ class User extends Authenticatable
         return $this->hasMany(Friend_list::class, 'receiver_id', 'id');
     }
 
-   
+    public function getLastSubscription()
+    {
+        return $this->hasOne(UserSubscription::class, 'user_id', 'id')->orderBy('id', 'desc');
+    }
 
+    public function getSubscriptionDetails()
+    {
+        return $this->hasMany(UserSubscription::class, 'user_id', 'id');
+    }
 }
