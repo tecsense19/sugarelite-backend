@@ -91,7 +91,7 @@ class StripeController extends BaseController
                             'name' => $getUser->username,
                             'email' => $getUser->email,
                             'source' => $input['stripe_token'], // Use the card token as the source
-                            "test_clock" => "clock_1Ot4etBx8CTGPFp9MUyKv93S"
+                            "test_clock" => "clock_1Ot9FaBx8CTGPFp9vZuI50eP"
                         ]);
 
                         User::where('id', $input['user_id'])->update(['stripe_customer_id' => $customer->id]);
