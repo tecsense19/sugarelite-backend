@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Intervention\Image\Facades\Image;
+use Carbon\Carbon;
 use DateTime;
 
 use App\Http\Controllers\Api\BaseController as BaseController;
@@ -225,13 +226,11 @@ class SugareliteController extends BaseController
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first());
             }
-
             $getUser = User::where('email', $input['email'])->where('user_role', 'user')->first();
-            $getUser->avatar_url = $getUser->avatar_url ? url('/').'/'.$getUser->avatar_url : '';
-            // echo '<pre>';print_r($getUser);echo '</pre>';
-            // die;
+            
             if($getUser)
             {
+                $getUser->avatar_url = $getUser->avatar_url ? url('/').'/'.$getUser->avatar_url : '';
                 if($getUser->user_status == 'active'){
                     if(Hash::check($input['password'], $getUser->password))
                     {
@@ -277,6 +276,17 @@ class SugareliteController extends BaseController
             $stringArr['milisecondtime'] = $currentTimeMillis;
     
             if($type == "regular"){
+
+                // Assuming you have a method to count messages sent by the sender today
+                $messagesSentToday = $this->countMessagesSentToday($sender_id);
+                
+                // Assuming you have a constant for the maximum messages allowed in free mode
+                $maxMessagesFreeMode = 3;
+                
+                if ($messagesSentToday >= $maxMessagesFreeMode) {
+                    return response()->json(['error' => 'You have exceeded the daily message limit in free mode.']);
+                }
+
                 $message = Messages::create($stringArr);
                 $lastInsertedId = $message->id;
                 return response()->json(['success' => true ,'message' => $message]);
@@ -310,6 +320,18 @@ class SugareliteController extends BaseController
             return response()->json(['success' => false, 'message' => 'User not exit']);
         }
        
+    }
+
+    public function countMessagesSentToday($sender_id)
+    {
+        // Logic to count the number of messages sent by the sender today
+        // You would need to have a messages table with a sender_id and a timestamp column
+        // Then you can count the number of messages sent by the sender today
+        $messagesSentToday = Messages::where('sender_id', $sender_id)
+                                    ->whereDate('created_at', Carbon::today())
+                                    ->count();
+
+        return $messagesSentToday;
     }
 
     public function messageList(Request $request)
@@ -475,15 +497,12 @@ class SugareliteController extends BaseController
         if ($validator->fails()) {
             return $this->sendError($validator->errors()->first());
         }
-      // Retrieve all friendships for the user
+        // Retrieve all friendships for the user
         $friendships = Friend_list::forUser($input['id'])->get();
-        
         // Initialize an empty array to store friend IDs
         $friendIds = [];
-
         // Extract friend IDs from the friendships
         foreach ($friendships as $friendship) {
-            
             // Add the sender ID if the user is the receiver, and vice versa
             if ($friendship->sender_id == $input['id']) {
                 $friendIds[] = $friendship->receiver_id;
