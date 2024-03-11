@@ -212,6 +212,28 @@ class SugareliteController extends BaseController
         }
     }
 
+    public function logout(Request $request)
+    {
+        try {
+            $input = $request->all();
+            // Get the authenticated user
+            $user = User::where('id', $input['id'])->where('user_role', 'user')->first();
+            if ($user) {
+                // Update the user's online status to false
+                $user->update([
+                    'online' => 0,
+                    'last_online' => now(), // Set last online to current timestamp
+                ]);
+                return $this->sendResponse('', 'Logged out successfully.');
+            } else {
+                return $this->sendError('User not found.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+    
+
     public function login(Request $request)
     {
         try {
@@ -234,6 +256,10 @@ class SugareliteController extends BaseController
                 if($getUser->user_status == 'active'){
                     if(Hash::check($input['password'], $getUser->password))
                     {
+                        $getUser->update([
+                            'online' => 1,
+                            'last_online' => now(), // Set last online to current timestamp
+                        ]);
                         return $this->sendResponse($getUser, 'Login Successfully.');
                     }
                     else
@@ -277,16 +303,22 @@ class SugareliteController extends BaseController
     
             if($type == "regular"){
 
-                // Assuming you have a method to count messages sent by the sender today
-                $messagesSentToday = $this->countMessagesSentToday($sender_id);
-                
-                // Assuming you have a constant for the maximum messages allowed in free mode
-                $maxMessagesFreeMode = 3;
-                
-                if ($messagesSentToday >= $maxMessagesFreeMode) {
-                    return response()->json(['success' => false ,'message' => 'You have exceeded the daily message limit in free mode.']);
+                $user = User::where('id', $sender_id)->where('user_role', 'user')->first();
+                $user->update([
+                    'last_activity_at' => now(), // Set last online to current timestamp
+                ]);
+                if(!$user->stripe_customer_id)
+                {
+                    // Assuming you have a method to count messages sent by the sender today
+                    $messagesSentToday = $this->countMessagesSentToday($sender_id);
+                    
+                    // Assuming you have a constant for the maximum messages allowed in free mode
+                    $maxMessagesFreeMode = 3;
+                    
+                    if ($messagesSentToday >= $maxMessagesFreeMode) {
+                        return response()->json(['success' => false ,'message' => 'You have exceeded the daily message limit in free mode.']);
+                    }
                 }
-
                 $message = Messages::create($stringArr);
                 $lastInsertedId = $message->id;
                 return response()->json(['success' => true ,'message' => $message]);
@@ -584,5 +616,17 @@ class SugareliteController extends BaseController
         }else{
             return response()->json(['success' => false, 'message' => 'User not exit']);
         }
+    }
+
+    public function push_notifications_private_album(Request $request)
+    {
+        $push = Privatealbumaccess::where('status', 'pending')->get();
+        return $this->sendResponse($push, 'Private album pending records');
+    }
+
+    public function push_notifications_friend_request(Request $request)
+    {
+        $push = Friend_list::where('is_friend', 0)->get();
+        return $this->sendResponse($push, 'Friend request pending records');
     }
 }
