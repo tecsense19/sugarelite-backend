@@ -66,7 +66,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('/view/subscription/{id}', [SubscriptionController::class, 'viewSubscription'])->name('admin.subscriptions.view');
 });
 
-Route::get('/subscription/update/webhook', [StripeWebhookController::class, 'handleSubscriptionUpdated']);
+Route::any('/subscription/update/webhook', [StripeWebhookController::class, 'handleSubscriptionUpdated']);
 
 //forgot password
 Route::get('forgot/password/view/{id}', [HomeController::class, 'view_SubmitforgotPassword']);
