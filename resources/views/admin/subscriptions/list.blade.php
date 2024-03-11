@@ -35,8 +35,8 @@
         <tr>
             <td>{{ ($keys+1) }}</td>
             <td>{{ $list_prof->username }}</td>
-            <td><span class="badge bg-success">{{ $list_prof->stripe_customer_id }}</span></td>
-            <td><span class="badge bg-success">{{ $list_prof->stripe_subscription_id }}</span></td>
+            <td><span class="badge bg-secondary">{{ $list_prof->stripe_customer_id }}</span></td>
+            <td><span class="badge bg-secondary">{{ $list_prof->stripe_subscription_id }}</span></td>
             <td>{{ $list_prof->getLastSubscription->plan_type }}</td>
             <td>{{ $list_prof->getLastSubscription->plan_price }}</td>
             <td>{{ date('d-m-Y', strtotime($list_prof->subscription_start_date)) }}</td>
@@ -49,7 +49,7 @@
         @endforeach
     @else
         <tr>
-            <td colspan="6" class="text-capitalize text-center">Profile Not Found.</td>
+            <td colspan="12" class="text-capitalize text-center">Subscriptions Not Found.</td>
         </tr>
     @endif
 </tbody>

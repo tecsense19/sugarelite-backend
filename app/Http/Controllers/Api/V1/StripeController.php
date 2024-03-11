@@ -91,6 +91,7 @@ class StripeController extends BaseController
                             'name' => $getUser->username,
                             'email' => $getUser->email,
                             'source' => $input['stripe_token'], // Use the card token as the source
+                            // "test_clock" => "clock_1Ot4etBx8CTGPFp9MUyKv93S"
                         ]);
 
                         User::where('id', $input['user_id'])->update(['stripe_customer_id' => $customer->id]);
@@ -308,6 +309,36 @@ class StripeController extends BaseController
             {
                 return $this->sendError('Invalid plan id.');
             }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function createWebhook(Request $request)
+    {
+        try {
+            $input = $request->all();
+
+            // Subscription upgrades downgrades
+            $webhookEndpoint = $this->stripe->webhookEndpoints->create([
+                'enabled_events' => ['customer.subscription.updated'],
+                'url' => url('/').'/subscription/update/webhook',
+            ]);
+
+            return $this->sendResponse($webhookEndpoint, 'Webhook end point created successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function createTestClock(Request $request)
+    {
+        try {
+            $input = $request->all();
+            
+            $testClock = $this->stripe->testHelpers->testClocks->create(['frozen_time' => time()]);
+
+            return $this->sendResponse($testClock, 'Webhook end point created successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\UserreportController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\StripeWebhookController;
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Api\V1\NewslettersController;
@@ -65,9 +66,11 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('/view/subscription/{id}', [SubscriptionController::class, 'viewSubscription'])->name('admin.subscriptions.view');
 });
 
- //forgot password
- Route::get('forgot/password/view/{id}', [HomeController::class, 'view_SubmitforgotPassword']);
- Route::post('forgot/password', [HomeController::class, 'Submit_forgotPassword'])->name('admin.forgot.password');
+Route::get('/subscription/update/webhook', [StripeWebhookController::class, 'handleSubscriptionUpdated']);
+
+//forgot password
+Route::get('forgot/password/view/{id}', [HomeController::class, 'view_SubmitforgotPassword']);
+Route::post('forgot/password', [HomeController::class, 'Submit_forgotPassword'])->name('admin.forgot.password');
 
 Route::get('/chat/send', [ChatController::class, 'sendMessage']);
 Route::get('/chat/webhook/message', [ChatController::class, 'webhook']);
