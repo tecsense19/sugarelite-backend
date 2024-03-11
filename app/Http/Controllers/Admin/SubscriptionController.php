@@ -83,23 +83,29 @@ class SubscriptionController extends Controller
 
                 if($subscriptionDetails)
                 {
-                    $getCustomerDetails = $this->stripe->customers->retrieve($subscriptionDetails->stripe_customer_id);
-
-                    if($getCustomerDetails)
+                    if($subscriptionDetails->stripe_customer_id)
                     {
-                        $default_card = $getCustomerDetails->default_source;
-                        $getCardDetails = $this->stripe->customers->retrieveSource($subscriptionDetails->stripe_customer_id, $default_card);
-                    }
+                        $getCustomerDetails = $this->stripe->customers->retrieve($subscriptionDetails->stripe_customer_id);
 
-                    $getAllInvoice = $this->stripe->invoices->all([
-                        "subscription" => $subscriptionDetails->stripe_subscription_id
-                    ]);
+                        if($getCustomerDetails)
+                        {
+                            $default_card = $getCustomerDetails->default_source;
+                            if($default_card)
+                            {
+                                $getCardDetails = $this->stripe->customers->retrieveSource($subscriptionDetails->stripe_customer_id, $default_card);
+                            }
+                        }
 
-                    if($getAllInvoice)
-                    {
-                        usort($getAllInvoice->data, function($a, $b) {
-                            return $b->created - $a->created;
-                        });
+                        $getAllInvoice = $this->stripe->invoices->all([
+                            "subscription" => $subscriptionDetails->stripe_subscription_id
+                        ]);
+
+                        if($getAllInvoice)
+                        {
+                            usort($getAllInvoice->data, function($a, $b) {
+                                return $b->created - $a->created;
+                            });
+                        }
                     }
                 }
 
