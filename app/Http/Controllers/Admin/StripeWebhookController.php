@@ -28,10 +28,10 @@ class StripeWebhookController extends Controller
             if($event)
             {
                 $userData = [];
-                $userData['subscription_end_date'] = $event->data->object->current_period_end;
-                $userData['next_subscription_date'] = $event->data->object->current_period_end;
+                $userData['subscription_end_date'] = $event['data']['object']['current_period_end'];
+                $userData['next_subscription_date'] = $event['data']['object']['current_period_end'];
 
-                User::where('stripe_subscription_id', $event->date->object->id)->update($userData);
+                User::where('stripe_subscription_id', $event['data']['object']['id'])->update($userData);
             }
 
             return response()->json(['success' => true, 'message' => 'Webhook received successfully.']);
