@@ -101,7 +101,7 @@ $expYear = $getCardDetails ? $getCardDetails->exp_year : '';
                                 <!--begin::Details-->
                                 <div class="mb-0">
                                     <!--begin::Plan-->
-                                    <span class="badge bg-dark me-2">Basic Bundle</span>
+                                    <span class="badge bg-secondary me-2">Basic Bundle</span>
                                     <!--end::Plan-->
 
                                     <!--begin::Price-->
@@ -134,7 +134,7 @@ $expYear = $getCardDetails ? $getCardDetails->exp_year : '';
                                     <div class="col-md-12">
                                         <div class="mb-2">
                                             <span class="fw-semibold text-gray-500 d-flex align-items-center py-1">Subscription ID:</span>
-                                            <span class="fw-semibold text-gray-800 d-flex align-items-center py-2"><span class="badge bg-dark me-2">{{ $stripeSubscriptionId }}</span></span>
+                                            <span class="fw-semibold text-gray-800 d-flex align-items-center py-2"><span class="badge bg-secondary me-2">{{ $stripeSubscriptionId }}</span></span>
                                         </div>
                                     </div>
                                     <div class="col-md-12 d-flex">
@@ -188,7 +188,7 @@ $expYear = $getCardDetails ? $getCardDetails->exp_year : '';
                                                     <label class="w-150px">Basic Bundle</label>
                                                     <div class="fw-normal text-gray-600">Basic {{ $planType }} bundle</div>
                                                 </td>
-                                                <td><span class="badge rounded-pill bg-info text-dark">{{ $stripeSubscriptionId }}</span></td>
+                                                <td><span class="badge bg-secondary">{{ $stripeSubscriptionId }}</span></td>
                                                 <td>1</td>
                                                 <td>DKK {{ $planPrice }} / {{ $planType }}</td>
                                                 <!-- <td class="text-end"></td> -->
@@ -218,7 +218,7 @@ $expYear = $getCardDetails ? $getCardDetails->exp_year : '';
                                         <tbody>
                                             @foreach($getAllInvoice as $invoice)
                                             <tr>
-                                                <td><a href="#" class="text-gray-600 text-hover-primary"><span class="badge rounded-pill bg-info text-dark">{{ $invoice->id }}<span></a></td>
+                                                <td><a href="#" class="text-gray-600 text-hover-primary"><span class="badge bg-secondary">{{ $invoice->id }}<span></a></td>
                                                 <td class="text-success">DKK {{ $invoice->amount_due / 100 }}</td>
                                                 <td><span class="badge bg-success">{{ $invoice->status }}</span></td>
                                                 <td>{{ date('d M Y', $invoice->created) }}</td>
