@@ -47,7 +47,7 @@
                                         @foreach ($getimage as $imgs) 
                                             @if($imgs->image_type == 'public')
                                                 <div class="display_img" data-id ="{{$imgs->id}}">
-                                                    <img src="{{ url('/').'/'.$imgs->public_images }}" height="30px" width="30px" alt="">
+                                                    <img src="{{ $imgs->public_images }}" height="30px" width="30px" alt="">
                                                     <a class="img_remove" data-id ="{{$imgs->id}}"><i class="ri-close-circle-line"></i></a>
                                                 </div>
                                             @endif
@@ -62,7 +62,7 @@
                                         @foreach ($getimage as $imgs) 
                                             @if($imgs->image_type == 'private')
                                                 <div class="display_img" data-id ="{{$imgs->id}}">
-                                                    <img src="{{ url('/').'/'.$imgs->public_images }}" height="30px" width="30px" alt="">
+                                                    <img src="{{ $imgs->public_images }}" height="30px" width="30px" alt="">
                                                     <a class="img_remove" data-id ="{{$imgs->id}}"><i class="ri-close-circle-line"></i></a>
                                                 </div>
                                             @endif
