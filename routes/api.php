@@ -38,5 +38,6 @@ Route::group(['prefix' => 'V1'], function () {
     Route::post('/create/subscription', [StripeController::class, 'createSubscription']);
     Route::post('/start/stop/subscription', [StripeController::class, 'startStopSubscription']);
     Route::post('/cancel/subscription', [StripeController::class, 'cancelSubscription']);
+    Route::post('/upgrade/downgrade/subscription', [StripeController::class, 'upgradeDowngrade']);
 });
 

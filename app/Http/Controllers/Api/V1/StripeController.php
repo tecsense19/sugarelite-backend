@@ -59,10 +59,6 @@ class StripeController extends BaseController
             {
                 if($getUser)
                 {
-                    $stripeApiKey = $getPlans->test_or_live == '1' ? env('STRIPE_LIVE_SECRET') : env('STRIPE_TEST_SECRET');
-                    // Set your Stripe API key
-                    Stripe::setApiKey($stripeApiKey);
-
                     // $stripe = new \Stripe\StripeClient($stripeApiKey);
 
                     // // Create a card token from the provided card details
@@ -86,6 +82,7 @@ class StripeController extends BaseController
                     //     ],
                     // ]);
 
+                    // Get exesting stripe customer id
                     $stripeCustomerId = $getUser->stripe_customer_id ? $getUser->stripe_customer_id : '';
                     if(!$stripeCustomerId)
                     {
@@ -116,12 +113,15 @@ class StripeController extends BaseController
                     $subscriptionArr['price_id'] = $input['price_id'];
                     $subscriptionArr['plan_type'] = $input['plan_type'];
                     $subscriptionArr['plan_price'] = $input['plan_price'];
+                    $subscriptionArr['upgrade_downgrade'] = 'Create';
                     UserSubscription::create($subscriptionArr);
 
                     $currentDate = date('Y-m-d H:i:s');
 
                     $subArr = [];
+                    $subArr['is_subscribe'] = '1';
                     $subArr['stripe_subscription_id'] = $subscription->id;
+                    $subArr['subscription_item_id'] = $subscription->items->data[0]->id;
                     $subArr['subscription_start_date'] = date('Y-m-d H:i:s', strtotime($currentDate));
                     if($input['plan_type'] == '4week') {
                         $subArr['subscription_end_date'] = date('Y-m-d H:i:s', strtotime($currentDate . ' +4 weeks'));
@@ -133,8 +133,8 @@ class StripeController extends BaseController
                         $subArr['subscription_end_date'] = date('Y-m-d H:i:s', strtotime($currentDate . ' +12 weeks'));
                         $subArr['next_subscription_date'] = date('Y-m-d H:i:s', strtotime($currentDate . ' +12 weeks'));
                     }
-                    // $subArr['subscription_cancel_date'] = "";
-                    // $subArr['is_subscription_cancel'] = "";
+                    $subArr['subscription_cancel_date'] = "";
+                    $subArr['is_subscription_cancel'] = "0";
 
                     User::where('id', $input['user_id'])->update($subArr);
 
@@ -174,12 +174,9 @@ class StripeController extends BaseController
             {
                 if($getUser)
                 {
-                    $stripeApiKey = $getPlans->test_or_live == '1' ? env('STRIPE_LIVE_SECRET') : env('STRIPE_TEST_SECRET');
-                    Stripe::setApiKey($stripeApiKey);
-
                     $startStop = $input['start_stop'] == 'start' ? false : true;
 
-                    // Create a subscription for the customer
+                    // Subscription start and stop
                     $subscription = $this->stripe->subscriptions->update($getUser->stripe_subscription_id, [
                         'cancel_at_period_end' => $startStop,
                     ]);
@@ -226,15 +223,10 @@ class StripeController extends BaseController
             {
                 if($getUser)
                 {
-                    $stripeApiKey = $getPlans->test_or_live == '1' ? env('STRIPE_LIVE_SECRET') : env('STRIPE_TEST_SECRET');
-                    Stripe::setApiKey($stripeApiKey);
-
                     if($input['at_cancel'] == 'yes')
                     {
-                        // Create a subscription for the customer
-                        $stripe = new \Stripe\StripeClient($stripeApiKey);
-
-                        $subscription = $stripe->subscriptions->cancel($getUser->stripe_subscription_id, []);
+                        // Subscription cancel
+                        $subscription = $this->stripe->subscriptions->cancel($getUser->stripe_subscription_id, []);
 
                         $updateArr = [];
                         $updateArr['is_subscription_cancel'] = '1';
@@ -259,6 +251,63 @@ class StripeController extends BaseController
                 return $this->sendError('Invalid plan id.');
             }
 
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function upgradeDowngrade(Request $request)
+    {
+        try {
+            $input = $request->all();
+
+            $validator = Validator::make($input, [
+                'user_id' => 'required',
+                'price_id' => 'required',
+                'plan_type' => 'required',
+                'plan_price' => 'required',
+                'upgrade_downgrade' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            } 
+
+            $getPlans = Plans::first();
+            $getUser = User::where('id', $input['user_id'])->first();
+            if($getPlans)
+            {
+                if($getUser)
+                {
+                    // Subscription upgrades downgrades
+                    $subscription = $this->stripe->subscriptions->update($getUser->stripe_subscription_id, [
+                        'items' => [
+                            [
+                                'id' => $getUser->subscription_item_id,
+                                'price' => $input['price_id'],
+                            ]
+                        ],
+                    ]);
+
+                    $subscriptionArr = [];
+                    $subscriptionArr['user_id'] = $input['user_id'];
+                    $subscriptionArr['price_id'] = $input['price_id'];
+                    $subscriptionArr['plan_type'] = $input['plan_type'];
+                    $subscriptionArr['plan_price'] = $input['plan_price'];
+                    $subscriptionArr['upgrade_downgrade'] = $input['upgrade_downgrade'];
+                    UserSubscription::create($subscriptionArr);
+
+                    return $this->sendResponse($subscription, 'Subscription cancel successfully.');
+                }
+                else
+                {
+                    return $this->sendError('Invalid user id.');
+                }
+            }
+            else
+            {
+                return $this->sendError('Invalid plan id.');
+            }
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

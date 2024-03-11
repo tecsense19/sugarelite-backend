@@ -62,6 +62,7 @@ Route::group(['middleware' => ['admin']], function () {
     // Subscription
     Route::get('/subscriptions', [SubscriptionController::class, 'subscriptions'])->name('admin.subscriptions');
     Route::post('/get/subscriptions/list', [SubscriptionController::class, 'getSubscriptionsList'])->name('admin.subscriptions.list');
+    Route::get('/view/subscription/{id}', [SubscriptionController::class, 'viewSubscription'])->name('admin.subscriptions.view');
 });
 
  //forgot password
