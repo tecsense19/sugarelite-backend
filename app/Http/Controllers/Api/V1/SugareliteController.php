@@ -284,7 +284,7 @@ class SugareliteController extends BaseController
                 $maxMessagesFreeMode = 3;
                 
                 if ($messagesSentToday >= $maxMessagesFreeMode) {
-                    return response()->json(['error' => 'You have exceeded the daily message limit in free mode.']);
+                    return response()->json(['success' => false ,'message' => 'You have exceeded the daily message limit in free mode.']);
                 }
 
                 $message = Messages::create($stringArr);
