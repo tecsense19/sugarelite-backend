@@ -14,67 +14,61 @@
     </div>
     @include('flash-message')
     <section class="section">
-    {!! csrf_field() !!}
-      <div class="row">
-        <div class="col-lg-12">
-
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title" style="color:black;!important">ReportList</h5>
-                <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
-                    <div id="pagination-controls">
-                      <select id="entries-per-page" name="pagination" style="padding:6px !important;">
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="15" selected>15</option>
-                        <option value="20">20</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                      </select>
-                      <label for="">Entries per page:</label>
-                    </div>
-
-                    <div class="d-flex gap-2">
-                    <div class="form-group">
-                        <select id="user_status" name="user_status" class="form-control">
-                            <option value="">Select User Status</option>
-                            <option value="active">Active</option>
-                            <option value="deactive">Deactive</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <input type="date" id="from_date" name="from_date" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <input type="date" id="to_date" name="to_date" class="form-control">
-                    </div>
-                    <div class="d-flex">
-                        <input name="search" id="search" class="form-control me-2" placeholder="Search"/>
-                        <button name="clear-button" id="clear-button" class="btn btn-danger clear-button">Clear</button>
-                    </div>
+        {!! csrf_field() !!}
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color:black;!important">ReportList</h5>
+                        <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                            <div id="pagination-controls">
+                                <select id="entries-per-page" name="pagination" style="padding:6px !important;">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="15" selected>15</option>
+                                    <option value="20">20</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                </select>
+                                <label for="">Entries per page:</label>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <div class="form-group">
+                                    <select id="user_status" name="user_status" class="form-control">
+                                        <option value="">Select User Status</option>
+                                        <option value="active">Active</option>
+                                        <option value="deactive">Deactive</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="date" id="from_date" name="from_date" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <input type="date" id="to_date" name="to_date" class="form-control">
+                                </div>
+                                <div class="d-flex">
+                                    <input name="search" id="search" class="form-control me-2" placeholder="Search"/>
+                                    <button name="clear-button" id="clear-button" class="btn btn-danger clear-button">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-content userReportList">
+                        </div>
                     </div>
                 </div>
-              <div class="tab-content userReportList">
-                
-              </div>
-              
             </div>
-          </div>
-
         </div>
-      </div>
     </section>
 </main>
 
 <!-- End #main -->
 @include('admin.layout.footer')
-
 <script>
 
     $( document ).ready(function() 
     {
-      ReportList();
-      $('body').on('click', '.pagination a', function(e) 
+        ReportList();
+        $('body').on('click', '.pagination a', function(e) 
         {
             e.preventDefault();
 
@@ -121,29 +115,28 @@
         });
     }
 
-    $('body').on('keyup', '#search', function (e) 
-    {
-      ReportList();
+    $('body').on('keyup', '#search', function (e) {
+        ReportList();
     });
 
     $('body').on('click', '#clear-button', function(e) {
         $('#search').val('');
+        $('#user_status').val('');
+        $('#from_date').val('');
+        $('#to_date').val('');
         ReportList();
     });
 
-    $('body').on('keyup', '#to_date', function (e) 
-    {
-      ReportList();
+    $('body').on('change', '#to_date', function (e) {
+        ReportList();
     });
     
-    $('body').on('change', '#user_status', function (e) 
-    {
-      ReportList();
+    $('body').on('change', '#user_status', function (e) {
+        ReportList();
     });
 
-    $('body').on('change', '#entries-per-page', function (e) 
-    {
-      ReportList();
+    $('body').on('change', '#entries-per-page', function (e) {
+        ReportList();
     });
 </script>
 @include('admin.layout.end')
