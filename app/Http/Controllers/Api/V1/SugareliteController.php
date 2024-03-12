@@ -321,7 +321,7 @@ class SugareliteController extends BaseController
                 $user->update([
                     'last_activity_at' => now(), // Set last online to current timestamp
                 ]);
-                if(!$user->stripe_customer_id)
+                if($user->is_subscribe == 0)
                 {
                     // Assuming you have a method to count messages sent by the sender today
                     $messagesSentToday = $this->countMessagesSentToday($sender_id);
