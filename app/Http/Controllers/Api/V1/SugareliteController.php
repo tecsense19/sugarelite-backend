@@ -118,6 +118,7 @@ class SugareliteController extends BaseController
             $userArr['height'] = isset($input['height']) ? $input['height'] : '';
             $userArr['premium'] = isset($input['premium']) ? $input['premium'] : '';
             $userArr['age'] = $age;
+            $userArr['avatar_url'] = isset($input['avatar_url'])? $input['avatar_url'] : '';
             $userArr['weight'] = isset($input['weight'])? $input['weight'] : '';
             $userArr['country'] = isset($input['country'])? $input['country'] : '';
             $userArr['sugar_type'] = isset($input['sugar_type'])? $input['sugar_type'] : '';
@@ -185,8 +186,15 @@ class SugareliteController extends BaseController
                     User_images::create($attachment);
                 }
            }   
-            $getUser = User::where('id', $lastUserId)->first();
-            $getUser->avatar_url = $getUser->avatar_url ? url('/').'/'.$getUser->avatar_url : '';
+            $getUser = User::with('getAllProfileimg')->where('id', $lastUserId)->first();
+            if($getUser)
+            {
+                $getUser->avatar_url = $getUser->avatar_url ? url('/').'/'.$getUser->avatar_url : '';
+            }
+            else{
+                return $this->sendError('User not found.');
+            }
+            
 
             return response()->json(['success'=> true, 'message' => $messgae, 'user' => $getUser], 200);
             } catch (\Exception $e) {
