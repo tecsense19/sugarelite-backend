@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\User_images;
 use App\Models\Messages;
 use App\Models\Friend_list;
+use App\Models\ChatImages;
 use App\Models\Privatealbumaccess;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -44,19 +45,13 @@ class SugareliteController extends BaseController
             if (!isset($input['user_id'])) {
                 $rules['password'] = 'required';
             }
-            
             $validator = Validator::make($input, $rules);
-            
-        
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first());
             }
-
             if(isset($input['remove_images']))
             {
-                $userImages = User_images::whereIn('id', explode(',', $input['remove_images']))
-                          ->get();
-
+                $userImages = User_images::whereIn('id', explode(',', $input['remove_images']))->get();
                   foreach ($userImages as $key => $value) {
                     if ($value) {
                         $proFilePath = $value->public_images;
@@ -66,7 +61,6 @@ class SugareliteController extends BaseController
                             \File::delete(public_path($proPath));
                         }
                     }
-                    
                   }     
                  User_images::whereIn('id', explode(',', $input['remove_images']))->delete();   
             }
@@ -85,18 +79,15 @@ class SugareliteController extends BaseController
                     return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
                 }
             }
-
+            $userArr = [];
             if($file = $request->file('avatar_url'))
             {
                 $path = 'public/uploads/user/';
     
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move($path, $filename);
-    
-                $img = 'public/uploads/user/' . $filename;
-                
-                $input['avatar_url'] = $img;
-    
+                $img = 'public/uploads/user/' . $filename;                
+                $userArr['avatar_url'] = $img;
                 if(isset($input['user_id']) && $input['user_id']!= "")
                 {
                     $getUserDetails = User::where('id', $input['user_id'])->first();
@@ -110,15 +101,12 @@ class SugareliteController extends BaseController
                     }
                 }
             }
-
-            $userArr = [];
             $userArr['username'] = isset($input['username']) ? $input['username'] : '';
             $userArr['email'] = isset($input['email']) ? $input['email'] : '';
             $userArr['sex'] = isset($input['sex']) ? $input['sex'] : '';
             $userArr['height'] = isset($input['height']) ? $input['height'] : '';
             $userArr['premium'] = isset($input['premium']) ? $input['premium'] : '';
             $userArr['age'] = $age;
-            $userArr['avatar_url'] = isset($input['avatar_url'])? $input['avatar_url'] : '';
             $userArr['weight'] = isset($input['weight'])? $input['weight'] : '';
             $userArr['country'] = isset($input['country'])? $input['country'] : '';
             $userArr['sugar_type'] = isset($input['sugar_type'])? $input['sugar_type'] : '';
@@ -205,7 +193,6 @@ class SugareliteController extends BaseController
     public function checkUser(Request $request)
     {
         try {
-
             $input = $request->all();
             // Check if the email already exists in the database
             $validator = Validator::make($input, [
@@ -250,9 +237,7 @@ class SugareliteController extends BaseController
     public function login(Request $request)
     {
         try {
-
             $input = $request->all();
-
             $validator = Validator::make($input, [
                 'email' => 'required',
                 'password' => 'required',
@@ -264,7 +249,6 @@ class SugareliteController extends BaseController
             $getUser = User::with('getAllProfileimg')->where('email', $input['email'])->where('user_role', 'user')->first();
             if($getUser)
             {
-                
                 if($getUser->user_status == 'active'){
                     if(Hash::check($input['password'], $getUser->password))
                     {
@@ -325,16 +309,31 @@ class SugareliteController extends BaseController
                 {
                     // Assuming you have a method to count messages sent by the sender today
                     $messagesSentToday = $this->countMessagesSentToday($sender_id);
-                    
                     // Assuming you have a constant for the maximum messages allowed in free mode
                     $maxMessagesFreeMode = 3;
-                    
                     if ($messagesSentToday >= $maxMessagesFreeMode) {
                         return response()->json(['success' => false ,'message' => 'You have exceeded the daily message limit in free mode.']);
                     }
                 }
-                $message = Messages::create($stringArr);
-                $lastInsertedId = $message->id;
+
+                // Create a message entry without images
+                $sendMessage = Messages::create($stringArr);
+                $lastInsertedId = $sendMessage->id;
+                if(!empty($request->file('chat_images'))) {
+                    foreach ($request->file('chat_images') as $file) {
+                        $path = 'public/uploads/user/public_images/';
+                        $filename = time() . '_' . $file->getClientOriginalName();
+                        $file->move($path, $filename);
+                        $img = 'public/uploads/user/public_images/' . $filename;
+
+                        // Store the image associated with the message
+                        $attachment['user_id'] = $sender_id;
+                        $attachment['chat_images'] = $img;
+                        $attachment['message_id'] = $lastInsertedId; // Associate the image with the message
+                        ChatImages::create($attachment);
+                    }
+                }
+                $message = Messages::with('getAllChatimg')->where('id', $lastInsertedId)->first();
                 return response()->json(['success' => true ,'message' => $message]);
             }
             else if($type == "edited")
@@ -342,9 +341,44 @@ class SugareliteController extends BaseController
                 $getMessage = Messages::where('id', $id)->first();
     
                     if ($getMessage) {
+                        $remove_chatimages = $request->input('remove_chatimages');
+                     
+                        if($remove_chatimages)
+                        {
+                            $chatImages = ChatImages::whereIn('id', explode(',', $remove_chatimages))->get();
+                         
+                            foreach ($chatImages as $key => $value) {
+                              if ($value) {
+                                  $chatImgFilePath = $value->chat_images;
+                                  $proPath = substr(strstr($chatImgFilePath, 'public/'), strlen('public/'));
+                      
+                                  if (file_exists(public_path($proPath))) {
+                                      \File::delete(public_path($proPath));
+                                  }
+                              }
+                            }    
+                            ChatImages::whereIn('id', explode(',', $remove_chatimages))->delete();   
+                        }
+                        if(!empty($request->file('chat_images'))) {
+                            foreach ($request->file('chat_images') as $file) {
+                                $path = 'public/uploads/user/public_images/';
+                                $filename = time() . '_' . $file->getClientOriginalName();
+                                $file->move($path, $filename);
+                                $img = 'public/uploads/user/public_images/' . $filename;
+        
+                                // Store the image associated with the message
+                                $attachment['user_id'] = $sender_id;
+                                $attachment['chat_images'] = $img;
+                                $attachment['message_id'] = $id; // Associate the image with the message
+                                ChatImages::create($attachment);
+                            }
+                        }
                         $newText = $request->input('message'); // Replace this with the updated text
                         $getMessage->update(['text' => $newText, 'type' => $type]);
-                        return response()->json(['success' => true , 'message' => $getMessage]);
+
+                        $getMessageNew = Messages::with('getAllChatimg')->where('id', $id)->first();
+
+                        return response()->json(['success' => true , 'message' => $getMessageNew]);
                     } else {
                         return response()->json(['success' => false , 'message' => 'message not found! Please enter message id']);
                     }                
@@ -382,7 +416,7 @@ class SugareliteController extends BaseController
 
     public function messageList(Request $request)
     {
-        $messageList = Messages::get();
+        $messageList = Messages::with('getAllChatWithImage')->get();
         return response()->json(['success' => true, 'data' => $messageList]);
     }
 
@@ -439,13 +473,10 @@ class SugareliteController extends BaseController
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first());
             }
-
             $checkEmail = User::where('email', $input['email'])->where('user_role', 'user')->first();
-
             if($checkEmail)
             {
                 $redToken = Str::random(8);
-
                 $dataArr = [];
                 $dataArr['forgot_pass_date'] = date('Y-m-d H:i:s');
                 $dataArr['forgot_pass'] = 0;

@@ -12,7 +12,6 @@ class Messages extends Model
     protected $table = 'message';
 
     protected $fillable = [
-        'user_id',
         'sender_id',
         'receiver_id',
         'message_from',
@@ -24,4 +23,15 @@ class Messages extends Model
         'updated_at',
         'deleted_at',
     ];   
+
+    public function getAllChatimg()
+    {
+        return $this->hasMany(ChatImages::class, 'user_id', 'sender_id');
+    }
+
+    public function getAllChatWithImage()
+    {
+        return $this->hasMany(ChatImages::class, 'message_id', 'id');
+    }
 }
+
