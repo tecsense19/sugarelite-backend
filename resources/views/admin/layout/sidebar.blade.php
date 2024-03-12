@@ -1,8 +1,27 @@
 <!-- ======= Sidebar ======= -->
+<style>
+    .sidebar-nav .nav-link.collapsed {
+        color: #012970;
+        background: #fff;
+    }
+
+    .sidebar-nav .nav-link.collapsed i {
+        color: #012970;
+    }
+
+    .sidebar-nav .nav-link.collapsed:hover {
+        color: #fff;
+        background: #F16667;
+    }
+
+    .sidebar-nav .nav-link.collapsed:hover i {
+        color: #fff;
+    }
+</style>
 <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item">
-            <a class="nav-link " href="{{route('admin.dashboard')}}">
+            <a class="nav-link {{ request()->is('dashboard') || request()->is('admin-profile') ? '' : 'collapsed' }}" href="{{route('admin.dashboard')}}">
             <i class="bi bi-grid"></i>
             <span>Dashboard</span>
             </a>
@@ -86,7 +105,7 @@
             </ul>
             </li>End Components Nav -->
         <li class="nav-item">
-            <a class="nav-link collapsed " data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+            <a class="nav-link {{ request()->is('profile') || request()->is('profiles') || request()->is('profile/edit/*') ? '' : 'collapsed' }} " data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
             <i class="bi bi-journal-text"></i><span>Profile</span><i class="bi bi-chevron-down ms-auto"></i>
             </a>
             <ul id="forms-nav" class="nav-content collapse {{ request()->is('profile/edit*') || request()->is('profiles') || request()->is('profile') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
@@ -104,19 +123,19 @@
         </li>
         <!-- End Forms Nav -->
         <li class="nav-item">
-            <a class="nav-link " href="{{ route('userreport.user-report') }}">
+            <a class="nav-link {{ request()->is('userreport') ? '' : 'collapsed' }}" href="{{ route('userreport.user-report') }}">
             <i class="bi bi-grid"></i>
             <span>Report</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link " href="{{ route('admin.plans') }}">
+            <a class="nav-link {{ request()->is('plans') ? '' : 'collapsed' }}" href="{{ route('admin.plans') }}">
             <i class="bi bi-grid"></i>
             <span>Plans</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link " href="{{ route('admin.subscriptions') }}">
+            <a class="nav-link {{ request()->is('subscriptions') || request()->is('view/subscription/*') ? '' : 'collapsed' }}" href="{{ route('admin.subscriptions') }}">
             <i class="bi bi-grid"></i>
             <span>Subscriptions</span>
             </a>
