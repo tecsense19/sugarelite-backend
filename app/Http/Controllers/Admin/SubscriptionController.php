@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller as Controller;
 
 use Stripe\Stripe;
 use Stripe\StripeClient;
+use Stripe\Exception\InvalidRequestException;
 
 use Auth;
 use Hash;
@@ -80,25 +81,36 @@ class SubscriptionController extends Controller
 
                 $getCardDetails = '';
                 $getAllInvoice = [];
+                $upcomingInvoice = '';
 
                 if($subscriptionDetails)
                 {
                     if($subscriptionDetails->stripe_customer_id)
                     {
-                        $getCustomerDetails = $this->stripe->customers->retrieve($subscriptionDetails->stripe_customer_id);
+                        try {
+                            $getCustomerDetails = $this->stripe->customers->retrieve($subscriptionDetails->stripe_customer_id);
+                        } catch (InvalidRequestException $e) {
+                            
+                        }
 
                         if($getCustomerDetails)
                         {
                             $default_card = $getCustomerDetails->default_source;
                             if($default_card)
                             {
-                                $getCardDetails = $this->stripe->customers->retrieveSource($subscriptionDetails->stripe_customer_id, $default_card);
+                                try {
+                                    $getCardDetails = $this->stripe->customers->retrieveSource($subscriptionDetails->stripe_customer_id, $default_card);
+                                } catch (InvalidRequestException $e) {
+                            
+                                }
                             }
                         }
 
-                        $getAllInvoice = $this->stripe->invoices->all([
-                            "subscription" => $subscriptionDetails->stripe_subscription_id
-                        ]);
+                        try {
+                            $getAllInvoice = $this->stripe->invoices->all(["subscription" => $subscriptionDetails->stripe_subscription_id]);
+                        } catch (InvalidRequestException $e) {
+                            
+                        }
 
                         if($getAllInvoice)
                         {
@@ -106,10 +118,16 @@ class SubscriptionController extends Controller
                                 return $b->created - $a->created;
                             });
                         }
+
+                        try {
+                            $upcomingInvoice = $this->stripe->invoices->upcoming(['customer' => $subscriptionDetails->stripe_customer_id]);
+                        } catch (InvalidRequestException $e) {
+                            
+                        }
                     }
                 }
 
-                return view('admin.subscriptions.view', compact('userId', 'subscriptionDetails', 'getCardDetails', 'getAllInvoice'));
+                return view('admin.subscriptions.view', compact('userId', 'subscriptionDetails', 'getCardDetails', 'getAllInvoice', 'upcomingInvoice'));
             }
             else
             {

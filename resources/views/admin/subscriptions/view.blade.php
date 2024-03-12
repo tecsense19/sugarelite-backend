@@ -169,7 +169,7 @@ $expYear = $getCardDetails ? $getCardDetails->exp_year : '';
                         <div class="info-box card flex-column flex-lg-row-auto w-lg-250px w-xl-300px mb-10 order-1 order-lg-2">                          
                             <div class="mb-3">
                                 <!--begin::Title-->
-                                <h3 class="mt-0">Subscribed Products:</h3>
+                                <h3 class="mt-0">Subscribed Products</h3>
                                 <!--end::Title-->
 
                                 <div class="table-responsive">
@@ -202,23 +202,32 @@ $expYear = $getCardDetails ? $getCardDetails->exp_year : '';
                         <div class="info-box card flex-column flex-lg-row-auto w-lg-250px w-xl-300px mb-10 order-1 order-lg-2">
                             <div class="mb-3">
                                 <!--begin::Title-->
-                                <h3 class="mt-0">Invoices:</h3>
+                                <h3 class="mt-0">Invoices</h3>
                                 <!--end::Title-->
 
                                 <div class="table-responsive">
                                     <table class="table fs-6 fw-semibold gs-0 gy-2 gx-2">
                                         <!--begin::Row-->
                                         <thead>
-                                            <th class="text-gray-500" style="font-size: .90rem !important;">ORDER ID</th>
+                                            <th class="text-gray-500" style="font-size: .90rem !important;">INVOICE ID</th>
                                             <th class="text-gray-500" style="font-size: .90rem !important;">AMOUNT</th>
                                             <th class="text-gray-500" style="font-size: .90rem !important;">STATUS</th>
                                             <th class="text-gray-500" style="font-size: .90rem !important;">DATE</th>
                                             <th class="text-gray-500" style="font-size: .90rem !important;">INVOICE</th>
                                         </thead>
                                         <tbody>
+                                            @if($upcomingInvoice)
+                                                <tr>
+                                                    <td><span class="badge bg-secondary">-<span></td>
+                                                    <td class="text-primary">DKK {{ $upcomingInvoice->amount_due / 100 }}</td>
+                                                    <td><span class="badge bg-primary">{{ $upcomingInvoice->status }}</span></td>
+                                                    <td>{{ date('d M Y', $upcomingInvoice->created) }}</td>
+                                                    <td class="">-</td>
+                                                </tr>
+                                            @endif
                                             @foreach($getAllInvoice as $invoice)
                                             <tr>
-                                                <td><a href="#" class="text-gray-600 text-hover-primary"><span class="badge bg-secondary">{{ $invoice->id }}<span></a></td>
+                                                <td><span class="badge bg-secondary">{{ $invoice->id }}<span></td>
                                                 <td class="text-success">DKK {{ $invoice->amount_due / 100 }}</td>
                                                 <td><span class="badge bg-success">{{ $invoice->status }}</span></td>
                                                 <td>{{ date('d M Y', $invoice->created) }}</td>

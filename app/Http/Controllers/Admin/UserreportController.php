@@ -8,6 +8,8 @@ use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller as Controller;
+
+use Auth;
  
 class UserreportController extends Controller
 {

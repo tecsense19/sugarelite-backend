@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller as Controller;
 
 use Hash;
+use Auth;
 
 class HomeController extends Controller
 {
