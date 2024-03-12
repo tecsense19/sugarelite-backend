@@ -70,7 +70,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Sex</label>
+                                    <label for="inputNumber" class="col-form-label">Gender</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="sex" id="sex1" value="male" {{$list_profiles->sex == 'male' ? 'checked' : ''}}>
