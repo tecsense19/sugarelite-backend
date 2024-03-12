@@ -32,15 +32,21 @@ class SugareliteController extends BaseController
             $birthdate = new DateTime($input['birthdate']);
             $currentDate = new DateTime();
             $age = $currentDate->diff($birthdate)->y;
-            $validator = Validator::make($input, [
+            $rules = [
                 'username' => 'required',
                 'country' => 'required',
                 'sugar_type' => 'required',
                 'birthdate' => 'required|date|before_or_equal:today',
                 'email' => 'required',
-                'password' => 'required',
                 'region' => 'required',
-            ]);
+            ];
+            
+            if (!isset($input['user_id'])) {
+                $rules['password'] = 'required';
+            }
+            
+            $validator = Validator::make($input, $rules);
+            
         
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first());
@@ -233,7 +239,6 @@ class SugareliteController extends BaseController
         }
     }
     
-
     public function login(Request $request)
     {
         try {
