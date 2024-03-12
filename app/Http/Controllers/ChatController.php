@@ -25,14 +25,6 @@ class ChatController extends Controller
         // Your further processing logic here
     
         $dataString = "User ID: $user_id, Sender ID: $sender_id, Message: $message , time: $currentTimeMillis\n";
-
-         // Save data to the first URL
-        // $url1 = 'http://example.com/endpoint1';
-        // $this->sendDataToUrl($url1, $dataString);
-
-        // // Save data to the second URL
-        // $url2 = 'http://example.com/endpoint2';
-        // $this->sendDataToUrl($url2, $dataString);
     
         file_put_contents('webhook_data.txt', $dataString, FILE_APPEND);
     
