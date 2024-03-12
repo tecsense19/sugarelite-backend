@@ -261,18 +261,19 @@ class SugareliteController extends BaseController
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first());
             }
-            $getUser = User::where('email', $input['email'])->where('user_role', 'user')->first();
-            
+            $getUser = User::with('getAllProfileimg')->where('email', $input['email'])->where('user_role', 'user')->first();
             if($getUser)
             {
-                $getUser->avatar_url = $getUser->avatar_url ? url('/').'/'.$getUser->avatar_url : '';
+                
                 if($getUser->user_status == 'active'){
                     if(Hash::check($input['password'], $getUser->password))
                     {
-                        $getUser->update([
-                            'online' => 1,
-                            'last_online' => now(), // Set last online to current timestamp
-                        ]);
+                        $updateArry = [];
+                        $updateArry['online'] = 1;
+                        $updateArry['last_online'] = now();
+                        User::where('email',$input['email'])->update($updateArry);
+                        $getUser = User::with('getAllProfileimg')->where('email', $input['email'])->where('user_role', 'user')->first();
+                        $getUser->avatar_url = $getUser->avatar_url ? url('/').'/'.$getUser->avatar_url : '';
                         return $this->sendResponse($getUser, 'Login Successfully.');
                     }
                     else
