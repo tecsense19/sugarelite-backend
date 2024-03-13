@@ -664,7 +664,7 @@ class SugareliteController extends BaseController
                 }
                 else if(isset($input['is_approved']) && $input['is_approved'] == 2 && isset($sender_id)){
                     $sender_id->update(['status' => 'pending']);
-                    return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
+                    return response()->json(['success' => true, 'message' => 'private album access resend to '.$recevierCheck->username]);
                 }
                
                 if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($receiver_id))
@@ -680,7 +680,7 @@ class SugareliteController extends BaseController
                 else if(isset($input['is_approved']) && $input['is_approved'] == 2 && isset($receiver_id))
                 {
                     $receiver_id->update(['status' => 'pending']);
-                    return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
+                    return response()->json(['success' => true, 'message' => 'private album access resend to '.$recevierCheck->username]);
                 }
 
                 if(isset($sender_id) && $sender_id->status == 'approved'){
