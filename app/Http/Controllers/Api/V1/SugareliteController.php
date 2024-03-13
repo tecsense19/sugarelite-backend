@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\User;
+use App\Models\Reports;
 use App\Models\User_images;
 use App\Models\Messages;
 use App\Models\Friend_list;
 use App\Models\ChatImages;
+use App\Models\BlockedUsers;
 use App\Models\Privatealbumaccess;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -435,6 +437,9 @@ class SugareliteController extends BaseController
                 $age = $currentDate->diff($birthdate)->y;
                 $profileList->avatar_url = $profileList->avatar_url ? url('/').'/'.$profileList->avatar_url : '';
                 $profileList->age = $age;
+                $profileList->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $input['id'])->where('status', 'approved')->pluck('receiver_id');
+                $profileList->is_blocked_users = BlockedUsers::where('sender_id' , $input['id'])->where('is_blocked', 1)->pluck('receiver_id');
+                $profileList->reports = Reports::where('sender_id', $input['id'])->get(['receiver_id', 'reason']);
                 $response[] = $profileList;
                 return response()->json(['success' => true, 'data' => $response]);
             }else{
@@ -453,7 +458,9 @@ class SugareliteController extends BaseController
                 // Add age to the user object
                 $user->avatar_url = $user->avatar_url ? url('/').'/'.$user->avatar_url : '';
                 $user->age = $age;
-            
+                $user->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $user['id'])->where('status', 'approved')->pluck('receiver_id');
+                $user->is_blocked_users = BlockedUsers::where('sender_id' , $user['id'])->where('is_blocked', 1)->pluck('receiver_id');
+                $user->is_reports_users = Reports::where('sender_id' , $user['id'])->get(['receiver_id', 'reason']);
                 return $user;
             });
             
@@ -628,41 +635,165 @@ class SugareliteController extends BaseController
                 if(!$receiver_id)
                 {
                     Privatealbumaccess::create($input);
-                    return response()->json(['success' => true, 'message' => 'Private album access request sent successfully']);
+                    return response()->json(['success' => true, 'message' => 'Private album access request sent to '.$senderCheck->username.' successfully']);
                 }else{
-                    if(isset($input['is_approved']) == 1)
+                    if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($sender_id))
                     {
                         $sender_id->update(['status' => 'approved']);
-                        return response()->json(['success' => true, 'message' => 'private album access granted']);
+                        return response()->json(['success' => true, 'message' => 'private album access granted to '.$senderCheck->username]);
                     }
-                    Privatealbumaccess::create($input);
-                    return response()->json(['success' => true, 'message' => 'Private album access request sent successfully']);
+                    else if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($receiver_id)){
+                        $receiver_id->update(['status' => 'approved']);
+                        return response()->json(['success' => true, 'message' => 'private album access granted to '.$senderCheck->username]);
+                    }
+                    else{
+                        Privatealbumaccess::create($input);
+                        return response()->json(['success' => true, 'message' => 'Private album access request sent to '.$recevierCheck->username.' successfully']);
+                    }
                 }
             }else{
-                if(isset($input['is_approved']) == 1 && isset($sender_id))
+              
+                if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($sender_id))
                 {
                     $sender_id->update(['status' => 'approved']);
-                    return response()->json(['success' => true, 'message' => 'private album access granted']);
+                    return response()->json(['success' => true, 'message' => 'private album access granted to '.$senderCheck->username]);
                 }
-                if(isset($input['is_approved']) == 1 && isset($receiver_id))
+                else if(isset($input['is_approved']) && $input['is_approved'] == 0 && isset($sender_id)){
+                    $sender_id->update(['status' => 'pending']);
+                    return response()->json(['success' => true, 'message' => 'Private album access request sent to '.$senderCheck->username.' successfully']);
+                }
+               
+                if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($receiver_id))
                 {
                     $receiver_id->update(['status' => 'approved']);
-                    return response()->json(['success' => true, 'message' => 'private album access granted']);
+                    return response()->json(['success' => true, 'message' => 'private album access granted to'.$recevierCheck->username]);
                 }
+                else if(isset($input['is_approved']) && $input['is_approved'] == 0 && isset($receiver_id))
+                {
+                    $receiver_id->update(['status' => 'pending']);
+                    return response()->json(['success' => true, 'message' => 'Private album access request sent to '.$recevierCheck->username.' successfully']);
+                }
+
+               
+
                 if(isset($sender_id) && $sender_id->status == 'approved'){
-                    return response()->json(['success' => true, 'message' => 'private album access granted']);
+                    return response()->json(['success' => true, 'message' => 'private album access granted to '.$senderCheck->username]);
                 }
                 if(isset($receiver_id) && $receiver_id->status == 'approved')
                 {
-                    return response()->json(['success' => true, 'message' => 'private album access granted']);
+                    return response()->json(['success' => true, 'message' => 'private album access granted to '.$recevierCheck->username]);
                 }
-                return response()->json(['success' => true, 'message' => 'Private album access already request sent successfully']);
+                return response()->json(['success' => false, 'message' => 'something went wrong!']);
             }
         }else{
             return response()->json(['success' => false, 'message' => 'User not exit']);
         }
     }
 
+
+    public function blockUser(Request $request)
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'sender_id' => 'integer|required',
+            'receiver_id' => 'integer|required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first());
+        }
+
+        $senderId = $request->input('sender_id');
+        $receiverId = $request->input('receiver_id');
+        $isBlocked = $request->input('is_blocked');
+    
+        // Check if the receiver exists in the users table
+        $receiverExists = User::where('id', $receiverId)->exists();
+    
+        if (!$receiverExists) {
+            return response()->json(['success' => false ,'message' => 'User not found'], 404);
+        }
+    
+          // Check if the sender and receiver are the same
+        if ($senderId == $receiverId) {
+            return response()->json(['success' => false , 'message' => 'Sender and receiver cannot be the same'], 400);
+        }
+        // Check if the record exists in blocked_users table
+        $blockedUser = BlockedUsers::where('sender_id', $senderId)
+                                  ->where('receiver_id', $receiverId)
+                                  ->first();
+    
+        if ($blockedUser) {
+            // If the record exists, update the is_blocked column
+            if($isBlocked == 1)
+            {
+                $blockedUser->update(['is_blocked' => $isBlocked]);
+                $blockedUser->refresh(); // Refresh the model to get updated values
+                return response()->json(['success' => true , 'message' => 'User blocked', 'data' => $blockedUser]);
+            }
+            if($isBlocked == 0)
+            {
+                $blockedUser->update(['is_blocked' => $isBlocked]);
+                $blockedUser->refresh(); // Refresh the model to get updated values
+                return response()->json(['success' => true , 'message' => 'User unblocked', 'data' => $blockedUser]);
+            }
+           
+        } else {
+            // If the record doesn't exist, create a new one
+            $blockedUser = BlockedUsers::create([
+                'sender_id' => $senderId,
+                'receiver_id' => $receiverId,
+                'is_blocked' => $isBlocked,
+            ]);
+            return response()->json(['success' => true ,'message' => 'User blocked', 'data' => $blockedUser], 201);
+        }
+    }
+
+    public function reportUser(Request $request)
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'sender_id' => 'integer|required',
+            'receiver_id' => 'integer|required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first());
+        }
+        $senderId = $request->input('sender_id');
+        $receiverId = $request->input('receiver_id');
+        $newReason = $request->input('reason');
+    
+        // Check if the sender and receiver IDs are the same
+        if ($senderId == $receiverId) {
+            return response()->json(['success' => false, 'error' => 'Sender and receiver IDs cannot be the same'], 400);
+        }
+    
+        // Find the existing report
+        $existingReport = Reports::where('sender_id', $senderId)
+                                ->where('receiver_id', $receiverId)
+                                ->first();
+    
+        if ($existingReport) {
+            // If the report exists, update the reason
+            $existingReport->reason = $newReason;
+            $existingReport->save();
+    
+            return response()->json(['success' => true, 'message' => 'Report updated successfully', 'data' => $existingReport]);
+        } else {
+            // If the report doesn't exist, create a new one
+            $createdAt = time(); // Assuming you're using UNIX timestamp for created_at
+            $newReport = Reports::create([
+                'sender_id' => $senderId,
+                'receiver_id' => $receiverId,
+                'reason' => $newReason,
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
+            ]);
+    
+            return response()->json(['success' => true, 'message' => 'New report created', 'data' => $newReport], 201);
+        }
+    }
     public function push_notifications_private_album(Request $request)
     {
         $push = Privatealbumaccess::where('status', 'pending')->get();
@@ -674,4 +805,6 @@ class SugareliteController extends BaseController
         $push = Friend_list::where('is_friend', 0)->get();
         return $this->sendResponse($push, 'Friend request pending records');
     }
+
+
 }

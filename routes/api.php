@@ -49,6 +49,11 @@ Route::group(['prefix' => 'V1'], function () {
     //Password
     Route::post('/forgot/password', [SugareliteController::class, 'forgotPassword']);
 
+    //blockedUser
+    Route::post('/block/user', [SugareliteController::class, 'blockUser']);
+    Route::post('/report/user', [SugareliteController::class, 'reportUser']);
+    
+
     Route::post('/create/subscription', [StripeController::class, 'createSubscription']);
     Route::post('/start/stop/subscription', [StripeController::class, 'startStopSubscription']);
     Route::post('/cancel/subscription', [StripeController::class, 'cancelSubscription']);
