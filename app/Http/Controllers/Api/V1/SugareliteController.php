@@ -635,7 +635,7 @@ class SugareliteController extends BaseController
                 if(!$receiver_id)
                 {
                     Privatealbumaccess::create($input);
-                    return response()->json(['success' => true, 'message' => 'Private album access request sent to '.$senderCheck->username.' successfully']);
+                    return response()->json(['success' => true, 'message' => 'Private album access request sent to '.$recevierCheck->username.' successfully']);
                 }else{
                     if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($sender_id))
                     {
@@ -662,6 +662,10 @@ class SugareliteController extends BaseController
                     $sender_id->update(['status' => 'decline']);
                     return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
                 }
+                else if(isset($input['is_approved']) && $input['is_approved'] == 2 && isset($sender_id)){
+                    $sender_id->update(['status' => 'pending']);
+                    return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
+                }
                
                 if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($receiver_id))
                 {
@@ -671,6 +675,11 @@ class SugareliteController extends BaseController
                 else if(isset($input['is_approved']) && $input['is_approved'] == 0 && isset($receiver_id))
                 {
                     $receiver_id->update(['status' => 'decline']);
+                    return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
+                }
+                else if(isset($input['is_approved']) && $input['is_approved'] == 2 && isset($receiver_id))
+                {
+                    $receiver_id->update(['status' => 'pending']);
                     return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
                 }
 
