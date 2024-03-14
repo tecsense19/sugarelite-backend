@@ -9,6 +9,7 @@ use App\Models\Messages;
 use App\Models\Friend_list;
 use App\Models\ChatImages;
 use App\Models\BlockedUsers;
+use App\Models\ContactUs;
 use App\Models\Privatealbumaccess;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -384,7 +385,6 @@ class SugareliteController extends BaseController
                     } else {
                         return response()->json(['success' => false , 'message' => 'message not found! Please enter message id']);
                     }                
-                  
             }
             else if($type == "deleted" && $id != null)
             {
@@ -437,8 +437,8 @@ class SugareliteController extends BaseController
                 $age = $currentDate->diff($birthdate)->y;
                 $profileList->avatar_url = $profileList->avatar_url ? url('/').'/'.$profileList->avatar_url : '';
                 $profileList->age = $age;
-                $profileList->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $input['id'])->where('status', 'approved')->pluck('receiver_id');
-                $profileList->is_blocked_users = BlockedUsers::where('sender_id' , $input['id'])->where('is_blocked', 1)->pluck('receiver_id');
+                $profileList->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $input['id'])->where('status', 'approved')->get(['receiver_id', 'created_at']);
+                $profileList->is_blocked_users = BlockedUsers::where('sender_id' , $input['id'])->where('is_blocked', 1)->get(['receiver_id', 'created_at']);
                 $profileList->reports = Reports::where('sender_id', $input['id'])->get(['receiver_id', 'reason']);
                 $response[] = $profileList;
                 return response()->json(['success' => true, 'data' => $response]);
@@ -458,8 +458,8 @@ class SugareliteController extends BaseController
                 // Add age to the user object
                 $user->avatar_url = $user->avatar_url ? url('/').'/'.$user->avatar_url : '';
                 $user->age = $age;
-                $user->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $user['id'])->where('status', 'approved')->pluck('receiver_id');
-                $user->is_blocked_users = BlockedUsers::where('sender_id' , $user['id'])->where('is_blocked', 1)->pluck('receiver_id');
+                $user->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $user['id'])->where('status', 'approved')->get(['receiver_id', 'created_at']);
+                $user->is_blocked_users = BlockedUsers::where('sender_id' , $user['id'])->where('is_blocked', 1)->get(['receiver_id', 'created_at']);
                 $user->is_reports_users = Reports::where('sender_id' , $user['id'])->get(['receiver_id', 'reason']);
                 return $user;
             });
@@ -812,6 +812,63 @@ class SugareliteController extends BaseController
         $push = Friend_list::where('is_friend', 0)->get();
         return $this->sendResponse($push, 'Friend request pending records');
     }
+
+
+    public function contactUs(Request $request)
+    {
+        try {
+            $input = $request->all();
+
+            $validator = Validator::make($input, [
+                'email' => 'required'
+            ]);
+        
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+                    $email = $input['email'];
+                    $message = $input['message'];
+
+                    $user_id = ContactUs::where('email', $email)->first();
+                    if($user_id)
+                    {
+                        return $this->sendError('User not found.');
+                    }
+                    // Check if a record with the email exists
+                    $existingRecord = ContactUs::where('email', $email)->first();
+                    
+                    if (!$existingRecord) {
+                        // Create a new record if it doesn't exist
+                        $newRecord = new ContactUs();
+                        $newRecord->user_id = $user_id->id;
+                        $newRecord->email = $email;
+                        $newRecord->message = $message;
+                        $newRecord->save();
+                    } else {
+                        // Update the existing record
+                        $existingRecord->user_id = $user_id->id;
+                        $existingRecord->message = $message;
+                        $existingRecord->save();
+                    }
+                
+                $ContactUs = ContactUs::where('email', $input['email'])->first();
+                $respoArr['email'] = $ContactUs->username;
+                $respoArr['message'] = $ContactUs->message;
+                $respoArr['logo_link'] = url('/').'/'.'public/assets/img/site-logo.png';
+
+                Mail::send('mail/contactus', ['user' => $respoArr], function ($m) use ($respoArr, $input) {
+                    $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+                    $m->to('gautam@tec-sense.com')->subject('Contact Us');
+                });
+
+                return $this->sendResponse($input['email'], 'Your message has been forwarded to our team. Thank you.');
+            
+
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
 
 
 }

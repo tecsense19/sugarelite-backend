@@ -52,6 +52,9 @@ Route::group(['prefix' => 'V1'], function () {
     //blockedUser
     Route::post('/block/user', [SugareliteController::class, 'blockUser']);
     Route::post('/report/user', [SugareliteController::class, 'reportUser']);
+
+    //contactUs
+    Route::post('/contactus', [SugareliteController::class, 'contactUs']);
     
 
     Route::post('/create/subscription', [StripeController::class, 'createSubscription']);
