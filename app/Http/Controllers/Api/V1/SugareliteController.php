@@ -655,31 +655,31 @@ class SugareliteController extends BaseController
               
                 if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($sender_id))
                 {
-                    $sender_id->update(['status' => 'approved']);
+                    $receiver_id->update(['status' => 'approved']);
                     return response()->json(['success' => true, 'message' => 'private album access granted to '.$recevierCheck->username]);
                 }
                 else if(isset($input['is_approved']) && $input['is_approved'] == 0 && isset($sender_id)){
-                    $sender_id->update(['status' => 'decline']);
+                    $receiver_id->update(['status' => 'decline']);
                     return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
                 }
                 else if(isset($input['is_approved']) && $input['is_approved'] == 2 && isset($sender_id)){
-                    $sender_id->update(['status' => 'pending']);
+                    $receiver_id->update(['status' => 'pending']);
                     return response()->json(['success' => true, 'message' => 'private album access resend to '.$recevierCheck->username]);
                 }
                
                 if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($receiver_id))
                 {
-                    $receiver_id->update(['status' => 'approved']);
+                    $sender_id->update(['status' => 'approved']);
                     return response()->json(['success' => true, 'message' => 'private album access granted to'.$recevierCheck->username]);
                 }
                 else if(isset($input['is_approved']) && $input['is_approved'] == 0 && isset($receiver_id))
                 {
-                    $receiver_id->update(['status' => 'decline']);
+                    $sender_id->update(['status' => 'decline']);
                     return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
                 }
                 else if(isset($input['is_approved']) && $input['is_approved'] == 2 && isset($receiver_id))
                 {
-                    $receiver_id->update(['status' => 'pending']);
+                    $sender_id->update(['status' => 'pending']);
                     return response()->json(['success' => true, 'message' => 'private album access resend to '.$recevierCheck->username]);
                 }
 
