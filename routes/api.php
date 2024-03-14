@@ -38,11 +38,12 @@ Route::group(['prefix' => 'V1'], function () {
 
     //Access
     Route::post('/privateimages/access', [SugareliteController::class, 'private_album']);
-
+    //private_album_decline
+    Route::post('/privateimages/access/decline', [SugareliteController::class, 'private_album_decline']);
     //Push
     Route::get('/push/privatealbum', [SugareliteController::class, 'push_notifications_private_album']);
     Route::get('/push/friendrequest', [SugareliteController::class, 'push_notifications_friend_request']);
-    
+
     //Newsletter
     Route::post('/newsletter', [NewslettersController::class, 'newsletter']);
 
