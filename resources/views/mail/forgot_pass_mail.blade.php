@@ -22,13 +22,7 @@
                         <tr>
                             <td style="height:80px;">&nbsp;</td>
                         </tr>
-                        <tr>
-                            <td style="text-align:center;">
-                            <a href="#" title="logo" target="_blank">
-                                <img src="{{ $user['logo_link'] }}" title="logo" alt="logo" style="width: 40%">
-                            </a>
-                            </td>
-                        </tr>
+                       
                         <tr>
                             <td style="height:20px;">&nbsp;</td>
                         </tr>
@@ -39,6 +33,14 @@
                                     <tr>
                                         <td style="height:40px;">&nbsp;</td>
                                     </tr>
+                                    <tr>
+                                    <td style="text-align: center;padding: 40px;">
+                                        <a href="#" title="logo" target="_blank">
+                                            <img src="{{ $user['logo_link'] }}" title="logo" alt="logo" style="width: 40%;background: black;padding: 10px;border-radius: 6px;">
+                                        </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
                                     <tr>
                                         <td style="padding:0 35px;">
                                             <h1 style="color:#1e1e2d; font-weight:500; margin:0;font-size:32px;font-family:'Rubik',sans-serif;">You have

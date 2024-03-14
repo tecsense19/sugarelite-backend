@@ -829,16 +829,18 @@ class SugareliteController extends BaseController
                     $email = $input['email'];
                     $message = $input['message'];
 
-                    $user_id = ContactUs::where('email', $email)->first();
-                    if($user_id)
+                    $user_id = User::where('email', $email)->first();
+
+                    if(!$user_id)
                     {
                         return $this->sendError('User not found.');
                     }
                     // Check if a record with the email exists
                     $existingRecord = ContactUs::where('email', $email)->first();
-                    
+             
                     if (!$existingRecord) {
                         // Create a new record if it doesn't exist
+                        
                         $newRecord = new ContactUs();
                         $newRecord->user_id = $user_id->id;
                         $newRecord->email = $email;
@@ -852,7 +854,8 @@ class SugareliteController extends BaseController
                     }
                 
                 $ContactUs = ContactUs::where('email', $input['email'])->first();
-                $respoArr['email'] = $ContactUs->username;
+                $respoArr['username'] = $user_id->username;
+                $respoArr['email'] = $ContactUs->email;
                 $respoArr['message'] = $ContactUs->message;
                 $respoArr['logo_link'] = url('/').'/'.'public/assets/img/site-logo.png';
 
