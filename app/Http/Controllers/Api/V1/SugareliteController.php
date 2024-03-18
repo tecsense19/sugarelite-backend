@@ -745,6 +745,18 @@ class SugareliteController extends BaseController
             return response()->json(['success' => false, 'error' => 'Sender and receiver IDs cannot be the same'], 400);
         }
     
+        // Check if the receiver exists in the users table
+        $receiverExists = User::where('id', $receiverId)->exists();
+        $senderIdExists = User::where('id', $senderId)->exists();
+
+        if (!$receiverExists) {
+            return response()->json(['success' => false ,'message' => 'User not found'], 404);
+        }
+
+        if (!$senderIdExists) {
+            return response()->json(['success' => false ,'message' => 'User not found'], 404);
+        }
+        
         // Find the existing report
         $existingReport = Reports::where('sender_id', $senderId)
                                 ->where('receiver_id', $receiverId)
