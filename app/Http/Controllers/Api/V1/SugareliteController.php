@@ -437,7 +437,7 @@ class SugareliteController extends BaseController
                 $age = $currentDate->diff($birthdate)->y;
                 $profileList->avatar_url = $profileList->avatar_url ? url('/').'/'.$profileList->avatar_url : '';
                 $profileList->age = $age;
-                $profileList->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $input['id'])->where('status', 'approved')->get(['receiver_id as user_id', 'created_at as time']);
+                $profileList->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $input['id'])->where('status', '1')->get(['receiver_id as user_id', 'created_at as time']);
                 $profileList->is_blocked_users = BlockedUsers::where('sender_id' , $input['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'created_at as time']);
                 $profileList->reports = Reports::where('sender_id', $input['id'])->get(['receiver_id as user_id', 'created_at as time']);
                 $response[] = $profileList;
@@ -458,7 +458,7 @@ class SugareliteController extends BaseController
                 // Add age to the user object
                 $user->avatar_url = $user->avatar_url ? url('/').'/'.$user->avatar_url : '';
                 $user->age = $age;
-                $user->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $user['id'])->where('status', 'approved')->get(['receiver_id as user_id', 'created_at as time']);
+                $user->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $user['id'])->where('status', '1')->get(['receiver_id as user_id', 'created_at as time']);
                 $user->is_blocked_users = BlockedUsers::where('sender_id' , $user['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'created_at as time']);
                 $user->is_reports_users = Reports::where('sender_id' , $user['id'])->get(['receiver_id as user_id', 'created_at as time']);
                 return $user;
@@ -617,127 +617,53 @@ class SugareliteController extends BaseController
         $validator = Validator::make($input, [
             'sender_id' => 'integer|required',
             'receiver_id' => 'integer|required',
+            'is_approved' => 'integer|required|in:0,1,2', // Add validation for status
         ]);
 
         if ($validator->fails()) {
             return $this->sendError($validator->errors()->first());
         }
-        $sender_id = Privatealbumaccess::where('sender_id', $input['sender_id'])->where('receiver_id',$input['receiver_id'])->first();
-        $receiver_id = Privatealbumaccess::where('receiver_id',$input['sender_id'])->where('sender_id',$input['receiver_id'])->first();
 
-        $senderCheck = User::where('id', $input['sender_id'])->first();
-        $recevierCheck = User::where('id', $input['receiver_id'])->first();
+        // Check if the sender and receiver are valid users
+        $senderCheck = User::find($input['sender_id']);
+        $receiverCheck = User::find($input['receiver_id']);
 
-        if($senderCheck && $recevierCheck)
-        {
-            if(!$sender_id)
-            {
-                if(!$receiver_id)
-                {
-                    Privatealbumaccess::create($input);
-                    return response()->json(['success' => true, 'message' => 'Private album access request sent to '.$recevierCheck->username.' successfully']);
-                }else{
-                    if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($sender_id))
-                    {
-                        $sender_id->update(['status' => 'approved']);
-                        return response()->json(['success' => true, 'message' => 'private album access granted to '.$recevierCheck->username]);
-                    }
-                    else if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($receiver_id)){
-                        $receiver_id->update(['status' => 'approved']);
-                        return response()->json(['success' => true, 'message' => 'private album access granted to '.$recevierCheck->username]);
-                    }
-                    else{
-                        Privatealbumaccess::create($input);
-                        if(isset($input['is_approved']) && $input['is_approved'] == 0 && isset($receiver_id)){
-                            $receiver_id->update(['status' => 'decline']);
-                            return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
-                        }
-                        return response()->json(['success' => true, 'message' => 'Private album access request sent to '.$recevierCheck->username.' successfully']);
-                    }
-                }
-            }else{
-              
-                if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($sender_id))
-                {
-                    $receiver_id->update(['status' => 'approved']);
-                    return response()->json(['success' => true, 'message' => 'private album access granted to '.$recevierCheck->username]);
-                }
-                else if(isset($input['is_approved']) && $input['is_approved'] == 0 && isset($receiver_id)){
-                    $receiver_id->update(['status' => 'decline']);
-                    return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
-                }
-                else if(isset($input['is_approved']) && $input['is_approved'] == 2 && isset($sender_id)){
-                    $sender_id->update(['status' => 'pending']);
-                    return response()->json(['success' => true, 'message' => 'private album access resend to '.$recevierCheck->username]);
-                }
-               
-                if(isset($input['is_approved']) && $input['is_approved'] == 1 && isset($receiver_id))
-                {
-                    $sender_id->update(['status' => 'approved']);
-                    return response()->json(['success' => true, 'message' => 'private album access granted to'.$recevierCheck->username]);
-                }
-                else if(isset($input['is_approved']) && $input['is_approved'] == 0 && isset($receiver_id))
-                {
-                    $receiver_id->update(['status' => 'decline']);
-                    return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
-                }
-                else if(isset($input['is_approved']) && $input['is_approved'] == 2 && isset($receiver_id))
-                {
-                    $receiver_id->update(['status' => 'pending']);
-                    return response()->json(['success' => true, 'message' => 'private album access resend to '.$recevierCheck->username]);
-                }
-
-                if(isset($sender_id) && $sender_id->status == 'approved'){
-                    return response()->json(['success' => true, 'message' => 'private album access granted to '.$recevierCheck->username]);
-                }
-                if(isset($receiver_id) && $receiver_id->status == 'approved')
-                {
-                    return response()->json(['success' => true, 'message' => 'private album access granted to '.$recevierCheck->username]);
-                }
-                return response()->json(['success' => false, 'message' => 'something went wrong!']);
-            }
-        }else{
-            return response()->json(['success' => false, 'message' => 'User not exit']);
+        if (!$senderCheck || !$receiverCheck) {
+            return $this->sendError('Sender or receiver does not exist');
         }
-    }
 
-    public function private_album_decline(Request $request)
+        // Create or update the record in the database
+        $lastRequest = Privatealbumaccess::updateOrCreate(
+            ['sender_id' => $input['sender_id'], 'receiver_id' => $input['receiver_id']],
+            ['status' => $input['is_approved']]
+        );
+        
+        $message = 'Request send successfully to '.($senderCheck ? $senderCheck->username : '');
+        return response()->json(['success' => true ,'message' => $message, 'data' => $lastRequest], 201);
+    }
+    
+    public function privateAlbumAcceptReject(Request $request)
     {
         $input = $request->all();
         
         $validator = Validator::make($input, [
-            'sender_id' => 'integer|required',
-            'receiver_id' => 'integer|required',
+            'request_id' => 'integer|required',
+            'is_approved' => 'integer|required|in:0,1,2', // Add validation for status
         ]);
 
-     
         if ($validator->fails()) {
             return $this->sendError($validator->errors()->first());
         }
-        $sender_id = Privatealbumaccess::where('sender_id', $input['sender_id'])->where('receiver_id',$input['receiver_id'])->first();
         
-        $receiver_id = Privatealbumaccess::where('receiver_id',$input['sender_id'])->where('sender_id',$input['receiver_id'])->first();
-      
-        $senderCheck = User::where('id', $input['sender_id'])->first();
-        $recevierCheck = User::where('id', $input['receiver_id'])->first();
-    
-        if($senderCheck && $recevierCheck)
-        {
-         
-            if(isset($input['is_approved']) && $input['is_approved'] == 0 && isset($sender_id))
-            {
-                $sender_id->update(['status' => 'decline']);
-                return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
-            }
-            if(isset($input['is_approved']) && $input['is_approved'] == 0 && isset($receiver_id))
-            {
-                $receiver_id->update(['status' => 'decline']);
-                return response()->json(['success' => true, 'message' => 'private album access decline to '.$recevierCheck->username]);
-            }else{
-                return response()->json(['success' => true, 'message' => 'something wrong pass flag 0']);
-            }
-        }
+        $lastRequest = Privatealbumaccess::where('id', $input['request_id'])->update(['status'=> $input['is_approved']]);
 
+        $findUser = Privatealbumaccess::where('id', $input['request_id'])->first();
+
+        $senderCheck = User::find($findUser->sender_id);
+
+        $message = "Access has been ".($input['is_approved'] == '1' ? 'granted to '.$senderCheck->username.'.' : 'decline to '.$senderCheck->username.'.');
+        
+        return response()->json(['success' => true ,'message' => $message, 'data' => $lastRequest], 201);
     }
 
 
@@ -846,7 +772,17 @@ class SugareliteController extends BaseController
     }
     public function push_notifications_private_album(Request $request)
     {
-        $push = Privatealbumaccess::where('status', 'pending')->get();
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'user_id' => 'required'
+        ]);
+    
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first());
+        }
+
+        $push = Privatealbumaccess::where('receiver_id', $input['user_id'])->where('status', '0')->get();
         return $this->sendResponse($push, 'Private album pending records');
     }
 
