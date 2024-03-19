@@ -41,7 +41,7 @@ Route::group(['prefix' => 'V1'], function () {
     //private_album_decline
     Route::post('/privateimages/access/decline', [SugareliteController::class, 'privateAlbumAcceptReject']);
     //Push
-    Route::get('/push/privatealbum', [SugareliteController::class, 'push_notifications_private_album']);
+    Route::post('/push/privatealbum', [SugareliteController::class, 'push_notifications_private_album']);
     Route::get('/push/friendrequest', [SugareliteController::class, 'push_notifications_friend_request']);
 
     //Newsletter

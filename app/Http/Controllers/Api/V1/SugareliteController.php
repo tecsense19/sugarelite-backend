@@ -638,7 +638,7 @@ class SugareliteController extends BaseController
             ['status' => $input['is_approved']]
         );
         
-        $message = 'Request send successfully to '.($senderCheck ? $senderCheck->username : '');
+        $message = 'Request send successfully to '.($receiverCheck ? $receiverCheck->username : '');
         return response()->json(['success' => true ,'message' => $message, 'data' => $lastRequest], 201);
     }
     
@@ -795,6 +795,7 @@ class SugareliteController extends BaseController
         }
 
         $push = Privatealbumaccess::where('receiver_id', $input['user_id'])->where('status', '0')->get();
+        
         return $this->sendResponse($push, 'Private album pending records');
     }
 
