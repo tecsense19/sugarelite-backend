@@ -437,9 +437,9 @@ class SugareliteController extends BaseController
                 $age = $currentDate->diff($birthdate)->y;
                 $profileList->avatar_url = $profileList->avatar_url ? url('/').'/'.$profileList->avatar_url : '';
                 $profileList->age = $age;
-                $profileList->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $input['id'])->where('status', '1')->get(['sender_id as user_id', 'created_at as time']);
-                $profileList->is_blocked_users = BlockedUsers::where('sender_id' , $input['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'created_at as time']);
-                $profileList->reports = Reports::where('sender_id', $input['id'])->get(['receiver_id as user_id', 'created_at as time']);
+                $profileList->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $input['id'])->where('status', '1')->get(['sender_id as user_id', 'updated_at as time']);
+                $profileList->is_blocked_users = BlockedUsers::where('sender_id' , $input['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);
+                $profileList->reports = Reports::where('sender_id', $input['id'])->get(['receiver_id as user_id', 'updated_at as time']);
                 $response[] = $profileList;
                 return response()->json(['success' => true, 'data' => $response]);
             }else{
@@ -458,9 +458,9 @@ class SugareliteController extends BaseController
                 // Add age to the user object
                 $user->avatar_url = $user->avatar_url ? url('/').'/'.$user->avatar_url : '';
                 $user->age = $age;
-                $user->allow_privateImage_access_users = Privatealbumaccess::where('sender_id' , $user['id'])->where('status', '1')->get(['receiver_id as user_id', 'created_at as time']);
-                $user->is_blocked_users = BlockedUsers::where('sender_id' , $user['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'created_at as time']);
-                $user->is_reports_users = Reports::where('sender_id' , $user['id'])->get(['receiver_id as user_id', 'created_at as time']);
+                $user->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $user['id'])->where('status', '1')->get(['sender_id as user_id', 'updated_at as time']);
+                $user->is_blocked_users = BlockedUsers::where('sender_id' , $user['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);
+                $user->is_reports_users = Reports::where('sender_id' , $user['id'])->get(['receiver_id as user_id', 'updated_at as time']);
                 return $user;
             });
             
