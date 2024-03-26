@@ -11,6 +11,7 @@ use App\Models\ChatImages;
 use App\Models\BlockedUsers;
 use App\Models\ContactUs;
 use App\Models\Privatealbumaccess;
+use App\Models\UserSubscription;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -390,7 +391,7 @@ class SugareliteController extends BaseController
             {
                 $getMessage = Messages::where('id', $id)->first();
                 if ($getMessage) {
-                    $getMessage->update(['deleted_at' => 1]);
+                    $getMessage->update(['deleted_at' => 1 , 'type' => 'deleted']);
                     return response()->json(['success' => true, 'message' => 'Message deleted successfully']);
                 } else {
                     return response()->json(['success' => false, 'message' => 'Message already deleted']);
@@ -439,7 +440,8 @@ class SugareliteController extends BaseController
                 $profileList->age = $age;
                 $profileList->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $input['id'])->where('status', '1')->get(['sender_id as user_id', 'updated_at as time']);
                 $profileList->is_blocked_users = BlockedUsers::where('sender_id' , $input['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);
-                $profileList->reports = Reports::where('sender_id', $input['id'])->get(['receiver_id as user_id', 'updated_at as time']);
+                $profileList->is_reports_users = Reports::where('sender_id', $input['id'])->get(['receiver_id as user_id', 'updated_at as time']);
+                $profileList->user_subscriptions = UserSubscription::where('user_id', $input['id'])->orderBy('id', 'desc')->first();
                 $response[] = $profileList;
                 return response()->json(['success' => true, 'data' => $response]);
             }else{
@@ -461,6 +463,7 @@ class SugareliteController extends BaseController
                 $user->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $user['id'])->where('status', '1')->get(['sender_id as user_id', 'updated_at as time']);
                 $user->is_blocked_users = BlockedUsers::where('sender_id' , $user['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);
                 $user->is_reports_users = Reports::where('sender_id' , $user['id'])->get(['receiver_id as user_id', 'updated_at as time']);
+                $user->user_subscriptions = UserSubscription::where('user_id', $user['id'])->orderBy('id', 'desc')->first();
                 return $user;
             });
             

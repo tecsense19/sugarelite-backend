@@ -184,6 +184,8 @@ class StripeController extends BaseController
 
                     $updateArr = [];
                     $updateArr['is_subscription_stop'] = $input['start_stop'] == 'start' ? '0' : '1';
+                    $updateArr['subscription_stop_date'] = $input['start_stop'] == 'stop' ? now() : null;
+                    $updateArr['subscription_resume_date'] = $input['start_stop'] == 'start' ? now() : null;
 
                     User::where('id', $input['user_id'])->update($updateArr);
 
