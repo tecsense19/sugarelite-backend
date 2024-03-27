@@ -438,7 +438,7 @@ class SugareliteController extends BaseController
                 $age = $currentDate->diff($birthdate)->y;
                 $profileList->avatar_url = $profileList->avatar_url ? url('/').'/'.$profileList->avatar_url : '';
                 $profileList->age = $age;
-                $profileList->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $input['id'])->where('status', '1')->get(['sender_id as user_id', 'updated_at as time']);
+                $profileList->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $input['id'])->where('status', '1')->get(['id as request_id', 'sender_id as user_id', 'updated_at as time']);
                 $profileList->is_blocked_users = BlockedUsers::where('sender_id' , $input['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);
                 $profileList->is_reports_users = Reports::where('sender_id', $input['id'])->get(['receiver_id as user_id', 'updated_at as time']);
                 $profileList->user_subscriptions = UserSubscription::where('user_id', $input['id'])->orderBy('id', 'desc')->first(['plan_type as subscription_plan', 'plan_price as subscription_amount']);
@@ -460,7 +460,7 @@ class SugareliteController extends BaseController
                 // Add age to the user object
                 $user->avatar_url = $user->avatar_url ? url('/').'/'.$user->avatar_url : '';
                 $user->age = $age;
-                $user->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $user['id'])->where('status', '1')->get(['sender_id as user_id', 'updated_at as time']);
+                $user->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $user['id'])->where('status', '1')->get(['id as request_id','sender_id as user_id', 'updated_at as time']);
                 $user->is_blocked_users = BlockedUsers::where('sender_id' , $user['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);
                 $user->is_reports_users = Reports::where('sender_id' , $user['id'])->get(['receiver_id as user_id', 'updated_at as time']);
                 $user->user_subscriptions = UserSubscription::where('user_id', $user['id'])->orderBy('id', 'desc')->first(['plan_type as subscription_plan', 'plan_price as subscription_amount']);
@@ -797,7 +797,7 @@ class SugareliteController extends BaseController
             return $this->sendError($validator->errors()->first());
         }
 
-        $push = Privatealbumaccess::where('receiver_id', $input['user_id'])->whereIn('status', ['0', '2'])->get();
+        $push = Privatealbumaccess::where('receiver_id', $input['user_id'])->where('status', '0')->get();
         
         return $this->sendResponse($push, 'Private album pending records');
     }
