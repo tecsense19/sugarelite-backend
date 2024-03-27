@@ -797,7 +797,7 @@ class SugareliteController extends BaseController
             return $this->sendError($validator->errors()->first());
         }
 
-        $push = Privatealbumaccess::where('receiver_id', $input['user_id'])->where('status', '0')->get();
+        $push = Privatealbumaccess::where('receiver_id', $input['user_id'])->whereIn('status', ['0', '2'])->get();
         
         return $this->sendResponse($push, 'Private album pending records');
     }
