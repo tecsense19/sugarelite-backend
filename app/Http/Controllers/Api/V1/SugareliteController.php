@@ -327,6 +327,8 @@ class SugareliteController extends BaseController
                 // Create a message entry without images
                 $sendMessage = Messages::create($stringArr);
                 $lastInsertedId = $sendMessage->id;
+                $imagecount = $request->file('chat_images') ? count($request->file('chat_images')) : 0;
+
                 if(!empty($request->file('chat_images'))) {
                     foreach ($request->file('chat_images') as $file) {
                         $path = 'public/uploads/user/public_images/';
@@ -341,7 +343,12 @@ class SugareliteController extends BaseController
                         ChatImages::create($attachment);
                     }
                 }
-                $message = Messages::with('getAllChatimg')->where('id', $lastInsertedId)->first();
+                $message = Messages::where('id', $lastInsertedId)->first();
+
+                $getAllChatimg = ChatImages::orderBy('id' ,'desc')->limit($imagecount)->get();
+
+                $message->get_all_chat_with_image = $getAllChatimg;
+
                 return response()->json(['success' => true ,'message' => $message]);
             }
             else if($type == "edited")
