@@ -450,7 +450,7 @@ class SugareliteController extends BaseController
                 $profileList->avatar_url = $profileList->avatar_url ? url('/').'/'.$profileList->avatar_url : '';
                 $profileList->age = $age;
                 $profileList->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $input['id'])->where('status', '1')->get(['id as request_id', 'sender_id as user_id', 'updated_at as time']);
-                $profileList->is_blocked_users = BlockedUsers::where('sender_id' , $input['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);
+                $profileList->is_blocked_users = BlockedUsers::where('sender_id' , $input['id'])->orWhere('receiver_id',  $input['id'])->where('is_blocked', 1)->get(['receiver_id as receiver_id', 'sender_id as sender_id' , 'updated_at as time']);
                 $profileList->is_reports_users = Reports::where('sender_id', $input['id'])->get(['receiver_id as user_id', 'updated_at as time']);
                 $profileList->user_subscriptions = UserSubscription::where('user_id', $input['id'])->orderBy('id', 'desc')->first(['plan_type as subscription_plan', 'plan_price as subscription_amount']);
                 $response[] = $profileList;
@@ -472,7 +472,7 @@ class SugareliteController extends BaseController
                 $user->avatar_url = $user->avatar_url ? url('/').'/'.$user->avatar_url : '';
                 $user->age = $age;
                 $user->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $user['id'])->where('status', '1')->get(['id as request_id','sender_id as user_id', 'updated_at as time']);
-                $user->is_blocked_users = BlockedUsers::where('sender_id' , $user['id'])->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);
+                $user->is_blocked_users = BlockedUsers::where('sender_id' , $user['id'])->orWhere('receiver_id', $user['id'])->where('is_blocked', 1)->get(['receiver_id as receiver_id', 'sender_id as sender_id' , 'updated_at as time']);
                 $user->is_reports_users = Reports::where('sender_id' , $user['id'])->get(['receiver_id as user_id', 'updated_at as time']);
                 $user->user_subscriptions = UserSubscription::where('user_id', $user['id'])->orderBy('id', 'desc')->first(['plan_type as subscription_plan', 'plan_price as subscription_amount']);
                 return $user;
