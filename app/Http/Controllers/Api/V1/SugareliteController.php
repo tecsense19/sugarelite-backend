@@ -263,6 +263,14 @@ class SugareliteController extends BaseController
                         $getUser = User::with('getAllProfileimg')->where('email', $input['email'])->where('user_role', 'user')->first();
                         $getUser->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $getUser->id)->where('status', '1')->get(['id as request_id', 'sender_id as user_id', 'updated_at as time']);
                         $getUser->is_blocked_users = BlockedUsers::where('sender_id' , $getUser->id)->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);
+
+                        $getUser->is_blocked_users = BlockedUsers::where(function($query) use ($getUser) {
+                            $query->where('sender_id', $getUser->id)
+                                  ->orWhere('receiver_id', $getUser->id);
+                        })
+                        ->where('is_blocked', 1)
+                        ->get(['receiver_id as receiver_id', 'sender_id as sender_id', 'updated_at as time']);
+
                         $getUser->is_reports_users = Reports::where('sender_id', $getUser->id)->get(['receiver_id as user_id', 'updated_at as time']);
                         $getUser->user_subscriptions = UserSubscription::where('user_id', $getUser->id)->orderBy('id', 'desc')->first(['plan_type as subscription_plan', 'plan_price as subscription_amount']);
                         $getUser->avatar_url = $getUser->avatar_url ? url('/').'/'.$getUser->avatar_url : '';
