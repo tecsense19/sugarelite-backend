@@ -399,7 +399,10 @@ class SugareliteController extends BaseController
                         $newText = $request->input('message'); // Replace this with the updated text
                         $getMessage->update(['text' => $newText, 'type' => $type]);
 
-                        $getMessageNew = Messages::with('getAllChatimg')->where('id', $id)->first();
+                        $getMessageNew = Messages::where('id', $id)->first();
+                        $getAllChatimg = ChatImages::orderBy('id' ,'desc')->get();
+
+                        $getMessageNew->get_all_chat_with_image = $getAllChatimg;
 
                         return response()->json(['success' => true , 'message' => $getMessageNew]);
                     } else {
