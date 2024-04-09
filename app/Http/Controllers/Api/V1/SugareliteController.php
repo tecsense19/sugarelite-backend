@@ -353,7 +353,7 @@ class SugareliteController extends BaseController
                 }
                 $message = Messages::where('id', $lastInsertedId)->first();
 
-                $getAllChatimg = ChatImages::orderBy('id' ,'desc')->limit($imagecount)->get();
+                $getAllChatimg = ChatImages::where('message_id' , $lastInsertedId)->orderBy('id' ,'desc')->limit($imagecount)->get();
 
                 $message->get_all_chat_with_image = $getAllChatimg;
 
@@ -400,7 +400,7 @@ class SugareliteController extends BaseController
                         $getMessage->update(['text' => $newText, 'type' => $type]);
 
                         $getMessageNew = Messages::where('id', $id)->first();
-                        $getAllChatimg = ChatImages::orderBy('id' ,'desc')->get();
+                        $getAllChatimg = ChatImages::where('message_id' ,$id)->orderBy('id' ,'desc')->get();
 
                         $getMessageNew->get_all_chat_with_image = $getAllChatimg;
 
@@ -842,6 +842,32 @@ class SugareliteController extends BaseController
         return $this->sendResponse($push, 'Friend request pending records');
     }
 
+    
+    public function push_notifications_message(Request $request)
+    {
+
+        try {
+            $input = $request->all();
+            $validator = Validator::make($input, [
+                'sender_id' => 'integer|required',
+                'receiver_id' => 'integer|required',
+            ]);
+            
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+
+            $message = Messages::where('sender_id', $input['sender_id'])
+                    ->where('receiver_id', $input['receiver_id'])
+                    ->where('read_flag', 0)
+                    ->get();
+                    
+            return $this->sendResponse($message, 'Unread messages');
+
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
 
     public function contactUs(Request $request)
     {
@@ -857,7 +883,6 @@ class SugareliteController extends BaseController
             }
                     $email = $input['email'];
                     $message = $input['message'];
-
                     $user_id = User::where('email', $email)->first();
 
                     if(!$user_id)
@@ -903,4 +928,34 @@ class SugareliteController extends BaseController
 
 
 
+    public function readMessage(Request $request)
+    {
+        try {
+            $input = $request->all();
+            $validator = Validator::make($input, [
+                'sender_id' => 'integer|required',
+                'receiver_id' => 'integer|required',
+            ]);
+            
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+
+            $message = Messages::where('sender_id', $input['sender_id'])->where('receiver_id', $input['receiver_id'])->get();
+
+            if(isset($message))
+            {
+                Messages::where('sender_id', $input['sender_id'])
+                ->where('receiver_id', $input['receiver_id'])
+                ->update(['read_flag' => 1]);
+
+                return $this->sendResponse([] , 'Message read success');
+            }else{
+                return response()->json(['success' => false ,'message' => 'No data found'], 404);
+            }
+
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
 }

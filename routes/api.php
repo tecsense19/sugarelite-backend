@@ -43,6 +43,8 @@ Route::group(['prefix' => 'V1'], function () {
     //Push
     Route::post('/push/privatealbum', [SugareliteController::class, 'push_notifications_private_album']);
     Route::get('/push/friendrequest', [SugareliteController::class, 'push_notifications_friend_request']);
+    Route::post('/push/messages', [SugareliteController::class, 'push_notifications_message']);
+    
 
     //Newsletter
     Route::post('/newsletter', [NewslettersController::class, 'newsletter']);
@@ -56,7 +58,9 @@ Route::group(['prefix' => 'V1'], function () {
 
     //contactUs
     Route::post('/contactus', [SugareliteController::class, 'contactUs']);
-    
+
+    //ReadMessage
+    Route::post('/readmessage', [SugareliteController::class, 'readMessage']);
 
     Route::post('/create/subscription', [StripeController::class, 'createSubscription']);
     Route::post('/start/stop/subscription', [StripeController::class, 'startStopSubscription']);
