@@ -300,6 +300,7 @@ class SugareliteController extends BaseController
         $receiver_id = $request->input('receiver_id');
         $message = $request->input('message');
         $type = $request->input('type');
+        $status = $request->input('status');
         $id = $request->input('id') ?? '';
         $currentTimeMillis = round(microtime(true) * 1000);
 
@@ -313,6 +314,7 @@ class SugareliteController extends BaseController
             $stringArr['receiver_id'] = $receiver_id;
             $stringArr['text'] = $message;
             $stringArr['type'] = $type;
+            $stringArr['status'] = $status;            
             $stringArr['milisecondtime'] = $currentTimeMillis;
     
             if($type == "regular"){
@@ -397,7 +399,7 @@ class SugareliteController extends BaseController
                             }
                         }
                         $newText = $request->input('message'); // Replace this with the updated text
-                        $getMessage->update(['text' => $newText, 'type' => $type]);
+                        $getMessage->update(['text' => $newText, 'status' => $status,'type' => $type]);
 
                         $getMessageNew = Messages::where('id', $id)->first();
                         $getAllChatimg = ChatImages::where('message_id' ,$id)->orderBy('id' ,'desc')->get();
@@ -859,7 +861,7 @@ class SugareliteController extends BaseController
 
             $message = Messages::where('sender_id', $input['sender_id'])
                     ->where('receiver_id', $input['receiver_id'])
-                    ->where('read_flag', 0)
+                    ->where('status', 'sent')
                     ->get();
                     
             return $this->sendResponse($message, 'Unread messages');
@@ -935,25 +937,56 @@ class SugareliteController extends BaseController
             $validator = Validator::make($input, [
                 'sender_id' => 'integer|required',
                 'receiver_id' => 'integer|required',
+                'messageId'=> 'string|required', // Change validation to string
+                'status' => 'string|required',
             ]);
-            
+        
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+        
+            $messageIds = explode(',', $input['messageId']); // Split comma-separated IDs into an array
+        
+            // Update messages with specified IDs
+            Messages::where('sender_id', $input['sender_id'])
+                    ->where('receiver_id', $input['receiver_id'])
+                    ->whereIn('id', $messageIds) // Only update messages with specified IDs
+                    ->update(['status' => $input['status']]); // Update status
+        
+            // Check if any messages were updated
+            $updatedMessagesCount = Messages::where('sender_id', $input['sender_id'])
+                                            ->where('receiver_id', $input['receiver_id'])
+                                            ->whereIn('id', $messageIds)
+                                            ->count();
+        
+            if ($updatedMessagesCount > 0) {
+                return $this->sendResponse([], 'Messages read successfully');
+            } else {
+                return response()->json(['success' => false ,'message' => 'No messages found with the provided IDs'], 404);
+            }
+        
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function readPrivateAlbumAccess(Request $request)
+    {
+        try {
+            $input = $request->all();
+            $validator = Validator::make($input, [
+                'user_id' => 'integer|required',
+            ]);
+        
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first());
             }
 
-            $message = Messages::where('sender_id', $input['sender_id'])->where('receiver_id', $input['receiver_id'])->get();
+         // Update messages with specified IDs
+         Privatealbumaccess::where('receiver_id', $input['user_id'])->update(['flag' => 1]); // Update status
 
-            if(isset($message))
-            {
-                Messages::where('sender_id', $input['sender_id'])
-                ->where('receiver_id', $input['receiver_id'])
-                ->update(['read_flag' => 1]);
-
-                return $this->sendResponse([] , 'Message read success');
-            }else{
-                return response()->json(['success' => false ,'message' => 'No data found'], 404);
-            }
-
+         return $this->sendResponse([], 'Private album access read success');
+        
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

@@ -18,6 +18,7 @@ class Messages extends Model
         'message_to',
         'text',
         'type',
+        'status',
         'milisecondtime',
         'created_at',
         'updated_at',
