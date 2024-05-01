@@ -62,7 +62,10 @@ Route::group(['prefix' => 'V1'], function () {
     //ReadMessage
     Route::post('/readmessage', [SugareliteController::class, 'readMessage']);
     Route::post('/readprivatealbum', [SugareliteController::class, 'readPrivateAlbumAccess']);
-    
+
+    Route::post('/readfriend_request', [SugareliteController::class, 'readFriendRequestNotifiaction']);
+
+
 
     Route::post('/create/subscription', [StripeController::class, 'createSubscription']);
     Route::post('/start/stop/subscription', [StripeController::class, 'startStopSubscription']);

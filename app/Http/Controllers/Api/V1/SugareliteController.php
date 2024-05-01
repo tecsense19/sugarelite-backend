@@ -12,6 +12,7 @@ use App\Models\BlockedUsers;
 use App\Models\ContactUs;
 use App\Models\Privatealbumaccess;
 use App\Models\UserSubscription;
+use App\Models\RequestNotification;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -586,7 +587,7 @@ class SugareliteController extends BaseController
             Friend_list::updateOrCreate(
                 ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
                 ['is_friend' => $input['is_approved']]
-            );
+            );            
         }
 
         if($input['is_approved'] == 0)
@@ -594,6 +595,11 @@ class SugareliteController extends BaseController
             Friend_list::updateOrCreate(
                 ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
                 ['is_friend' => $input['is_approved']]
+            );
+
+            RequestNotification::updateOrCreate(
+                ['sender_id' => $input['sender_id'], 'receiver_id' => $input['receiver_id']],
+                ['read_flag' => 0]
             );
         }
 
@@ -843,7 +849,7 @@ class SugareliteController extends BaseController
             return $this->sendError($validator->errors()->first());
         }
 
-        $push = Friend_list::where('receiver_id', $input['user_id'])->where('is_friend', 0)->get();
+        $push = RequestNotification::where('receiver_id', $input['user_id'])->where('read_flag', 0)->get();
     
         return $this->sendResponse($push, 'Friend request pending records');
     }
@@ -991,6 +997,33 @@ class SugareliteController extends BaseController
 
          return $this->sendResponse([], 'Private album access read success');
         
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function readFriendRequestNotifiaction(Request $request)
+    {
+        try {
+            $input = $request->all();
+            $validator = Validator::make($input, [
+                'id' => 'integer|required',
+            ]);
+        
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+
+         // Update messages with specified IDs
+         $data = RequestNotification::where('id', $input['id'])->update(['read_flag' => 1]); // Update status
+         if($data == 1)
+         {
+            return $this->sendResponse([], 'Congratulations You both are friends.');
+         }
+         else{
+            return $this->sendResponse([], 'Data not found');
+         }
+
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
