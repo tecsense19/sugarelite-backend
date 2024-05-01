@@ -849,7 +849,14 @@ class SugareliteController extends BaseController
             return $this->sendError($validator->errors()->first());
         }
 
-        $push = RequestNotification::where('receiver_id', $input['user_id'])->where('read_flag', 0)->get();
+        $push = RequestNotification::where('receiver_id', $input['user_id'])->whereIn('read_flag', [1, 0])
+        ->selectRaw('id ,sender_id , receiver_id, read_flag,created_at,updated_at,
+            CASE 
+                WHEN read_flag = 0 THEN "false" 
+                WHEN read_flag = 1 THEN "true" 
+                ELSE null 
+            END as is_accepted')
+        ->get();
     
         return $this->sendResponse($push, 'Friend request pending records');
     }
