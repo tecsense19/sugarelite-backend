@@ -603,7 +603,7 @@ class SugareliteController extends BaseController
             );
         }
 
-        $message = ($input['is_approved'] == '0' ? 'Request sent successfully to ' . $senderCheck->username . '.' : ($input['is_approved'] == '1' ? 'Both are friends ' . $senderCheck->username .' and '.$receiverCheck->username. '.'  : 'Request decline to ' . $senderCheck->username . '.'));
+        $message = ($input['is_approved'] == '0' ? 'Request sent successfully to ' . $receiverCheck->username . '.' : ($input['is_approved'] == '1' ? 'Both are friends ' . $senderCheck->username .' and '.$receiverCheck->username. '.'  : 'Request decline to ' . $receiverCheck->username . '.'));
 
         // $message = 'Request send successfully to '.($receiverCheck ? $receiverCheck->username : '');
         return response()->json(['success' => true ,'message' => $message, 'data' => $lastRequest], 201);
