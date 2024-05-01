@@ -13,6 +13,7 @@ use App\Models\ContactUs;
 use App\Models\Privatealbumaccess;
 use App\Models\UserSubscription;
 use App\Models\RequestNotification;
+use App\Models\UsersNotification;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -587,7 +588,19 @@ class SugareliteController extends BaseController
             Friend_list::updateOrCreate(
                 ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
                 ['is_friend' => $input['is_approved']]
-            );            
+            );
+
+            RequestNotification::updateOrCreate(
+                ['sender_id' => $input['sender_id'], 'receiver_id' => $input['receiver_id']],
+                ['read_flag' => $input['is_approved']]
+            );
+
+            RequestNotification::updateOrCreate(
+                ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
+                ['read_flag' => $input['is_approved']]
+            );
+            
+            UsersNotification::create(['user_id' => $input['receiver_id'], 'message' => $senderCheck->username.' accept you friend request.']);
         }
 
         if($input['is_approved'] == 0)
@@ -596,10 +609,17 @@ class SugareliteController extends BaseController
                 ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
                 ['is_friend' => $input['is_approved']]
             );
-
             RequestNotification::updateOrCreate(
                 ['sender_id' => $input['sender_id'], 'receiver_id' => $input['receiver_id']],
-                ['read_flag' => 0]
+                ['read_flag' => $input['is_approved']]
+            );
+        }
+
+        if($input['is_approved'] == 2)
+        {
+            Friend_list::updateOrCreate(
+                ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
+                ['is_friend' => $input['is_approved']]
             );
         }
 
@@ -849,16 +869,19 @@ class SugareliteController extends BaseController
             return $this->sendError($validator->errors()->first());
         }
 
-        $push = RequestNotification::where('receiver_id', $input['user_id'])->whereIn('read_flag', [1, 0])
+        $push = RequestNotification::where('receiver_id', $input['user_id'])->whereIn('read_flag', [0])
         ->selectRaw('id ,sender_id , receiver_id, read_flag,created_at,updated_at,
             CASE 
                 WHEN read_flag = 0 THEN "false" 
-                WHEN read_flag = 1 THEN "true" 
                 ELSE null 
             END as is_accepted')
-        ->get();
+        ->get()->toArray();
+
+        $data_notification = UsersNotification::where('user_id', $input['user_id'])->get()->toArray();
+        
+        $response = array_merge($data_notification, $push);
     
-        return $this->sendResponse($push, 'Friend request pending records');
+        return $this->sendResponse($response, 'Friend request pending records');
     }
 
     
@@ -1022,9 +1045,11 @@ class SugareliteController extends BaseController
             }
 
          // Update messages with specified IDs
-         $data = RequestNotification::where('id', $input['id'])->update(['read_flag' => 1]); // Update status
+         $data = UsersNotification::where('id', $input['id'])->update(['read_unread' => 1]); // Update status
+         
          if($data == 1)
          {
+
             return $this->sendResponse([], 'Congratulations You both are friends.');
          }
          else{
