@@ -463,6 +463,7 @@ class SugareliteController extends BaseController
                 $profileList->avatar_url = $profileList->avatar_url ? url('/').'/'.$profileList->avatar_url : '';
                 $profileList->age = $age;
                 $profileList->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $input['id'])->where('status', '1')->get(['id as request_id', 'sender_id as user_id', 'updated_at as time']);
+                $profileList->is_friends = Friend_list::where('receiver_id' , $input['id'])->where('is_friend', 1)->get(['sender_id as user_id', 'updated_at as time']);
                 $profileList->is_blocked_users = BlockedUsers::where(function($query) use ($input) {
                     $query->where('sender_id', $input['id'])
                           ->orWhere('receiver_id', $input['id']);
@@ -491,6 +492,7 @@ class SugareliteController extends BaseController
                 $user->avatar_url = $user->avatar_url ? url('/').'/'.$user->avatar_url : '';
                 $user->age = $age;
                 $user->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $user['id'])->where('status', '1')->get(['id as request_id','sender_id as user_id', 'updated_at as time']);
+                $user->is_friends = Friend_list::where('receiver_id' , $user['id'])->where('is_friend', 1)->get(['sender_id as user_id', 'updated_at as time']);
                 $user->is_blocked_users = BlockedUsers::where(function($query) use ($user) {
                     $query->where('sender_id', $user['id'])
                           ->orWhere('receiver_id', $user['id']);
@@ -554,61 +556,51 @@ class SugareliteController extends BaseController
     public function friend_list(Request $request)
     {
         $input = $request->all();
+        
         $validator = Validator::make($input, [
             'sender_id' => 'integer|required',
             'receiver_id' => 'integer|required',
+            'is_approved' => 'integer|required|in:0,1,2', // Add validation for status
         ]);
-        
+
         if ($validator->fails()) {
             return $this->sendError($validator->errors()->first());
         }
 
-        $getfriend = Friend_list::where('sender_id', $input['sender_id'])->where('receiver_id',$input['receiver_id'])->first();
-        $friends = Friend_list::where('receiver_id',$input['sender_id'])->where('sender_id',$input['receiver_id'])->first();
+        // Check if the sender and receiver are valid users
+        $senderCheck = User::find($input['sender_id']);
+        $receiverCheck = User::find($input['receiver_id']);
 
-        $senderCheck = User::where('id', $input['sender_id'])->first();
-        $recevierCheck = User::where('id', $input['receiver_id'])->first();
-
-        if($senderCheck && $recevierCheck)
-        {
-            if(!$getfriend)
-            {
-                if(!$friends)
-                {
-                    Friend_list::create($input);
-                    return response()->json(['success' => true, 'message' => 'Friend requrest already sent successfully']);
-                }else{
-                    if(isset($input['is_approved']) == 1)
-                    {
-                        $getfriend->update(['is_friend' => 1]);
-                        return response()->json(['success' => true, 'message' => 'Both are Friends']);
-                    }
-                    Friend_list::create($input);
-                    return response()->json(['success' => true, 'message' => 'Friend requrest sent successfully']);
-                }
-            }else{
-                if(isset($input['is_approved']) == 1 && isset($getfriend))
-                {
-                    $getfriend->update(['is_friend' => 1]);
-                    return response()->json(['success' => true, 'message' => 'Both are Friends']);
-                }
-                if(isset($input['is_approved']) == 1 && isset($friends))
-                {
-                    $friends->update(['is_friend' => 1]);
-                    return response()->json(['success' => true, 'message' => 'Both are Friends']);
-                }
-                if(isset($getfriend) && $getfriend->is_friend == 1){
-                    return response()->json(['success' => true, 'message' => 'Both are Friends']);
-                }
-                if(isset($getfriend) && $getfriend->is_friend == 1)
-                {
-                    return response()->json(['success' => true, 'message' => 'Both are Friends']);
-                }
-                return response()->json(['success' => true, 'message' => 'Friend requrest already sent successfully']);
-            }
-        }else{
-            return response()->json(['success' => false, 'message' => 'User not exit']);
+        if (!$senderCheck || !$receiverCheck) {
+            return $this->sendError('Sender or receiver does not exist');
         }
+
+        // Create or update the record in the database
+        $lastRequest = Friend_list::updateOrCreate(
+            ['sender_id' => $input['sender_id'], 'receiver_id' => $input['receiver_id']],
+            ['is_friend' => $input['is_approved']]
+        );
+
+        if($input['is_approved'] == 1)
+        {
+            Friend_list::updateOrCreate(
+                ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
+                ['is_friend' => $input['is_approved']]
+            );
+        }
+
+        if($input['is_approved'] == 0)
+        {
+            Friend_list::updateOrCreate(
+                ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
+                ['is_friend' => $input['is_approved']]
+            );
+        }
+
+        $message = ($input['is_approved'] == '0' ? 'Request sent successfully to ' . $senderCheck->username . '.' : ($input['is_approved'] == '1' ? 'Both are friends ' . $senderCheck->username .' and '.$receiverCheck->username. '.'  : 'Request decline to ' . $senderCheck->username . '.'));
+
+        // $message = 'Request send successfully to '.($receiverCheck ? $receiverCheck->username : '');
+        return response()->json(['success' => true ,'message' => $message, 'data' => $lastRequest], 201);
     }
 
     public function friend_profile_list(Request $request)
@@ -840,7 +832,19 @@ class SugareliteController extends BaseController
 
     public function push_notifications_friend_request(Request $request)
     {
-        $push = Friend_list::where('is_friend', 0)->get();
+
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'user_id' => 'required'
+        ]);
+    
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first());
+        }
+
+        $push = Friend_list::where('receiver_id', $input['user_id'])->where('is_friend', 0)->get();
+    
         return $this->sendResponse($push, 'Friend request pending records');
     }
 
