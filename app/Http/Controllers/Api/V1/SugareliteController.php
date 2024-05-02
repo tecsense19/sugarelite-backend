@@ -861,6 +861,8 @@ class SugareliteController extends BaseController
 
         $input = $request->all();
 
+        if(isset($input['user_id']))
+        {
         $validator = Validator::make($input, [
             'user_id' => 'required'
         ]);
@@ -880,6 +882,20 @@ class SugareliteController extends BaseController
         $data_notification = UsersNotification::where('user_id', $input['user_id'])->get()->toArray();
         
         $response = array_merge($data_notification, $push);
+        
+    }else{
+        $push = RequestNotification::whereIn('read_flag', [0])
+        ->selectRaw('id ,sender_id , receiver_id, read_flag,created_at,updated_at,
+            CASE 
+                WHEN read_flag = 0 THEN "false" 
+                ELSE null 
+            END as is_accepted')
+        ->get()->toArray();
+
+        $data_notification = UsersNotification::get()->toArray();
+        
+        $response = array_merge($data_notification, $push);
+    }
     
         return $this->sendResponse($response, 'Friend request pending records');
     }
