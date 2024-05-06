@@ -600,7 +600,7 @@ class SugareliteController extends BaseController
                 ['read_flag' => $input['is_approved']]
             );
             
-            UsersNotification::create(['user_id' => $input['receiver_id'], 'message' => $senderCheck->username.' accept you friend request.']);
+            UsersNotification::create(['user_id' => $input['receiver_id'], 'sender_id' => $senderCheck->id, 'message' => $senderCheck->username.' accept you friend request.']);
         }
 
         if($input['is_approved'] == 0)
