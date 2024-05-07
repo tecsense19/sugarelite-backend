@@ -65,6 +65,11 @@ Route::group(['prefix' => 'V1'], function () {
 
     Route::post('/readfriend_request', [SugareliteController::class, 'readFriendRequestNotifiaction']);
 
+    Route::post('/otp', [SugareliteController::class, 'MobileEmailOtp']); 
+    Route::post('/verifyotp', [SugareliteController::class, 'MobileEmailVerifyOtp']); 
+
+    Route::post('/elitesupport', [SugareliteController::class, 'EliteSupport']); 
+    
 
 
     Route::post('/create/subscription', [StripeController::class, 'createSubscription']);

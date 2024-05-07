@@ -31,6 +31,132 @@ use Validator;
 
 class SugareliteController extends BaseController
 {
+    public function MobileEmailOtp(Request $request)
+    {
+        $input = $request->all();
+        $rules = [
+            'contact_info' => function ($attribute, $value, $fail) use ($input) {
+                $emailProvided = isset($input['email']) && $input['email'] !== '';
+                $mobileNoProvided = isset($input['mobile_no']) && $input['mobile_no'] !== '';
+        
+                if ($emailProvided && $mobileNoProvided) {
+                    $fail('Provide either email or mobile number, not both.');
+                } elseif (!$emailProvided && !$mobileNoProvided) {
+                    $fail('Please provide either email or mobile number.');
+                }
+            },
+            'email' => 'nullable|email', // This rule checks if the email is a valid format
+            'mobile_no' => 'nullable|digits:12', // This rule checks if the mobile number has exactly 10 digits
+        ];
+        
+
+          $validator = Validator::make($input, $rules);
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+
+            $otp = mt_rand(100000, 999999);
+            $userArr = [];
+            $userArr['email'] = isset($input['email']) ? $input['email'] : '';
+            $userArr['mobile_no'] = isset($input['mobile_no']) ? $input['mobile_no'] : '';
+            $userArr['verify_otp'] = isset($otp) ? $otp : '';
+
+            if(isset($input['email']) && $input['email'])
+            {
+                 // Email content
+                 $emailContent = "Your OTP code is: " . $otp;
+                try {
+                 Mail::send('mail/otp', ['emailContent' => $emailContent], function ($m) use ($emailContent, $input) {
+                   $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+                    $m->to( $input['email'] )->subject('OTP verification');
+                });
+                
+                //  Mail::raw($emailContent, function ($message) use ($input) {
+                //      $message->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+                //      $message->to($input['email'])->subject('Forgot Password - OTP Code');
+                //  });
+                //return response()->json(['message' => 'OTP email sent successfully']);
+            } catch (\Exception $e) {
+                // Log the error for debugging
+                // Log::error('SMTP Error: ' . $e->getMessage());
+                // Return error response
+                return response()->json(['error' => 'Failed to send OTP email. Please try again later.'], 500);
+            }
+                 
+                $data_email_no = User::where('email', $input['email'])->first();
+                if ($data_email_no) {
+                    User::where('email', $input['email'])->update($userArr);
+                    $data = [
+                        'id' => $data_email_no->id
+                    ];
+                    return response()->json(['success'=> true, 'data' => $data,'message' => 'User already exists with this email. we sent a new otp for verification.'], 200);
+                }
+                
+                if(!$data_email_no)
+                {
+                    $lastUserId = User::create($userArr);
+                    $messgae ='Otp sent successfully on your email address';
+                }
+                
+            }else{
+                $otp = 123456;
+                $userArr['verify_otp'] = isset($otp) ? $otp : '';
+                $data_mobile_no = User::where('mobile_no', $input['mobile_no'])->first();
+                if ($data_mobile_no) {
+                    User::where('mobile_no', $input['mobile_no'])->update($userArr);
+                    $data = [
+                        'id' => $data_mobile_no->id
+                    ];
+                    return response()->json(['success'=> true,'data' => $data,'message' => 'User already exists with this mobile_no. we sent a new otp for verification.'], 200);
+                }
+            
+                if(!$data_mobile_no)
+                {
+                    $lastUserId = User::create($userArr);
+                    $messgae ='Otp sent successfully on your mobile number';
+                }else{
+                    User::where('mobile_no', $input['mobile_no'])->update($userArr);
+                    $messgae = 'Otp sent successfully on your mobile number';
+                }
+    
+            }
+
+                $output = User::where('id', $lastUserId->id)->first();
+
+                $output_cut = [
+                    'id' => $output->id
+                ];
+               
+                //  Mail::send('mail/forgot_pass_mail', ['user' => $respoArr], function ($m) use ($respoArr, $input) {
+                //    $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+                //     $m->to( $input['email'] )->subject('Forgot Password');
+                // });
+            return response()->json(['success'=> true, 'data' => $output_cut,'message' => $messgae], 200);       
+    }
+
+    public function MobileEmailVerifyOtp(Request $request)
+    {
+        $input = $request->all();
+        $rules = [
+            
+            'id' => 'integer', // This rule checks if the email is a valid format
+            'otp' => 'nullable|digits:6', // This rule checks if the mobile number has exactly 10 digits
+        ];
+
+        $Otp_check = User::where('id', $input['id'])->first();
+
+        if(isset($input['otp']) && $Otp_check->verify_otp == $input['otp'])
+        {
+            $userArr['is_verified'] = 1;
+            User::where('id', $input['id'])->update($userArr);
+            return response()->json(['success'=> true,'message' => 'OTP Verification success'], 200);  
+        }else{
+            return response()->json(['success'=> false,'error' => 'Please enter a valid OTP!'], 422);  
+        }
+    }
+
+
+
     public function register(Request $request)
     {
         try {
@@ -44,7 +170,6 @@ class SugareliteController extends BaseController
                 'country' => 'required',
                 'sugar_type' => 'required',
                 'birthdate' => 'required|date|before_or_equal:today',
-                'email' => 'required',
                 'region' => 'required',
             ];
             
@@ -55,6 +180,14 @@ class SugareliteController extends BaseController
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first());
             }
+
+            $oneQuery = User::where('id', $input['user_id'])->where('is_verified', 0)->first();
+            if($oneQuery)
+            {
+                return $this->sendError('Please verify your email');
+            }
+
+
             if(isset($input['remove_images']))
             {
                 $userImages = User_images::whereIn('id', explode(',', $input['remove_images']))->get();
@@ -71,20 +204,7 @@ class SugareliteController extends BaseController
                  User_images::whereIn('id', explode(',', $input['remove_images']))->delete();   
             }
 
-            if(isset($input['user_id']))
-            {
-                $existingUser = User::where('id', '!=', $input['user_id'])->where('email', $input['email'])->first();
-                if ($existingUser) {
-                    return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
-                }
-            }
-            else
-            {
-                $existingUser = User::where('email', $input['email'])->first();
-                if ($existingUser) {
-                    return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
-                }
-            }
+           
             $userArr = [];
             if($file = $request->file('avatar_url'))
             {
@@ -107,6 +227,7 @@ class SugareliteController extends BaseController
                     }
                 }
             }
+
             $userArr['username'] = isset($input['username']) ? $input['username'] : '';
             $userArr['email'] = isset($input['email']) ? $input['email'] : '';
             $userArr['sex'] = isset($input['sex']) ? $input['sex'] : '';
@@ -129,23 +250,94 @@ class SugareliteController extends BaseController
             $userArr['drinks'] = isset($input['drinks'])? $input['drinks'] : '';
             $userArr['employment'] = isset($input['employment'])? $input['employment'] : '';
             $userArr['civil_status'] = isset($input['civil_status'])? $input['civil_status'] : '';
+            $userArr['mobile_no'] = isset($input['mobile_no'])? $input['mobile_no'] : '';            
             $userArr['user_role'] = 'user';
             $userArr['user_status'] = 'active';
 
             // Create the user
             $messgae = '';
             if(isset($input['user_id']))
-            {
-                User::where('id', $input['user_id'])->update($userArr);
+            {                
                 $lastUserId = $input['user_id'];
-                $messgae = 'User updated successfully.';
+                if(isset($input['otp']))
+                {
+                    if(isset($input['email']) || isset($input['mobile_no']))
+                    {
+                        $query = User::where(function($query) use ($input) {
+                            if(isset($input['email'])) {
+                                $query->where('email', $input['email']);
+                            }
+                            
+                            if(isset($input['mobile_no'])) {
+                                $query->orWhere('mobile_no', $input['mobile_no']);
+                            }
+                        })
+                        ->where('id', '!=', $input['user_id'])
+                        ->first();
+
+                        if($query) {
+                            if(isset($input['email']) && $query->email === $input['email']) {
+                                return $this->sendError('Email address already exists.');
+                            } elseif(isset($input['mobile_no']) && $query->mobile_no === $input['mobile_no']) {
+                                return $this->sendError('Mobile number already exists.');
+                            }
+                        }
+                    }      
+                        $userArr['password'] = Hash::make($input['password'] ?? '');
+                        User::where('id', $input['user_id'])->update($userArr);
+                        $messgae = 'User Register successfully.';
+                       
+                }else{
+
+              
+                    if(isset($input['email']) || isset($input['mobile_no']))
+                    {
+                        $query = User::where(function($query) use ($input) {
+                            if(isset($input['email'])) {
+                                $query->where('email', $input['email']);
+                            }
+                            
+                            if(isset($input['mobile_no'])) {
+                                $query->orWhere('mobile_no', $input['mobile_no']);
+                            }
+                        })
+                        ->where('id', '!=', $input['user_id'])
+                        ->first();
+
+                        if($query) {
+                            if(isset($input['email']) && $query->email === $input['email']) {
+                                return $this->sendError('Email address already exists.');
+                            } elseif(isset($input['mobile_no']) && $query->mobile_no === $input['mobile_no']) {
+                                return $this->sendError('Mobile number already exists.');
+                            }
+                        }
+                    }                    
+                    $messgae = 'User updated successfully.';   
+                    User::where('id', $input['user_id'])->update($userArr);                    
+                   
+                }                               
             }else{
                 $userArr['password'] = $input['password'];
                 $lastUserId = User::create($userArr);
                 $lastUserId = $lastUserId->id;
-                $messgae ='User registered successfully.';
+                $messgae = 'User Register successfully.';
+                if(isset($input['user_id']))
+                {
+                    $existingUser = User::where('id', '!=', $input['user_id'])->orWhere('email', isset($input['email']))->orWhere('mobile_no', isset($input['mobile_no']))->first();        
+                    if ($existingUser) {
+                        return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
+                    }
+                }
+                else
+                {
+                    $existingUser = User::orWhere('email', isset($input['email']))->orWhere('mobile_no', isset($input['mobile_no']))->first();
+                    if ($existingUser) {
+                        return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
+                    }
+                }
+               
             }
-            
+           
             if(!empty($request->file('public_images')))
             {
                 foreach ($request->file('public_images') as $file)
@@ -188,7 +380,6 @@ class SugareliteController extends BaseController
             else{
                 return $this->sendError('User not found.');
             }
-            
 
             return response()->json(['success'=> true, 'message' => $messgae, 'user' => $getUser], 200);
             } catch (\Exception $e) {
@@ -245,24 +436,48 @@ class SugareliteController extends BaseController
         try {
             $input = $request->all();
             $validator = Validator::make($input, [
-                'email' => 'required',
+                'contact_info' => function ($attribute, $value, $fail) use ($input) {
+                    $emailProvided = isset($input['email']) && $input['email'] !== '';
+                    $mobileNoProvided = isset($input['mobile_no']) && $input['mobile_no'] !== '';
+            
+                    if ($emailProvided && $mobileNoProvided) {
+                        $fail('Provide either email or mobile number, not both.');
+                    } elseif (!$emailProvided && !$mobileNoProvided) {
+                        $fail('Please provide either email or mobile number.');
+                    }
+                },
                 'password' => 'required',
             ]);
         
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first());
             }
-            $getUser = User::with('getAllProfileimg')->where('email', $input['email'])->where('user_role', 'user')->first();
+            $oneQuery = User::with('getAllProfileimg');
+
+            if(isset($input['email']) && $input['email']) {
+                $oneQuery->where('email', $input['email']);
+            }
+            if(isset($input['mobile_no']) && $input['mobile_no']) {
+                $oneQuery->where('mobile_no', $input['mobile_no']);
+            }
+            $getUser = $oneQuery->where('user_role', 'user')->first();
             if($getUser)
             {
+                if($getUser->is_verified == 1)
+                {
                 if($getUser->user_status == 'active'){
                     if(Hash::check($input['password'], $getUser->password))
                     {
                         $updateArry = [];
                         $updateArry['online'] = 1;
-                        $updateArry['last_online'] = now();
-                        User::where('email',$input['email'])->update($updateArry);
-                        $getUser = User::with('getAllProfileimg')->where('email', $input['email'])->where('user_role', 'user')->first();
+                        $updateArry['last_online'] = now();                     
+                        if(isset($input['email']) && $input['email']) {
+                            User::where('email',$input['email'])->update($updateArry);
+                            $getUser = User::with('getAllProfileimg')->where('user_role', 'user')->where('email', $input['email'])->first();
+                        }else{
+                            User::where('mobile_no',$input['mobile_no'])->update($updateArry);
+                            $getUser = User::with('getAllProfileimg')->where('user_role', 'user')->where('mobile_no', $input['mobile_no'])->first();
+                        }                        
                         $getUser->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $getUser->id)->where('status', '1')->get(['id as request_id', 'sender_id as user_id', 'updated_at as time']);
                         $getUser->is_blocked_users = BlockedUsers::where('sender_id' , $getUser->id)->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);
 
@@ -285,11 +500,14 @@ class SugareliteController extends BaseController
                 }else{
                     return $this->sendError('User account deactivated');
                 }
+            }else{
+                return $this->sendError('Please verify your email');
             }
-            else
-            {
-                return $this->sendError('Invalid email address! please try again.');
-            }
+        }
+        else
+        {
+            return $this->sendError('Invalid email address or mobile! please try again.');
+        }
 
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
@@ -620,6 +838,10 @@ class SugareliteController extends BaseController
             Friend_list::updateOrCreate(
                 ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
                 ['is_friend' => $input['is_approved']]
+            );
+            RequestNotification::updateOrCreate(
+                ['sender_id' => $input['sender_id'], 'receiver_id' => $input['receiver_id']],
+                ['read_flag' => $input['is_approved']]
             );
         }
 
@@ -1076,4 +1298,57 @@ class SugareliteController extends BaseController
             return $this->sendError($e->getMessage());
         }
     }
+    public function EliteSupport(Request $request)
+    {
+        try {
+            $input = $request->all();
+            
+            // Validate the input
+            $validator = Validator::make($input, [
+                'input' => 'string|required'
+            ]);
+    
+            // If validation fails, return error response
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+    
+            // Generate 5 messages based on the input
+            $prompt = $input['input'];
+            $messages = $this->generateMessages($prompt);
+    
+            // Return success response with messages
+            return $this->sendResponse($messages, 'Messages generated successfully.');
+    
+        } catch (\Exception $e) {
+            // Return error response in case of exception
+            return $this->sendError($e->getMessage());
+        }
+    }
+    
+    // Method to generate 5 messages based on the prompt 
+    private function generateMessages($prompt)
+    {
+        return [
+            (object)[
+                'message' => "You're an upgrade away from being able to match instantly with people who Like You. <a href='https://sugarelite.website4you.co.in/subscription'>Upgrade to Gold</a>",
+                'html' => "<p>You're an upgrade away from being able to match instantly with people who Like You. <a href='https://sugarelite.website4you.co.in/subscription'>Upgrade to Gold</a></p>"
+            ],
+            (object)[
+                'message' => "Get some face time by being one of the top profiles in your area for 30 minutes. <a href='https://sugarelite.website4you.co.in/subscription'>Boost My Profile</a>",
+                'html' => "<p>Get some face time by being one of the top profiles in your area for 30 minutes. <a href='https://sugarelite.website4you.co.in/subscription'>Boost My Profile</a></p>"
+            ],
+            (object)[
+                'message' => "Learn to say 'Hey' in every language. Match anywhere in the world with <a href='https://sugarelite.website4you.co.in/subscription'>Passport</a>",
+                'html' => "<p>Learn to say 'Hey' in every language. Match anywhere in the world with <a href='https://sugarelite.website4you.co.in/subscription'>Passport</a></p>"
+            ],
+            (object)[
+                'message' => "There's plenty of ways to stay connected: Link your <a href='https://sugarelite.website4you.co.in/subscription'>Insta</a> and <a href='https://sugarelite.website4you.co.in/subscription'>Spotify</a> accounts and make your profile pop.",
+                'html' => "<p>There's plenty of ways to stay connected: Link your <a href='https://sugarelite.website4you.co.in/subscription'>Insta</a> and <a href='https://sugarelite.website4you.co.in/subscription'>Spotify</a> accounts and make your profile pop.</p>"
+            ]
+        ];
+        
+    }
+    
+    
 }
