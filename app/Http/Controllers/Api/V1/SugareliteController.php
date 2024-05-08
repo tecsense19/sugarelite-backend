@@ -73,15 +73,7 @@ class SugareliteController extends BaseController
                     $m->to( $input['email'] )->subject('OTP verification');
                 });
                 
-                //  Mail::raw($emailContent, function ($message) use ($input) {
-                //      $message->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
-                //      $message->to($input['email'])->subject('Forgot Password - OTP Code');
-                //  });
-                //return response()->json(['message' => 'OTP email sent successfully']);
             } catch (\Exception $e) {
-                // Log the error for debugging
-                // Log::error('SMTP Error: ' . $e->getMessage());
-                // Return error response
                 return response()->json(['error' => 'Failed to send OTP email. Please try again later.'], 500);
             }
                  
@@ -128,11 +120,7 @@ class SugareliteController extends BaseController
                 $output_cut = [
                     'id' => $output->id
                 ];
-               
-                //  Mail::send('mail/forgot_pass_mail', ['user' => $respoArr], function ($m) use ($respoArr, $input) {
-                //    $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
-                //     $m->to( $input['email'] )->subject('Forgot Password');
-                // });
+            
             return response()->json(['success'=> true, 'data' => $output_cut,'message' => $messgae], 200);       
     }
 
