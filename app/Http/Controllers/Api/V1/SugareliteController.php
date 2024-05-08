@@ -673,7 +673,17 @@ class SugareliteController extends BaseController
                 $profileList->avatar_url = $profileList->avatar_url ? url('/').'/'.$profileList->avatar_url : '';
                 $profileList->age = $age;
                 $profileList->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $input['id'])->where('status', '1')->get(['id as request_id', 'sender_id as user_id', 'updated_at as time']);
-                $profileList->is_friends = Friend_list::where('receiver_id' , $input['id'])->where('is_friend', 1)->get(['sender_id as user_id', 'updated_at as time']);
+                $profileList->is_friends = Friend_list::where('is_friend', 1)
+                ->where(function($query) use ($input) {
+                    $query->where('receiver_id', $input['id'])
+                          ->orWhere('sender_id', $input['id']);
+                })
+                ->selectRaw('CASE 
+                                WHEN receiver_id = ? THEN sender_id 
+                                ELSE receiver_id 
+                             END AS user_id, updated_at as time', [$input['id']])
+                ->get();
+            
                 $profileList->is_blocked_users = BlockedUsers::where(function($query) use ($input) {
                     $query->where('sender_id', $input['id'])
                           ->orWhere('receiver_id', $input['id']);
@@ -702,7 +712,18 @@ class SugareliteController extends BaseController
                 $user->avatar_url = $user->avatar_url ? url('/').'/'.$user->avatar_url : '';
                 $user->age = $age;
                 $user->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $user['id'])->where('status', '1')->get(['id as request_id','sender_id as user_id', 'updated_at as time']);
-                $user->is_friends = Friend_list::where('receiver_id' , $user['id'])->where('is_friend', 1)->get(['sender_id as user_id', 'updated_at as time']);
+                
+                $user->is_friends = Friend_list::where('is_friend', 1)
+                ->where(function($query) use ($user) {
+                    $query->where('receiver_id', $user['id'])
+                          ->orWhere('sender_id', $user['id']);
+                })
+                ->selectRaw('CASE 
+                                WHEN receiver_id = ? THEN sender_id 
+                                ELSE receiver_id 
+                             END AS user_id, updated_at as time', [$user['id']])
+                ->get();
+
                 $user->is_blocked_users = BlockedUsers::where(function($query) use ($user) {
                     $query->where('sender_id', $user['id'])
                           ->orWhere('receiver_id', $user['id']);
@@ -839,6 +860,86 @@ class SugareliteController extends BaseController
 
         // $message = 'Request send successfully to '.($receiverCheck ? $receiverCheck->username : '');
         return response()->json(['success' => true ,'message' => $message, 'data' => $lastRequest], 201);
+    }
+
+
+
+    public function friend_list_new(Request $request)
+    {
+        $input = $request->all();
+        
+        $validator = Validator::make($input, [
+            'sender_id' => 'integer|required',
+            'receiver_id' => 'integer|required',
+            'is_approved' => 'integer|required|in:0,1,2', // Add validation for status
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors()->first());
+        }
+
+        // Check if the sender and receiver are valid users
+        $senderCheck = User::find($input['sender_id']);
+        $receiverCheck = User::find($input['receiver_id']);
+
+        if (!$senderCheck || !$receiverCheck) {
+            return $this->sendError('Sender or receiver does not exist');
+        }
+
+        $find_exits = Friend_list::where('receiver_id' , $input['sender_id'])->where('sender_id',$input['receiver_id'])->first();
+
+        if($find_exits)
+        {
+            // Create or update the record in the database
+                $lastRequest = Friend_list::updateOrCreate(
+                    ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
+                    ['is_friend' => $input['is_approved']]
+                );
+
+                RequestNotification::updateOrCreate(
+                    ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
+                    ['read_flag' => $input['is_approved']]
+                );
+           
+                if($input['is_approved'] == 1)
+                {
+                    UsersNotification::create(['user_id' => $input['receiver_id'], 'sender_id' => $senderCheck->id, 'message' => $senderCheck->username.' accept your friend request.']);
+                }
+                
+                if($input['is_approved'] == 2)
+                {  
+                    UsersNotification::create(['user_id' => $input['receiver_id'], 'sender_id' => $senderCheck->id, 'message' => $senderCheck->username.' decline your friend request.']);
+                }
+            $message = ($input['is_approved'] == '0' ? 'Request sent successfully to ' . $senderCheck->username . '.' : ($input['is_approved'] == '1' ? 'Both are friends ' . $receiverCheck->username .' and '.$senderCheck->username. '.'  : 'Request decline to ' . $senderCheck->username . '.'));
+
+        }else{
+
+            if($input['is_approved'] == 1)
+            {  
+                UsersNotification::create(['user_id' => $input['sender_id'], 'sender_id' => $receiverCheck->id, 'message' => $receiverCheck->username.' accept your friend request.']);
+            }
+
+            if($input['is_approved'] == 2)
+            {  
+                UsersNotification::create(['user_id' => $input['sender_id'], 'sender_id' => $receiverCheck->id, 'message' => $receiverCheck->username.' decline your friend request.']);
+            }
+            
+            // Create or update the record in the database
+            $lastRequest = Friend_list::updateOrCreate(
+                ['sender_id' => $input['sender_id'], 'receiver_id' => $input['receiver_id']],
+                ['is_friend' => $input['is_approved']]
+            );
+
+            RequestNotification::updateOrCreate(
+                ['sender_id' => $input['sender_id'], 'receiver_id' => $input['receiver_id']],
+                ['read_flag' => $input['is_approved']]
+            );
+            $message = ($input['is_approved'] == '0' ? 'Request sent successfully to ' . $receiverCheck->username . '.' : ($input['is_approved'] == '1' ? 'Both are friends ' . $senderCheck->username .' and '.$receiverCheck->username. '.'  : 'Request decline to ' . $receiverCheck->username . '.'));
+        }
+    
+        
+         // $message = 'Request send successfully to '.($receiverCheck ? $receiverCheck->username : '');
+         return response()->json(['success' => true ,'message' => $message, 'data' => $lastRequest], 201);
     }
 
     public function friend_profile_list(Request $request)
