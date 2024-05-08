@@ -14,6 +14,8 @@ use App\Models\Privatealbumaccess;
 use App\Models\UserSubscription;
 use App\Models\RequestNotification;
 use App\Models\UsersNotification;
+use App\Models\UserAdminCommunication;
+use App\Models\UserElitesupport;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -1305,50 +1307,72 @@ class SugareliteController extends BaseController
             
             // Validate the input
             $validator = Validator::make($input, [
-                'input' => 'string|required'
+                'user_id' => 'integer|integer',
+                'type_id' => 'required|integer|between:1,7',
             ]);
-    
-            // If validation fails, return error response
+                // If validation fails, return error response
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first());
             }
-    
-            // Generate 5 messages based on the input
-            $prompt = $input['input'];
-            $messages = $this->generateMessages($prompt);
+
+            // Check if the entry already exists
+            $existingEntry = UserAdminCommunication::where('user_id', $input['user_id'])
+                                                    ->where('support_id', $input['type_id'])
+                                                    ->first();
+
+            if ($existingEntry) {
+                // Handle the case where the entry already exists
+                // For example, you might want to return an error response
+                return $this->sendError('Entry already exists for the given user and type');
+            }
+
+            // Create the new entry
+            $blockedUser = UserAdminCommunication::create([
+                'user_id' => $input['user_id'],
+                'support_id' => $input['type_id'],
+            ]);
     
             // Return success response with messages
-            return $this->sendResponse($messages, 'Messages generated successfully.');
+            return $this->sendResponse($blockedUser, 'Messages generated successfully.');
     
         } catch (\Exception $e) {
             // Return error response in case of exception
             return $this->sendError($e->getMessage());
         }
     }
-    
-    // Method to generate 5 messages based on the prompt 
-    private function generateMessages($prompt)
+
+
+    public function EliteSupportData(Request $request)
     {
-        return [
-            (object)[
-                'message' => "You're an upgrade away from being able to match instantly with people who Like You. <a href='https://sugarelite.website4you.co.in/subscription'>Upgrade to Gold</a>",
-                'html' => "<p>You're an upgrade away from being able to match instantly with people who Like You. <a href='https://sugarelite.website4you.co.in/subscription'>Upgrade to Gold</a></p>"
-            ],
-            (object)[
-                'message' => "Get some face time by being one of the top profiles in your area for 30 minutes. <a href='https://sugarelite.website4you.co.in/subscription'>Boost My Profile</a>",
-                'html' => "<p>Get some face time by being one of the top profiles in your area for 30 minutes. <a href='https://sugarelite.website4you.co.in/subscription'>Boost My Profile</a></p>"
-            ],
-            (object)[
-                'message' => "Learn to say 'Hey' in every language. Match anywhere in the world with <a href='https://sugarelite.website4you.co.in/subscription'>Passport</a>",
-                'html' => "<p>Learn to say 'Hey' in every language. Match anywhere in the world with <a href='https://sugarelite.website4you.co.in/subscription'>Passport</a></p>"
-            ],
-            (object)[
-                'message' => "There's plenty of ways to stay connected: Link your <a href='https://sugarelite.website4you.co.in/subscription'>Insta</a> and <a href='https://sugarelite.website4you.co.in/subscription'>Spotify</a> accounts and make your profile pop.",
-                'html' => "<p>There's plenty of ways to stay connected: Link your <a href='https://sugarelite.website4you.co.in/subscription'>Insta</a> and <a href='https://sugarelite.website4you.co.in/subscription'>Spotify</a> accounts and make your profile pop.</p>"
-            ]
-        ];
-        
+        try {
+            $input = $request->all();
+            
+            // Validate the input
+            $validator = Validator::make($input, [
+                'user_id' => 'integer|integer',
+            ]);
+                // If validation fails, return error response
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+            if(isset($input['user_id']) && $input['user_id'])
+            {
+                   // Check if the entry already exists
+                    $existingEntry = User::where('id', $input['user_id'])->first();
+                        if (!$existingEntry) {
+                        return $this->sendError('User not exists');
+                        }
+                $entry = UserAdminCommunication::with('getSupport')->where('user_id', $input['user_id'])
+                ->get();
+            }else{
+                $entry = UserAdminCommunication::with('getSupport')->get();
+            }
+            // Return success response with messages
+            return $this->sendResponse($entry, 'your answers be like');
+    
+        } catch (\Exception $e) {
+            // Return error response in case of exception
+            return $this->sendError($e->getMessage());
+        }
     }
-    
-    
 }

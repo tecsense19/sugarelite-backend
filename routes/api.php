@@ -69,6 +69,8 @@ Route::group(['prefix' => 'V1'], function () {
     Route::post('/verifyotp', [SugareliteController::class, 'MobileEmailVerifyOtp']); 
 
     Route::post('/elitesupport', [SugareliteController::class, 'EliteSupport']); 
+    Route::post('/getelitesupport', [SugareliteController::class, 'EliteSupportData']); 
+    
     
 
 
