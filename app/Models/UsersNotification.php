@@ -17,5 +17,6 @@ class UsersNotification extends Model
         'sender_id',
         'message',
         'read_unread',
+        'is_friend',
     ];   
 }

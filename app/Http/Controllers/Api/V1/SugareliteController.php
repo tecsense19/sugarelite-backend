@@ -898,17 +898,17 @@ class SugareliteController extends BaseController
 
                 RequestNotification::updateOrCreate(
                     ['receiver_id' => $input['sender_id'], 'sender_id' => $input['receiver_id']],
-                    ['read_flag' => $input['is_approved']]
+                    ['read_flag' => $input['is_approved'], 'is_friend' => $input['is_approved']]
                 );
            
                 if($input['is_approved'] == 1)
                 {
-                    UsersNotification::create(['user_id' => $input['receiver_id'], 'sender_id' => $senderCheck->id, 'message' => $senderCheck->username.' accept your friend request.']);
+                    UsersNotification::create(['user_id' => $input['receiver_id'], 'sender_id' => $senderCheck->id, 'message' => $senderCheck->username.' accept your friend request.', 'is_friend' => $input['is_approved']]);
                 }
                 
                 if($input['is_approved'] == 2)
                 {  
-                    UsersNotification::create(['user_id' => $input['receiver_id'], 'sender_id' => $senderCheck->id, 'message' => $senderCheck->username.' decline your friend request.']);
+                    UsersNotification::where('user_id', $input['receiver_id'])->delete();
                 }
             $message = ($input['is_approved'] == '0' ? 'Request sent successfully to ' . $senderCheck->username . '.' : ($input['is_approved'] == '1' ? 'Both are friends ' . $receiverCheck->username .' and '.$senderCheck->username. '.'  : 'Request decline to ' . $senderCheck->username . '.'));
 
@@ -916,23 +916,23 @@ class SugareliteController extends BaseController
 
             if($input['is_approved'] == 1)
             {  
-                UsersNotification::create(['user_id' => $input['sender_id'], 'sender_id' => $receiverCheck->id, 'message' => $receiverCheck->username.' accept your friend request.']);
+                UsersNotification::create(['user_id' => $input['sender_id'], 'sender_id' => $receiverCheck->id, 'message' => $receiverCheck->username.' accept your friend request.' , 'is_friend' => $input['is_approved']]);
             }
 
             if($input['is_approved'] == 2)
             {  
-                UsersNotification::create(['user_id' => $input['sender_id'], 'sender_id' => $receiverCheck->id, 'message' => $receiverCheck->username.' decline your friend request.']);
+                UsersNotification::where('user_id', $input['sender_id'])->delete();
             }
             
             // Create or update the record in the database
             $lastRequest = Friend_list::updateOrCreate(
                 ['sender_id' => $input['sender_id'], 'receiver_id' => $input['receiver_id']],
-                ['is_friend' => $input['is_approved']]
+                ['is_friend' => $input['is_approved'], 'is_friend' => $input['is_approved']]
             );
 
             RequestNotification::updateOrCreate(
                 ['sender_id' => $input['sender_id'], 'receiver_id' => $input['receiver_id']],
-                ['read_flag' => $input['is_approved']]
+                ['read_flag' => $input['is_approved'], 'is_friend' => $input['is_approved']]
             );
             $message = ($input['is_approved'] == '0' ? 'Request sent successfully to ' . $receiverCheck->username . '.' : ($input['is_approved'] == '1' ? 'Both are friends ' . $senderCheck->username .' and '.$receiverCheck->username. '.'  : 'Request decline to ' . $receiverCheck->username . '.'));
         }

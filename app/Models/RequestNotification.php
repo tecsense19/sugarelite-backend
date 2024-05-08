@@ -14,6 +14,7 @@ class RequestNotification extends Model
 
     protected $fillable = [
         'read_flag',
+        'is_friend',
         'sender_id',
         'receiver_id',
     ];   
