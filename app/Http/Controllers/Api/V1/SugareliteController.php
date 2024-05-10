@@ -1297,6 +1297,7 @@ class SugareliteController extends BaseController
 
             $validator = Validator::make($input, [
                 'user_id' => 'required',
+                'government_id_name' => 'required',
                 'file' => 'required'
             ]);
         
@@ -1305,6 +1306,8 @@ class SugareliteController extends BaseController
             }
          
                     $user_id = $input['user_id'];
+                    $government_id_name = $input['government_id_name'];
+                    
                     $user_data = User::where('id', $user_id)->first();
                     if(!$user_data)
                     {
@@ -1344,10 +1347,12 @@ class SugareliteController extends BaseController
                         $newRecord = new User();
                         $newRecord->identity_file = $img;
                         $newRecord->is_identityverification = 'pending';
+                        $newRecord->government_id_name = $government_id_name;
                         $newRecord->save();
                     } else {
                         // Update the existing record
                         $existingRecord->identity_file = $img;
+                        $existingRecord->government_id_name = $government_id_name;
                         $existingRecord->is_identityverification = 'pending';
                         $existingRecord->save();
                     } 

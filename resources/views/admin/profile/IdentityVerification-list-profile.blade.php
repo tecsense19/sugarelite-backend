@@ -107,6 +107,7 @@
         <th>#</th>
         <th>Profile Pic</th>
         <th>Name</th>
+        <th>Proof Name</th>
         <th>Identity Photo</th>
         <th>Status</th>
         <th>Action</th>
@@ -135,7 +136,7 @@
                     @endif
                 </td>
                 <td>{{ $list_prof->username }}</td>
-               
+                <td>{{ $list_prof->government_id_name }}</td>
                 <td>
                     @if($list_prof->identity_file)
                         <img src="{{ url('/').'/'.$list_prof->identity_file }}" alt="" style="height: 100px; width: 100px;">

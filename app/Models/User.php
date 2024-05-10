@@ -21,7 +21,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'username', 'user_role', 'avatar_url', 'sex', 'height', 'premium', 'age', 'weight', 'country', 'sugar_type', 'birthdate', 'email', 'mobile_no', 'verify_otp',  'password', 'region',  'bio', 'ethnicity', 'body_structure', 'hair_color', 'piercings', 'tattoos', 'education', 'smoking', 'drinks', 'employment', 'civil_status','user_status', 'confirmed_email', 'online', 'last_online', 'last_activity_at', 'created_at', 'updated_at', 'deleted_at','is_verified', 'subscription_stop_date', 
-        'identity_file', 'is_identityverification', 'subscription_resume_date'
+        'identity_file', 'is_identityverification', 'government_id_name' ,'subscription_resume_date'
     ];
 
     /**
