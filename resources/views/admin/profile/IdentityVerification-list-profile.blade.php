@@ -97,6 +97,37 @@
   .checkbox-wrapper-13 *:after {
     box-sizing: inherit;
   }
+
+
+  body {
+  margin:80px;
+  text-align:center;
+}
+
+/* Full screen image styles 
+=================================== */
+
+.scroll-disabled {
+  height: 100%;
+  overflow: hidden;
+}
+.img-full-screen, 
+.img-placeholder {
+  cursor:pointer;
+}
+.img-placeholder {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: none;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: rgba(255, 255, 255, 0); /* Transparent background */
+  z-index: 999;
+}
 </style>
 
 
@@ -139,7 +170,7 @@
                 <td>{{ $list_prof->government_id_name }}</td>
                 <td>
                     @if($list_prof->identity_file)
-                        <img src="{{ url('/').'/'.$list_prof->identity_file }}" alt="" style="height: 100px; width: 100px;">
+                        <img class="img-full-screen" src="{{ url('/').'/'.$list_prof->identity_file }}" alt="" style="height: 100px; width: 100px;">
                     @else
                         -
                     @endif
@@ -177,5 +208,41 @@
     @endif
 </tbody>
 </table>
+
+<div class="img-placeholder"></div>
 {!! $list_profiles->links('pagination') !!}
 <!-- End Table with stripped rows -->
+
+<script>
+    // Makes the clicked image full screen (uses a <div> with a background image)
+$('.img-full-screen').click(function(){
+	
+    // Prevents scrolling
+      $('body').addClass('scroll-disabled');
+    
+    // Optional: Enables pinch and zoom
+      $('meta[name=viewport]').attr('content','width = device-width, initial-scale = 1.00, minimum-scale = 1.00, maximum-scale = 2.00, user-scalable=yes');
+      
+    // Get image path source
+      let imagePath = $(this).attr('src');
+    
+    // Set image path source
+      $('.img-placeholder').attr('style','background-image: url(' + imagePath + ')');
+    
+    // Show image
+      $('.img-placeholder').fadeIn();
+      
+  });
+  
+  $('.img-placeholder').click(function(){
+  
+    // Enables scrolling again
+    $('body').removeClass('scroll-disabled');
+  
+    // Optional: Disables pinch and zoom
+    $('meta[name=viewport]').attr('content','width = device-width, initial-scale = 1.00, minimum-scale = 1.00, maximum-scale = 1.00');
+  
+    // Hide image
+    $('.img-placeholder').fadeOut();
+  });
+</script>
