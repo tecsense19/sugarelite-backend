@@ -120,7 +120,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('profile.identityindex') }}" class="{{ request()->is('profile/identityindex*') || request()->is('identityindex') ? 'active' : '' }}">
+                    <a href="{{ route('profile.identityindex') }}" class="{{ request()->is('identity*') || request()->is('identity') ? 'active' : '' }}">
                     <i class="bi bi-circle"></i><span>Identity Verification</span>
                     </a>
                 </li>
