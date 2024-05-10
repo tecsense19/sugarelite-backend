@@ -37,6 +37,8 @@ Route::group(['middleware' => ['admin']], function () {
 
     Route::get('/profiles', [ProfileController::class, 'profileindex'])->name('profile.profiles');
     Route::post('/list-profile', [ProfileController::class, 'profilelist'])->name('profile.list-profile');
+    Route::get('/identity', [ProfileController::class, 'IdentityVerificationIndex'])->name('profile.identityindex');
+    Route::post('/list-identity', [ProfileController::class, 'IdentityVerification'])->name('profile.identity');
 
     // update prodile
     Route::get('profile/edit/{id}', [ProfileController::class, 'profileedit'])->name('profile.edit-profile');
@@ -44,6 +46,8 @@ Route::group(['middleware' => ['admin']], function () {
 
     // delete profile
     Route::post('/profile/delete', [ProfileController::class, 'profiledelete'])->name('profile.delete-profile');
+    //Verify Identity
+    Route::post('/profile/check-identity', [ProfileController::class, 'CheckIdentity'])->name('profile.check-identity');
     // remove user image
     Route::post('/remove-user-images', [ProfileController::class, 'removeuserimage']);
 

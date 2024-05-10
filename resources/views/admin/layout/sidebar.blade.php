@@ -119,6 +119,11 @@
                     <i class="bi bi-circle"></i><span>Profile list</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('profile.identityindex') }}" class="{{ request()->is('profile/identityindex*') || request()->is('identityindex') ? 'active' : '' }}">
+                    <i class="bi bi-circle"></i><span>Identity Verification</span>
+                    </a>
+                </li>
             </ul>
         </li>
         <!-- End Forms Nav -->

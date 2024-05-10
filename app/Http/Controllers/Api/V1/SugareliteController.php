@@ -279,7 +279,6 @@ class SugareliteController extends BaseController
                        
                 }else{
 
-              
                     if(isset($input['email']) || isset($input['mobile_no']))
                     {
                         $query = User::where(function($query) use ($input) {
@@ -641,9 +640,6 @@ class SugareliteController extends BaseController
 
     public function countMessagesSentToday($sender_id)
     {
-        // Logic to count the number of messages sent by the sender today
-        // You would need to have a messages table with a sender_id and a timestamp column
-        // Then you can count the number of messages sent by the sender today
         $messagesSentToday = Messages::where('sender_id', $sender_id)
                                     ->whereDate('created_at', Carbon::today())
                                     ->count();
@@ -1246,50 +1242,47 @@ class SugareliteController extends BaseController
             $input = $request->all();
 
             $validator = Validator::make($input, [
-                'email' => 'required'
+                'user_id' => 'required',
+                'subject' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
+                'message' => 'required|regex:/^[a-zA-Z0-9\s]+$/'
             ]);
         
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first());
             }
-                    $email = $input['email'];
+         
+                    $user_id = $input['user_id'];
                     $message = $input['message'];
-                    $user_id = User::where('email', $email)->first();
-
-                    if(!$user_id)
+                    $subject = $input['subject'];
+                    $user_data = User::where('id', $user_id)->first();
+                    if(!$user_data)
                     {
                         return $this->sendError('User not found.');
                     }
                     // Check if a record with the email exists
-                    $existingRecord = ContactUs::where('email', $email)->first();
-             
-                    if (!$existingRecord) {
-                        // Create a new record if it doesn't exist
-                        
+                    // $existingRecord = ContactUs::where('user_id', $user_id)->first();
+                    // if (!$existingRecord) {
+                        // Create a new record if it doesn't exist                        
                         $newRecord = new ContactUs();
-                        $newRecord->user_id = $user_id->id;
-                        $newRecord->email = $email;
+                        $newRecord->user_id = $user_data->id;
+                        $newRecord->email = $user_data->email;
+                        $newRecord->subject = $subject;
                         $newRecord->message = $message;
                         $newRecord->save();
-                    } else {
-                        // Update the existing record
-                        $existingRecord->user_id = $user_id->id;
-                        $existingRecord->message = $message;
-                        $existingRecord->save();
-                    }
+                    // } 
                 
-                $ContactUs = ContactUs::where('email', $input['email'])->first();
-                $respoArr['username'] = $user_id->username;
-                $respoArr['email'] = $ContactUs->email;
-                $respoArr['message'] = $ContactUs->message;
-                $respoArr['logo_link'] = url('/').'/'.'public/assets/img/site-logo.png';
+                // $ContactUs = ContactUs::where('email', $input['email'])->first();
+                // $respoArr['username'] = $user_id->username;
+                // $respoArr['email'] = $ContactUs->email;
+                // $respoArr['message'] = $ContactUs->message;
+                // $respoArr['logo_link'] = url('/').'/'.'public/assets/img/site-logo.png';
 
-                Mail::send('mail/contactus', ['user' => $respoArr], function ($m) use ($respoArr, $input) {
-                    $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
-                    $m->to('gautam@tec-sense.com')->subject('Contact Us');
-                });
+                // Mail::send('mail/contactus', ['user' => $respoArr], function ($m) use ($respoArr, $input) {
+                //     $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+                //     $m->to('gautam@tec-sense.com')->subject('Contact Us');
+                // });
 
-                return $this->sendResponse($input['email'], 'Your message has been forwarded to our team. Thank you.');
+                return $this->sendResponse($user_data->email, 'Your message has been forwarded to our team. Thank you.');
             
 
         } catch (\Exception $e) {
@@ -1297,7 +1290,75 @@ class SugareliteController extends BaseController
         }
     }
 
+    public function IdentityVerification(Request $request)
+    {
+        try {
+            $input = $request->all();
 
+            $validator = Validator::make($input, [
+                'user_id' => 'required',
+                'file' => 'required'
+            ]);
+        
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+         
+                    $user_id = $input['user_id'];
+                    $user_data = User::where('id', $user_id)->first();
+                    if(!$user_data)
+                    {
+                        return $this->sendError('User not found.');
+                    }
+
+                    if(isset($user_data) && $user_data->is_identityverification == 'approved')
+                    {
+                        return $this->sendResponse([],'Your Identity Verification is already verified');
+                    }
+
+                    if($file = $request->file('file'))
+                    {
+                        $path = 'public/uploads/user/IdentityVerification/';
+            
+                        $filename = time() . '_' . $file->getClientOriginalName();
+                        $file->move($path, $filename);
+                        $img = 'public/uploads/user/IdentityVerification/' . $filename;                
+
+                        if(isset($input['user_id']) && $input['user_id']!= "")
+                        {
+                            $getUserDetails = User::where('id', $input['user_id'])->first();
+                            if ($getUserDetails) {
+                                $proFilePath = $getUserDetails->identity_file;
+                                $proPath = substr(strstr($proFilePath, 'public/'), strlen('public/'));
+            
+                                if (file_exists(public_path($proPath))) {
+                                    \File::delete(public_path($proPath));
+                                }
+                            }
+                        }
+                    }
+
+                    $existingRecord = User::where('id', $user_id)->first();
+                    if (!$existingRecord) {
+                        // Create a new record if it doesn't exist                        
+                        $newRecord = new User();
+                        $newRecord->identity_file = $img;
+                        $newRecord->is_identityverification = 'pending';
+                        $newRecord->save();
+                    } else {
+                        // Update the existing record
+                        $existingRecord->identity_file = $img;
+                        $existingRecord->is_identityverification = 'pending';
+                        $existingRecord->save();
+                    } 
+                
+                return $this->sendResponse($user_data->email, 'Your Identity Verification is submitted success');
+            
+
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
 
     public function readMessage(Request $request)
     {
@@ -1429,7 +1490,6 @@ class SugareliteController extends BaseController
             return $this->sendError($e->getMessage());
         }
     }
-
 
     public function EliteSupportData(Request $request)
     {

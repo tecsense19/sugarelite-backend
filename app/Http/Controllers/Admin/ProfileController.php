@@ -328,6 +328,63 @@ class ProfileController extends Controller
         $userimage->delete();
     }
     
+    
+    public function IdentityVerificationIndex()
+    {
+        if (Auth::check()) 
+        {
+            return view('admin.profile.IdentityVerification');
+        }
+        else
+        {
+            return view('admin.login');
+        }
+    }
+
+    public function IdentityVerification(Request $request)
+    {
+        $input = $request->all();
+        $list_profiles = [];
+        $search = $input['search'];
+        $entries_per_page = $input['entries_per_page'];
+
+        $list_profiles = User::where('user_role', 'user')
+        ->whereNotNull('is_identityverification') // Exclude records where is_identityverification is null
+        ->when(isset($search) && $search != '', function ($query) use ($search) {
+            $query->where(function ($subquery) use ($search) {
+                $subquery->where('username', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        })
+        ->orderBy('updated_at', 'desc') // Order by updated_at column
+        ->paginate($entries_per_page);
+
+        
+        return view('admin.profile.IdentityVerification-list-profile',compact('list_profiles'));
+    }
+
+    public function CheckIdentity(Request $request)
+    {
+        $input = $request->all();
+        $user_id = $input['id'];
+
+        if($input['is_identityverification'] == 1)
+        {
+            $input['is_identityverification'] = 'approved';
+            $user = User::where('id', $user_id)->update($input);
+        }
+
+        if($input['is_identityverification'] == 0)
+        {
+            $input['is_identityverification'] = 'rejected';
+            $user = User::where('id', $user_id)->update($input);
+        }
+    
+        return true;
+    }
+
+    
+    
 }
 
 
