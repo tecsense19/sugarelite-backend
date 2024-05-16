@@ -99,10 +99,10 @@
   }
 
 
-  body {
+  /* body {
   margin:80px;
   text-align:center;
-}
+} */
 
 /* Full screen image styles 
 =================================== */
@@ -125,9 +125,9 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center center;
-  background-color: rgba(255, 255, 255, 0); /* Transparent background */
+  background-color: rgba(255, 255, 255, 0); 
   z-index: 999;
-}
+} 
 </style>
 
 

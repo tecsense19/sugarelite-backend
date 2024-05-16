@@ -73,19 +73,19 @@
                                     <label for="inputNumber" class="col-form-label">Gender</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
-                                            <input class="form-check-input" type="radio" name="sex" id="sex1" value="male" {{$list_profiles->sex == 'male' ? 'checked' : ''}}>
+                                            <input class="form-check-input" type="radio" name="sex" id="sex1" value="Male" {{$list_profiles->sex == 'Male' ? 'checked' : ''}}>
                                             <label class="form-check-label" for="sex1">
                                             Male
                                             </label>
                                         </div>
                                         <div class="form-check me-2">
-                                            <input class="form-check-input" type="radio" name="sex" id="sex2" value="female" {{$list_profiles->sex == 'female' ? 'checked' : ''}}>
+                                            <input class="form-check-input" type="radio" name="sex" id="sex2" value="Female" {{$list_profiles->sex == 'Female' ? 'checked' : ''}}>
                                             <label class="form-check-label" for="sex2">
                                             Female
                                             </label>
                                         </div>
                                         <div class="form-check me-2">
-                                            <input class="form-check-input" type="radio" name="sex" id="sex" value="other" {{$list_profiles->sex == 'other' ? 'checked' : ''}}>
+                                            <input class="form-check-input" type="radio" name="sex" id="sex3" value="Others" {{$list_profiles->sex == 'Others' ? 'checked' : ''}}>
                                             <label class="form-check-label" for="sex3">
                                             Others
                                             </label>
@@ -161,13 +161,13 @@
                                     <label for="inputPassword" class="col-form-label">Piercings</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
-                                            <input class="form-check-input" type="radio" name="piercings" id="piercings1" value="yes" {{$list_profiles->piercings == 'yes' ? 'checked' : ''}}>
+                                            <input class="form-check-input" type="radio" name="piercings" id="piercings1" value="Yes" {{$list_profiles->piercings == 'Yes' ? 'checked' : ''}}>
                                             <label class="form-check-label" for="piercings1">
                                             Yes
                                             </label>
                                         </div>
                                         <div class="form-check me-2">
-                                            <input class="form-check-input" type="radio" name="piercings" id="piercings2" value="no" {{$list_profiles->piercings == 'no' ? 'checked' : ''}}>
+                                            <input class="form-check-input" type="radio" name="piercings" id="piercings2" value="No" {{$list_profiles->piercings == 'No' ? 'checked' : ''}}>
                                             <label class="form-check-label" for="piercings2">
                                             No
                                             </label>
@@ -178,13 +178,13 @@
                                     <label for="inputPassword" class="col-form-label">Tattoos</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
-                                            <input class="form-check-input" type="radio" name="tattoos" id="tattoos1" value="yes" {{$list_profiles->tattoos == 'yes' ? 'checked' : ''}}>
+                                            <input class="form-check-input" type="radio" name="tattoos" id="tattoos1" value="Yes" {{$list_profiles->tattoos == 'Yes' ? 'checked' : ''}}>
                                             <label class="form-check-label" for="tattoos1">
                                             Yes
                                             </label>
                                         </div>
                                         <div class="form-check me-2">
-                                            <input class="form-check-input" type="radio" name="tattoos" id="tattoos2" value="no" {{$list_profiles->tattoos == 'no' ? 'checked' : ''}}>
+                                            <input class="form-check-input" type="radio" name="tattoos" id="tattoos2" value="No" {{$list_profiles->tattoos == 'No' ? 'checked' : ''}}>
                                             <label class="form-check-label" for="tattoos2">
                                             No
                                             </label>
