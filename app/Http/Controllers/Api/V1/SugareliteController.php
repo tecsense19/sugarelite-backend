@@ -68,15 +68,15 @@ class SugareliteController extends BaseController
             {
                  // Email content
                  $emailContent = "Your OTP code is: " . $otp;
-                try {
-                 Mail::send('mail/otp', ['emailContent' => $emailContent], function ($m) use ($emailContent, $input) {
-                   $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
-                    $m->to( $input['email'] )->subject('OTP verification');
-                });
-                
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Failed to send OTP email. Please try again later.'], 500);
-            }
+            try {
+                    Mail::send('mail/otp', ['emailContent' => $emailContent], function ($m) use ($emailContent, $input) {
+                    $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+                        $m->to( $input['email'] )->subject('OTP verification');
+                    });
+                    
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Failed to send OTP email. Please try again later.'.$e], 500);
+              }
                  
                 $data_email_no = User::where('email', $input['email'])->first();
                 if ($data_email_no) {
@@ -1574,14 +1574,26 @@ class SugareliteController extends BaseController
             // Check if the English string exists in the database   
             $existingData = LanguageMaster::get();
             
+         
             if ($existingData) {
-                // If exists, return the existing data
-                return $this->sendResponse($existingData, 'Data found.');
+                // Transform the existing data into the desired format
+                $transformedData = [];
+
+                foreach ($existingData as $data) {
+                    // Convert var_string to lowercase and replace underscores with spaces
+                    $key = strtolower(str_replace('string_', '', $data->var_string));
+
+                    // Add the transformed data to the array
+                    $transformedData['string_'.$key] = [
+                        'english_string' => $data->english_string,
+                        'danish_string' => $data->danish_string ?? $data->english_string // Use english_string if danish_string is null
+                    ];
+                }
+
+                return $this->sendResponse($transformedData, 'Data found.');
             } else {
-                // If not exists, create a new entry
                 return $this->sendResponse([], 'Data not found');
             }
-    
         } catch (\Exception $e) {
             // Return error response in case of exception
             return $this->sendError($e->getMessage());
