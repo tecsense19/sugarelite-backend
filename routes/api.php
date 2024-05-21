@@ -73,6 +73,10 @@ Route::group(['prefix' => 'V1'], function () {
     Route::post('/getelitesupport', [SugareliteController::class, 'EliteSupportData']); 
     
     Route::post('/verifyidentity', [SugareliteController::class, 'IdentityVerification']); 
+    
+    Route::post('/laguage_master', [SugareliteController::class, 'LaguageMaster']); 
+    Route::get('/get_laguage_master', [SugareliteController::class, 'GetLaguageMaster']); 
+    
 
     Route::post('/create/subscription', [StripeController::class, 'createSubscription']);
     Route::post('/start/stop/subscription', [StripeController::class, 'startStopSubscription']);

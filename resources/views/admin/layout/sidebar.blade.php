@@ -139,6 +139,14 @@
             <span>Plans</span>
             </a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link {{ request()->is('language') ? '' : 'collapsed' }}" href="{{ route('admin.language') }}">
+            <i class="bi bi-grid"></i>
+            <span>Language</span>
+            </a>
+        </li>
+
         <li class="nav-item">
             <a class="nav-link {{ request()->is('subscriptions') || request()->is('view/subscription/*') ? '' : 'collapsed' }}" href="{{ route('admin.subscriptions') }}">
             <i class="bi bi-grid"></i>

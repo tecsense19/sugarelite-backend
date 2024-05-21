@@ -16,6 +16,7 @@ use App\Models\RequestNotification;
 use App\Models\UsersNotification;
 use App\Models\UserAdminCommunication;
 use App\Models\UserElitesupport;
+use App\Models\LanguageMaster;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -48,7 +49,7 @@ class SugareliteController extends BaseController
                 }
             },
             'email' => 'nullable|email', // This rule checks if the email is a valid format
-            'mobile_no' => 'nullable|digits:12', // This rule checks if the mobile number has exactly 10 digits
+            // 'mobile_no' => 'nullable|digits:12', // This rule checks if the mobile number has exactly 10 digits
         ];
         
 
@@ -1529,4 +1530,62 @@ class SugareliteController extends BaseController
             return $this->sendError($e->getMessage());
         }
     }
+
+    public function LaguageMaster(Request $request)
+    {
+        try {
+            $input = $request->all();
+            
+            // Validate the input
+            $validator = Validator::make($input, [
+                'english_string' => 'required|string',
+            ]);
+                // If validation fails, return error response
+            if ($validator->fails()) {
+                return $this->sendError($validator->errors()->first());
+            }
+                        
+            // Check if the English string exists in the database   
+            $existingData = LanguageMaster::where('english_string', $input['english_string'])->first();
+            
+            if ($existingData) {
+                // If exists, return the existing data
+                return $this->sendResponse($existingData, 'Data found.');
+            } else {
+                // If not exists, create a new entry
+                $varString = 'string_' . str_replace(' ', '_', $input['english_string']);
+                $newData = LanguageMaster::create(['english_string' => $input['english_string'], 'var_string' => $varString]);
+                return $this->sendResponse($newData, 'New entry created successfully.');
+            }
+    
+        } catch (\Exception $e) {
+            // Return error response in case of exception
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function GetLaguageMaster(Request $request)
+    {
+        try {
+            $input = $request->all();
+            
+            // Validate the input
+                
+            // Check if the English string exists in the database   
+            $existingData = LanguageMaster::get();
+            
+            if ($existingData) {
+                // If exists, return the existing data
+                return $this->sendResponse($existingData, 'Data found.');
+            } else {
+                // If not exists, create a new entry
+                return $this->sendResponse([], 'Data not found');
+            }
+    
+        } catch (\Exception $e) {
+            // Return error response in case of exception
+            return $this->sendError($e->getMessage());
+        }
+    }
+    
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserreportController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\StripeWebhookController;
+use App\Http\Controllers\Admin\LanguageMasterController;
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Api\V1\NewslettersController;
@@ -63,6 +64,12 @@ Route::group(['middleware' => ['admin']], function () {
     // Stripe Plan
     Route::get('/plans', [PlanController::class, 'plans'])->name('admin.plans');
     Route::post('/save/plans', [PlanController::class, 'savePlans'])->name('admin.price.store');
+    
+    //Language Master
+    Route::get('/language', [LanguageMasterController::class, 'index'])->name('admin.language');
+    Route::post('/save/language', [LanguageMasterController::class, 'saveLanguage'])->name('admin.saveLanguage');
+    Route::get('/language/delete/{id}', [LanguageMasterController::class, 'delete'])->name('language.delete');
+    
 
     // Subscription
     Route::get('/subscriptions', [SubscriptionController::class, 'subscriptions'])->name('admin.subscriptions');
