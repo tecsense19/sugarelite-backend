@@ -148,6 +148,13 @@
         </li>
 
         <li class="nav-item">
+            <a class="nav-link {{ request()->is('broadcast') ? '' : 'collapsed' }}" href="{{ route('admin.broadcast') }}">
+            <i class="bi bi-grid"></i>
+            <span>Broadcast</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link {{ request()->is('subscriptions') || request()->is('view/subscription/*') ? '' : 'collapsed' }}" href="{{ route('admin.subscriptions') }}">
             <i class="bi bi-grid"></i>
             <span>Subscriptions</span>

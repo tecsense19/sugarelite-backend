@@ -64,10 +64,10 @@
                             <label for="inputText" class="col-form-label">{{ $getLanguage ? $value->var_string : '' }}</label> 
                             </div>
                             <div class="col-sm-4 mb-2">
-                                <input type="text" required class="form-control" name="english_string[]" value="{{ $getLanguage ? $value->english_string : '' }}" />                                
+                                <textarea required class="form-control" name="english_string[]" >{{ $getLanguage ? $value->english_string : '' }}</textarea>                                                                
                             </div>
                             <div class="col-sm-3 mb-2">
-                                <input type="text" required class="form-control" name="danish_string[]" value="{{ $getLanguage ? $value->danish_string : '' }}" />
+                            <textarea required class="form-control" name="danish_string[]" >{{ $getLanguage ? $value->danish_string : '' }}</textarea>                               
                             </div> 
                             <div class="col-sm-1 mb-2">                               
                                     <button type="submit" class="btn btn-secondary delete_data" data-id="{{ $value->id }}">Remove</button>
@@ -109,10 +109,11 @@
                        -                               
                     </div>
                     <div class="col-sm-4 mb-3">
-                        <input type="text" class="form-control" name="english_string[]" id="english_string${counter}" value="" />             
+                    <textarea required class="form-control" name="english_string[]" id="english_string_${counter}" ></textarea>           
                     </div>
                     <div class="col-sm-3 mb-3">
-                        <input type="text" class="form-control" name="danish_string[]" id="danish_string_${counter}" value="" />
+                    <textarea required class="form-control" name="danish_string[]" id="danish_string_${counter}" ></textarea>
+                        
                     </div>
                     <div class="col-sm-1">
                         <button type="button" class="btn btn-danger removeButton">Remove</button>

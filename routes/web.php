@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\StripeWebhookController;
 use App\Http\Controllers\Admin\LanguageMasterController;
+use App\Http\Controllers\Admin\BroadcastController;
+
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Api\V1\NewslettersController;
@@ -69,6 +71,11 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('/language', [LanguageMasterController::class, 'index'])->name('admin.language');
     Route::post('/save/language', [LanguageMasterController::class, 'saveLanguage'])->name('admin.saveLanguage');
     Route::get('/language/delete/{id}', [LanguageMasterController::class, 'delete'])->name('language.delete');
+
+    //Language Master    
+    Route::get('/broadcast', [BroadcastController::class, 'index'])->name('admin.broadcast');
+    Route::post('/save/broadcast', [BroadcastController::class, 'saveBroadcast'])->name('admin.savebroadcast');
+    Route::get('/broadcast/delete/{id}', [BroadcastController::class, 'delete'])->name('broadcast.delete');
     
 
     // Subscription

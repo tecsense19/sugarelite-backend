@@ -1446,7 +1446,6 @@ class SugareliteController extends BaseController
          
          if($data == 1)
          {
-
             return $this->sendResponse([], 'Congratulations You both are friends.');
          }
          else{
@@ -1599,6 +1598,25 @@ class SugareliteController extends BaseController
             // Return error response in case of exception
             return $this->sendError($e->getMessage());
         }
-    }
-    
+    }    
+
+    public function GetBroadcast(Request $request)
+    {
+        try {
+            $input = $request->all();            
+            // Check if the English string exists in the database   
+            $existingData = UserElitesupport::where('type', 'broadcast')->get();            
+         
+            if ($existingData) {
+                // Transform the existing data into the desired format
+            
+                return $this->sendResponse($existingData, 'Broadcast data found.');
+            } else {
+                return $this->sendResponse([], 'Data not found');
+            }
+        } catch (\Exception $e) {
+            // Return error response in case of exception
+            return $this->sendError($e->getMessage());
+        }
+    }    
 }
