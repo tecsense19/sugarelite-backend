@@ -69,11 +69,11 @@ class SugareliteController extends BaseController
             {
                  // Email content
                  $emailContent = "Your OTP code is: " . $otp;
-            try {
-                    Mail::send('mail/otp', ['emailContent' => $emailContent], function ($m) use ($emailContent, $input) {
-                    $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
-                        $m->to( $input['email'] )->subject('OTP verification');
-                    });
+                try {
+                // Mail::send('mail/otp', ['emailContent' => $emailContent], function ($m) use ($emailContent, $input) {
+                //     $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+                //         $m->to( $input['email'] )->subject('OTP verification');
+                //     });
                     
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Failed to send OTP email. Please try again later.'.$e], 500);
