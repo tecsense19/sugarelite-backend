@@ -60,7 +60,7 @@
                     foreach ($getLanguage as $key => $value) { ?>
                         <div class="row"> 
                             
-                            <div class="col-sm-4 mb-2">
+                            <div class="col-sm-4 mb-2" style="display: flex;word-break: break-all;">
                             <label for="inputText" class="col-form-label">{{ $getLanguage ? $value->var_string : '' }}</label> 
                             </div>
                             <div class="col-sm-4 mb-2">
