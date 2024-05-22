@@ -85,7 +85,7 @@ class SugareliteController extends BaseController
                     $data = [
                         'id' => $data_email_no->id
                     ];
-                    return response()->json(['success'=> true, 'data' => $data,'message' => 'User already exists with this email. we sent a new otp for verification.'], 200);
+                    return response()->json(['success'=> false, 'data' => $data,'message' => 'User already exists with this email. we sent a new otp for verification.'], 200);
                 }
                 
                 if(!$data_email_no)
@@ -103,7 +103,7 @@ class SugareliteController extends BaseController
                     $data = [
                         'id' => $data_mobile_no->id
                     ];
-                    return response()->json(['success'=> true,'data' => $data,'message' => 'User already exists with this mobile_no. we sent a new otp for verification.'], 200);
+                    return response()->json(['success'=> false,'data' => $data,'message' => 'User already exists with this mobile_no. we sent a new otp for verification.'], 200);
                 }
             
                 if(!$data_mobile_no)
