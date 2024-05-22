@@ -62,6 +62,7 @@
                             
                             <div class="col-sm-4 mb-2" style="display: flex;word-break: break-all;">
                             <label for="inputText" class="col-form-label">{{ $getLanguage ? $value->var_string : '' }}</label> 
+                            <input type="hidden" name="var_string[]" value="{{ $getLanguage ? $value->var_string : '' }}">
                             </div>
                             <div class="col-sm-4 mb-2">
                                 <textarea required class="form-control" name="english_string[]" >{{ $getLanguage ? $value->english_string : '' }}</textarea>                                                                

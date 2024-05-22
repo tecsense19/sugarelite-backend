@@ -22,7 +22,7 @@ class LanguageMasterController extends Controller
     {
         if (Auth::check()) 
         {
-            $getLanguage = LanguageMaster::paginate(10);
+            $getLanguage = LanguageMaster::orderBy('id', 'desc')->paginate(10);
             return view('admin.language.addEdit', compact('getLanguage'));
         }
         else
@@ -44,43 +44,51 @@ class LanguageMasterController extends Controller
                 'danish_string.*' => 'required',
             ]);
             
-            // Array to store error messages for duplicate entries
-            $errors = [];      
-        
-            // Loop through the var_string array and save each pair
-            foreach ($request->english_string as $key => $english_string) {
-                $danishString = $request->danish_string[$key];
-                
-                // Check if the english_string already exists
-                $existingPair = LanguageMaster::where('english_string', $english_string)->first();
+            $english_string = $request->english_string ? array_reverse($request->english_string) : [];
+            $danish_string = $request->danish_string ? array_reverse($request->danish_string) : [];
+            $var_string = $request->var_string ? array_reverse($request->var_string) : [];
 
-                if ($existingPair) {
-                    if (is_null($existingPair->danish_string)) {
-                        // Update the danish_string if it is null
-                        $existingPair->danish_string = $danishString;
-                        $existingPair->save();
-                    } else {
-                        $existingPair->danish_string = $danishString;
-                        $existingPair->save();
-                        $errors[] = "The pair with english_string '$english_string' already exists.";
+            for ($i=0; $i < count($english_string); $i++) 
+            { 
+                if(isset($var_string[$i]) && !empty($var_string[$i]))
+                {
+                    $existingPair = LanguageMaster::where('var_string', $var_string[$i])->first();
+                    if($existingPair)
+                    {
+                        LanguageMaster::updateOrCreate(
+                            ['var_string' => $var_string[$i]], // Check if record with this ID exists
+                            [
+                                'var_string' => $var_string[$i],
+                                'english_string' => $english_string[$i],
+                                'danish_string' => $danish_string[$i],
+                            ]
+                        );
                     }
-                } else {
-                    // Create a new LanguageMaster model instance
-                    $language = new LanguageMaster();
-                    $varString = 'string_' . str_replace(' ', '_', $english_string);
-                    // Assign the var_string, english_string, and danish_string to the appropriate attributes in the model
-                    $language->var_string = $varString;
-                    $language->english_string = $english_string;
-                    $language->danish_string = $danishString;
-                    
-                    // Save the model instance
-                    $language->save();
+                    else
+                    {
+                        $varStringa = 'string_' . str_replace(' ', '_', $english_string[$i]);
+                        LanguageMaster::updateOrCreate(
+                            ['var_string' => $varStringa], // Check if record with this ID exists
+                            [
+                                'var_string' => $varStringa,
+                                'english_string' => $english_string[$i],
+                                'danish_string' => $danish_string[$i],
+                            ]
+                        );
+                    }
                 }
-            }
-            
-            if (empty($errors)) {
-                // Return back with error messages
-                return redirect()->back()->withErrors($errors);
+                else
+                {
+                    $varStringa = 'string_' . str_replace(' ', '_', $english_string[$i]);
+                    LanguageMaster::updateOrCreate(
+                        ['var_string' => $varStringa], // Check if record with this ID exists
+                        [
+                            'var_string' => $varStringa,
+                            'english_string' => $english_string[$i],
+                            'danish_string' => $danish_string[$i],
+                        ]
+                    );
+                }
             }
 
             $message = 'Data saved successfully';
