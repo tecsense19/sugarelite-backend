@@ -58,7 +58,8 @@ class SugareliteController extends BaseController
                 return $this->sendError($validator->errors()->first());
             }
 
-            $otp = mt_rand(100000, 999999);
+            //$otp = mt_rand(100000, 999999);
+            $otp = 654321;
             $userArr = [];
             $userArr['email'] = isset($input['email']) ? $input['email'] : '';
             $userArr['mobile_no'] = isset($input['mobile_no']) ? $input['mobile_no'] : '';
