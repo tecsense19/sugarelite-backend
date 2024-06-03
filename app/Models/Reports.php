@@ -17,4 +17,18 @@ class Reports extends Model
         'receiver_id',
         'reason',
     ];   
+
+
+     // Relationship to get the sender user
+     public function sender()
+     {
+         return $this->belongsTo(User::class, 'sender_id', 'id');
+     }
+ 
+     // Relationship to get the receiver user
+     public function receiver()
+     {
+         return $this->belongsTo(User::class, 'receiver_id', 'id');
+     }
+
 }

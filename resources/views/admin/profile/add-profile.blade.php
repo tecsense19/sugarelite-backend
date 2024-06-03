@@ -93,7 +93,7 @@
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="inputPassword" class="col-form-label">Age</label>
-                                    <input type="number" class="form-control" name="age" required>
+                                    <input type="number" class="form-control" name="age" min="18" required>
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="inputPassword" class="col-form-label">Weight</label>

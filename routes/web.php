@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\UserreportController;
+use App\Http\Controllers\Admin\SpamreportsController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\StripeWebhookController;
@@ -57,6 +58,10 @@ Route::group(['middleware' => ['admin']], function () {
     // user report
     Route::get('/userreport', [UserreportController::class, 'index'])->name('userreport.user-report');
     Route::post('/list-userreport', [UserreportController::class, 'userreportList'])->name('userreport.list-userreport');
+
+    // spam report
+    Route::get('/spamreport', [SpamreportsController::class, 'index'])->name('spamreport.user-report');
+    Route::post('/list-spamreport', [SpamreportsController::class, 'userreportList'])->name('spamreport.list-userreport');
 
     // admin profile
     Route::get('/admin-profile', [HomeController::class, 'profile'])->name('admin.profile');

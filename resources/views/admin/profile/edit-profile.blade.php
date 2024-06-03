@@ -2,6 +2,9 @@
 @include('admin.layout.header')
 @include('admin.layout.sidebar')
 
+
+
+
 <main id="main" class="main">
     <div class="pagetitle">
         <h1>Dashboard</h1>
@@ -21,6 +24,7 @@
                         <h5 class="card-title">General Form Elements</h5>
                         <!-- General Form Elements -->
                         @include('flash-message')
+                        
                         <form method="POST" class="profileForm" action="{{ route('profile.update-profile') }}" enctype="multipart/form-data">
                             {!! csrf_field() !!}
                             <div class="row">
@@ -115,11 +119,12 @@
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="inputPassword" class="col-form-label">Age</label>
-                                    <input type="number" class="form-control" name="age" value="{{$list_profiles->age}}" required>
+                                    <input type="number" class="form-control" name="age" value="{{$list_profiles->age}}" min="18" required>
                                 </div>
+
                                 <div class="col-sm-4">
                                     <label for="inputPassword" class="col-form-label">Weight</label>
-                                    <input type="number" class="form-control" name="weight" value="{{$list_profiles->weight}}" required>
+                                    <input type="number" class="form-control" name="weight" value="{{$list_profiles->weight}}" min="30" required>
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="inputPassword" class="col-form-label">Country</label>

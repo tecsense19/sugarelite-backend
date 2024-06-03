@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller as Controller;
 
 use Auth;
- 
+use Validator;
+
 class ProfileController extends Controller
 {
     /**
@@ -212,6 +213,7 @@ class ProfileController extends Controller
         
         $user_id = $input['user_id'];
         $input = [];
+
 
         if($file = $request->file('avatar_url'))
         {

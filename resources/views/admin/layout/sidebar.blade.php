@@ -160,6 +160,14 @@
             <span>Subscriptions</span>
             </a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link {{ request()->is('spamreport') ? '' : 'collapsed' }}" href="{{ route('spamreport.user-report') }}">
+            <i class="bi bi-grid"></i>
+            <span>Spam Users</span>
+            </a>
+        </li>
+
         <!-- <li class="nav-item">
             <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
               <i class="bi bi-layout-text-window-reverse"></i><span>Tables</span><i class="bi bi-chevron-down ms-auto"></i>
