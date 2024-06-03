@@ -19,10 +19,10 @@
                     $receiver = $list_report->receiver;
                 @endphp
                 <tr>
-                    <td>{{ $key + 1 }}</td>
-                    <td class="text-capitalize">{{ $sender->username }}</td>
-                    <td class="text-capitalize"><span class="badge bg-danger">ID-{{ $receiver->id }} {{ $receiver->username }}</span></td>
-                    <td class="text-capitalize">{{ $list_report->reason }}</td>                                       
+                    <td style="width: 10%;">{{ $key + 1 }}</td>
+                    <td class="text-capitalize" style="width: 20%;">{{ $sender->username }}</td>
+                    <td class="text-capitalize" style="width: 20%;"><span class="badge bg-danger">ID-{{ $receiver->id }} {{ $receiver->username }}</span></td>
+                    <td class="text-capitalize" style="width: 50%;">{{ $list_report->reason }}</td>                                       
                 </tr>
             @endforeach
         @else
