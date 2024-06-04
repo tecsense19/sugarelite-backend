@@ -32,7 +32,8 @@ class SpamreportsController extends Controller
                         $q->where('username', 'like', '%' . $search . '%');
                     });
                 }
-            });
+            })
+            ->orderBy('id', 'desc');
 
         // Paginate the results after applying the search condition
         $userreportList = $query->paginate($entries_per_page);
