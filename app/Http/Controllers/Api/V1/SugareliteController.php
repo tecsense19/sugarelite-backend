@@ -430,16 +430,7 @@ class SugareliteController extends BaseController
                             }
                         }
                     }   
-                    $CheckOTP = User::where('id', $input['user_id'])->first();
-                    if($CheckOTP->mobile_no != $this->formatPhoneNumber($input['mobile_no']))
-                    {
-                        return response()->json(['success'=> false,'error' => 'Please enter valid mobile_no!'], 422);  
-                    }
-
-                    if($CheckOTP->email != $input['email'] && $CheckOTP->email != Null)
-                    {
-                        return response()->json(['success'=> false,'error' => 'Please enter valid email!'], 422);  
-                    }                           
+                                      
                     $messgae = 'User updated successfully.';   
                     User::where('id', $input['user_id'])->update($userArr);                    
                    
