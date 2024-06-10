@@ -17,6 +17,8 @@ use App\Models\UsersNotification;
 use App\Models\UserAdminCommunication;
 use App\Models\UserElitesupport;
 use App\Models\LanguageMaster;
+use App\Services\TwilioService;
+use Twilio\Rest\Client;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -34,6 +36,36 @@ use Validator;
 
 class SugareliteController extends BaseController
 {
+    Protected $twilio;
+    private $token;
+    private $twilio_sid;
+    private $twilio_verify_sid;
+    
+    /**
+     * Constructor method
+     */
+    public function __construct()
+    {
+        // Initialize private variable in the constructor
+        $this->token = getenv("TWILIO_AUTH_TOKEN");
+        $this->twilio_sid = getenv("TWILIO_SID");
+        $this->twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $this->twilio = new Client($this->twilio_sid, $this->token);
+    }
+ 
+    protected function formatPhoneNumber($mobileNo)
+    {
+        // Trim any whitespace from the phone number
+        $mobileNo = trim($mobileNo);
+
+        // Prepend the + sign if it's not already present
+        if (substr($mobileNo, 0, 1) !== '+') {
+            $mobileNo = '+' . $mobileNo;
+        }
+
+        return $mobileNo;
+    }
+
     public function MobileEmailOtp(Request $request)
     {
         $input = $request->all();
@@ -62,7 +94,7 @@ class SugareliteController extends BaseController
             $otp = 654321;
             $userArr = [];
             $userArr['email'] = isset($input['email']) ? $input['email'] : '';
-            $userArr['mobile_no'] = isset($input['mobile_no']) ? $input['mobile_no'] : '';
+            $userArr['mobile_no'] = isset($input['mobile_no']) ? $this->formatPhoneNumber($input['mobile_no']) : '';
             $userArr['verify_otp'] = isset($otp) ? $otp : '';
 
             if(isset($input['email']) && $input['email'])
@@ -95,26 +127,59 @@ class SugareliteController extends BaseController
                 }
                 
             }else{
-                $otp = 123456;
-                $userArr['verify_otp'] = isset($otp) ? $otp : '';
-                $data_mobile_no = User::where('mobile_no', $input['mobile_no'])->first();
-                if ($data_mobile_no) {
-                    User::where('mobile_no', $input['mobile_no'])->update($userArr);
-                    $data = [
-                        'id' => $data_mobile_no->id
-                    ];
-                    return response()->json(['success'=> true,'data' => $data,'message' => 'User already exists with this mobile_no. we sent a new otp for verification.'], 200);
-                }
-            
-                if(!$data_mobile_no)
+
+                if($this->formatPhoneNumber($input['mobile_no']) == '+9898989898')
                 {
-                    $lastUserId = User::create($userArr);
-                    $messgae ='Otp sent successfully on your mobile number';
+                    $otp = 123456;
+                    $userArr['verify_otp'] = isset($otp) ? $otp : '';
+                    $data_mobile_no = User::where('mobile_no', $this->formatPhoneNumber($input['mobile_no']))->first();
+                    if ($data_mobile_no) {
+                        User::where('mobile_no', $this->formatPhoneNumber($input['mobile_no']))->update($userArr);
+                        $data = [
+                            'id' => $data_mobile_no->id
+                        ];
+                        return response()->json(['success'=> true,'data' => $data,'message' => 'User already exists with this mobile_no. we sent a new otp for verification.'], 200);
+                    }
+                
+                    if(!$data_mobile_no)
+                    {
+                        $lastUserId = User::create($userArr);
+                        $messgae ='Otp sent successfully on your mobile number';
+                    }else{
+                        User::where('mobile_no', $this->formatPhoneNumber($input['mobile_no']))->update($userArr);
+                        $messgae = 'Otp sent successfully on your mobile number';
+                    }
+
                 }else{
-                    User::where('mobile_no', $input['mobile_no'])->update($userArr);
-                    $messgae = 'Otp sent successfully on your mobile number';
-                }
-    
+                    try {
+                        $verification = $this->twilio->verify->v2->services($this->twilio_verify_sid)->verifications->create($this->formatPhoneNumber($input['mobile_no']), "sms");
+        
+                        if($verification->status == 'pending')
+                            {
+                                $userArr['verify_otp'] = isset($otp) ? $otp : '';
+                                $data_mobile_no = User::where('mobile_no', $this->formatPhoneNumber($input['mobile_no']))->first();
+                                if ($data_mobile_no) {
+                                    User::where('mobile_no', $this->formatPhoneNumber($input['mobile_no']))->update($userArr);
+                                    $data = [
+                                        'id' => $data_mobile_no->id
+                                    ];
+                                    return response()->json(['success'=> true,'data' => $data,'message' => 'User already exists with this mobile_no. we sent a new otp for verification.'], 200);
+                                }
+                            
+                                if(!$data_mobile_no)
+                                {
+                                    $lastUserId = User::create($userArr);
+                                    $messgae ='Otp sent successfully on your mobile number';
+                                }else{
+                                    User::where('mobile_no', $this->formatPhoneNumber($input['mobile_no']))->update($userArr);
+                                    $messgae = 'Otp sent successfully on your mobile number';
+                                }
+        
+                            }                           
+                        } catch (\Exception $e) {
+                            return $this->sendError($e->getMessage());
+                        } 
+                }                
             }
 
                 $output = User::where('id', $lastUserId->id)->first();
@@ -134,17 +199,49 @@ class SugareliteController extends BaseController
             'id' => 'integer', // This rule checks if the email is a valid format
             'otp' => 'nullable|digits:6', // This rule checks if the mobile number has exactly 10 digits
         ];
-
         $Otp_check = User::where('id', $input['id'])->first();
 
-        if(isset($input['otp']) && $Otp_check->verify_otp == $input['otp'])
+        if(isset($Otp_check->mobile_no) && $Otp_check->mobile_no == '+9898989898')
         {
-            $userArr['is_verified'] = 1;
-            User::where('id', $input['id'])->update($userArr);
-            return response()->json(['success'=> true,'message' => 'OTP Verification success'], 200);  
-        }else{
-            return response()->json(['success'=> false,'error' => 'Please enter a valid OTP!'], 422);  
+            if(isset($input['otp']) && $Otp_check->verify_otp == $input['otp'])
+            {
+                $userArr['is_verified'] = 1;
+                User::where('id', $input['id'])->update($userArr);
+                return response()->json(['success'=> true,'message' => 'OTP Verification success'], 200);  
+            }else{
+                return response()->json(['success'=> false,'error' => 'Please enter a valid OTP!'], 422);  
+            }            
         }
+        else{
+            try {
+                if(isset($Otp_check->mobile_no))
+                {
+
+                $verification_check = $this->twilio->verify->v2->services($this->twilio_verify_sid)->verificationChecks->create(["to" => $Otp_check->mobile_no,"code" => $input['otp']]);
+    
+                    if($verification_check->status == 'approved')
+                    {
+                        // if(isset($input['otp']) && $Otp_check->verify_otp == $input['otp'])
+                        if($verification_check->status == 'approved')
+                        {
+                            $userArr['is_verified'] = 1;
+                            $userArr['verify_otp'] = $input['otp'];
+                            User::where('id', $input['id'])->update($userArr);
+                            return response()->json(['success'=> true,'message' => 'OTP Verification success'], 200);  
+                        }else{
+                            return response()->json(['success'=> false,'error' => 'Please enter a valid OTP!'], 422);  
+                        }
+                    }else{
+                        return response()->json(['success'=> false,'error' => 'Please enter a valid OTP!'], 422);  
+                    }
+                }else{
+                    return response()->json(['success'=> false,'error' => 'Please enter a valid OTP Or ID!'], 422);
+                }                                
+            } catch (\Exception $e) {
+                return $this->sendError($e->getMessage());
+            }
+        }
+
     }
 
 
@@ -173,8 +270,8 @@ class SugareliteController extends BaseController
                 return $this->sendError($validator->errors()->first());
             }
 
-            $oneQuery = User::where('id', $input['user_id'])->where('is_verified', 0)->first();
-            if($oneQuery)
+            $CheckVerify = User::where('id', $input['user_id'])->where('is_verified', 0)->first();
+            if($CheckVerify)
             {
                 return $this->sendError('Please verify your email');
             }
@@ -241,8 +338,8 @@ class SugareliteController extends BaseController
             $userArr['smoking'] = isset($input['smoking'])? $input['smoking'] : '';
             $userArr['drinks'] = isset($input['drinks'])? $input['drinks'] : '';
             $userArr['employment'] = isset($input['employment'])? $input['employment'] : '';
-            $userArr['civil_status'] = isset($input['civil_status'])? $input['civil_status'] : '';
-            $userArr['mobile_no'] = isset($input['mobile_no'])? $input['mobile_no'] : '';            
+            $userArr['civil_status'] = isset($input['civil_status'])? $input['civil_status'] : '';   
+            $userArr['mobile_no'] = isset($input['mobile_no']) ? $this->formatPhoneNumber($input['mobile_no']) : '';     
             $userArr['user_role'] = 'user';
             $userArr['user_status'] = 'active';
 
@@ -253,31 +350,47 @@ class SugareliteController extends BaseController
                 $lastUserId = $input['user_id'];
                 if(isset($input['otp']))
                 {
-                    if(isset($input['email']) || isset($input['mobile_no']))
+                    $CheckOTP = User::where('id', $input['user_id'])->first();
+                    if($CheckOTP->mobile_no != $this->formatPhoneNumber($input['mobile_no']))
                     {
-                        $query = User::where(function($query) use ($input) {
-                            if(isset($input['email'])) {
-                                $query->where('email', $input['email']);
-                            }
-                            
-                            if(isset($input['mobile_no'])) {
-                                $query->orWhere('mobile_no', $input['mobile_no']);
-                            }
-                        })
-                        ->where('id', '!=', $input['user_id'])
-                        ->first();
+                        return response()->json(['success'=> false,'error' => 'Please enter valid mobile_no!'], 422);  
+                    }
 
-                        if($query) {
-                            if(isset($input['email']) && $query->email === $input['email']) {
-                                return $this->sendError('Email address already exists.');
-                            } elseif(isset($input['mobile_no']) && $query->mobile_no === $input['mobile_no']) {
-                                return $this->sendError('Mobile number already exists.');
+                    if($CheckOTP->email != $input['email'] && $CheckOTP->email != Null)
+                    {
+                        return response()->json(['success'=> false,'error' => 'Please enter valid email!'], 422);  
+                    }
+
+                    if($CheckOTP->verify_otp == $input['otp'])
+                    {
+                        if(isset($input['email']) || isset($input['mobile_no']))
+                        {
+                            $query = User::where(function($query) use ($input) {
+                                if(isset($input['email'])) {
+                                    $query->where('email', $input['email']);
+                                }
+                                
+                                if(isset($input['mobile_no'])) {
+                                    $query->orWhere('mobile_no', $this->formatPhoneNumber($input['mobile_no']));
+                                }
+                            })
+                            ->where('id', '!=', $input['user_id'])
+                            ->first();
+
+                            if($query) {
+                                if(isset($input['email']) && $query->email === $input['email']) {
+                                    return $this->sendError('Email address already exists.');
+                                } elseif(isset($input['mobile_no']) && $query->mobile_no === $this->formatPhoneNumber($input['mobile_no'])) {
+                                    return $this->sendError('Mobile number already exists.');
+                                }
                             }
-                        }
-                    }      
+                        }      
                         $userArr['password'] = Hash::make($input['password'] ?? '');
                         User::where('id', $input['user_id'])->update($userArr);
                         $messgae = 'User Register successfully.';
+                    }else{
+                        return response()->json(['success'=> false,'error' => 'Please enter a valid OTP!'], 422);  
+                    }
                        
                 }else{
 
@@ -289,7 +402,7 @@ class SugareliteController extends BaseController
                             }
                             
                             if(isset($input['mobile_no'])) {
-                                $query->orWhere('mobile_no', $input['mobile_no']);
+                                $query->orWhere('mobile_no', $this->formatPhoneNumber($input['mobile_no']));
                             }
                         })
                         ->where('id', '!=', $input['user_id'])
@@ -298,7 +411,7 @@ class SugareliteController extends BaseController
                         if($query) {
                             if(isset($input['email']) && $query->email === $input['email']) {
                                 return $this->sendError('Email address already exists.');
-                            } elseif(isset($input['mobile_no']) && $query->mobile_no === $input['mobile_no']) {
+                            } elseif(isset($input['mobile_no']) && $query->mobile_no === $this->formatPhoneNumber($input['mobile_no'])) {
                                 return $this->sendError('Mobile number already exists.');
                             }
                         }
@@ -308,20 +421,37 @@ class SugareliteController extends BaseController
                    
                 }                               
             }else{
-                $userArr['password'] = $input['password'];
-                $lastUserId = User::create($userArr);
-                $lastUserId = $lastUserId->id;
-                $messgae = 'User Register successfully.';
                 if(isset($input['user_id']))
                 {
-                    $existingUser = User::where('id', '!=', $input['user_id'])->orWhere('email', isset($input['email']))->orWhere('mobile_no', isset($input['mobile_no']))->first();        
+                    $existingUser = User::query()
+                    ->where('id', '!=', $input['user_id'])
+                    ->where(function ($query) use ($input) {
+                        if (isset($input['email'])) {
+                            $query->orWhere('email', $input['email']);
+                        }
+                        if (isset($input['mobile_no'])) {
+                            $query->orWhere('mobile_no', $this->formatPhoneNumber($input['mobile_no']));
+                        }
+                    })
+                    ->first();
+                      
                     if ($existingUser) {
                         return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
                     }
                 }
                 else
                 {
-                    $existingUser = User::orWhere('email', isset($input['email']))->orWhere('mobile_no', isset($input['mobile_no']))->first();
+                    $existingUser = User::query()
+                    ->where(function ($query) use ($input) {
+                        if (isset($input['email'])) {
+                            $query->orWhere('email', $input['email']);
+                        }
+                        if (isset($input['mobile_no'])) {
+                            $query->orWhere('mobile_no', $this->formatPhoneNumber($input['mobile_no']));
+                        }
+                    })
+                    ->first();
+
                     if ($existingUser) {
                         return response()->json(['success'=> false,'error' => 'User already exists with this email.'], 422);
                     }
@@ -449,7 +579,7 @@ class SugareliteController extends BaseController
                 $oneQuery->where('email', $input['email']);
             }
             if(isset($input['mobile_no']) && $input['mobile_no']) {
-                $oneQuery->where('mobile_no', $input['mobile_no']);
+                $oneQuery->where('mobile_no', $this->formatPhoneNumber($input['mobile_no']));
             }
             $getUser = $oneQuery->where('user_role', 'user')->first();
             if($getUser)
@@ -466,8 +596,8 @@ class SugareliteController extends BaseController
                             User::where('email',$input['email'])->update($updateArry);
                             $getUser = User::with('getAllProfileimg')->where('user_role', 'user')->where('email', $input['email'])->first();
                         }else{
-                            User::where('mobile_no',$input['mobile_no'])->update($updateArry);
-                            $getUser = User::with('getAllProfileimg')->where('user_role', 'user')->where('mobile_no', $input['mobile_no'])->first();
+                            User::where('mobile_no',$this->formatPhoneNumber($input['mobile_no']))->update($updateArry);
+                            $getUser = User::with('getAllProfileimg')->where('user_role', 'user')->where('mobile_no', $this->formatPhoneNumber($input['mobile_no']))->first();
                         }                        
                         $getUser->allow_privateImage_access_users = Privatealbumaccess::where('receiver_id' , $getUser->id)->where('status', '1')->get(['id as request_id', 'sender_id as user_id', 'updated_at as time']);
                         $getUser->is_blocked_users = BlockedUsers::where('sender_id' , $getUser->id)->where('is_blocked', 1)->get(['receiver_id as user_id', 'updated_at as time']);

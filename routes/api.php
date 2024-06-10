@@ -78,9 +78,10 @@ Route::group(['prefix' => 'V1'], function () {
     Route::get('/get_laguage_master', [SugareliteController::class, 'GetLaguageMaster']); 
 
     Route::get('/get_broadcast', [SugareliteController::class, 'GetBroadcast']); 
-    
-    
 
+    #Twiliow
+    Route::post('/send-sms', [SugareliteController::class, 'sendSms']);
+    
     Route::post('/create/subscription', [StripeController::class, 'createSubscription']);
     Route::post('/start/stop/subscription', [StripeController::class, 'startStopSubscription']);
     Route::post('/cancel/subscription', [StripeController::class, 'cancelSubscription']);
