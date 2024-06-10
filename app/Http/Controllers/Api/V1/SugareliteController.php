@@ -214,15 +214,30 @@ class SugareliteController extends BaseController
         }
         else{
             try {
-                if(isset($Otp_check->mobile_no))
+                if(isset($Otp_check->mobile_no) || isset($Otp_check->email))
                 {
-
-                $verification_check = $this->twilio->verify->v2->services($this->twilio_verify_sid)->verificationChecks->create(["to" => $Otp_check->mobile_no,"code" => $input['otp']]);
-    
-                    if($verification_check->status == 'approved')
+                    if($Otp_check->mobile_no)
                     {
-                        // if(isset($input['otp']) && $Otp_check->verify_otp == $input['otp'])
+                        $verification_check = $this->twilio->verify->v2->services($this->twilio_verify_sid)->verificationChecks->create(["to" => $Otp_check->mobile_no,"code" => $input['otp']]);
+    
                         if($verification_check->status == 'approved')
+                        {
+                            // if(isset($input['otp']) && $Otp_check->verify_otp == $input['otp'])
+                            if($verification_check->status == 'approved')
+                            {
+                                $userArr['is_verified'] = 1;
+                                $userArr['verify_otp'] = $input['otp'];
+                                User::where('id', $input['id'])->update($userArr);
+                                return response()->json(['success'=> true,'message' => 'OTP Verification success'], 200);  
+                            }else{
+                                return response()->json(['success'=> false,'error' => 'Please enter a valid OTP!'], 422);  
+                            }
+                        }else{
+                            return response()->json(['success'=> false,'error' => 'Please enter a valid OTP!'], 422);  
+                        }
+
+                    }else{
+                        if(isset($input['otp']) && $Otp_check->verify_otp == $input['otp'])
                         {
                             $userArr['is_verified'] = 1;
                             $userArr['verify_otp'] = $input['otp'];
@@ -231,9 +246,8 @@ class SugareliteController extends BaseController
                         }else{
                             return response()->json(['success'=> false,'error' => 'Please enter a valid OTP!'], 422);  
                         }
-                    }else{
-                        return response()->json(['success'=> false,'error' => 'Please enter a valid OTP!'], 422);  
                     }
+                 
                 }else{
                     return response()->json(['success'=> false,'error' => 'Please enter a valid OTP Or ID!'], 422);
                 }                                
