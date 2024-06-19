@@ -90,8 +90,8 @@ class SugareliteController extends BaseController
                 return $this->sendError($validator->errors()->first());
             }
 
-            //$otp = mt_rand(100000, 999999);
-            $otp = 654321;
+            $otp = mt_rand(100000, 999999);
+            // $otp = 654321;
             $userArr = [];
             $userArr['email'] = isset($input['email']) ? $input['email'] : '';
             $userArr['mobile_no'] = isset($input['mobile_no']) ? $this->formatPhoneNumber($input['mobile_no']) : '';
@@ -102,10 +102,10 @@ class SugareliteController extends BaseController
                  // Email content
                  $emailContent = "Your OTP code is: " . $otp;
                 try {
-                // Mail::send('mail/otp', ['emailContent' => $emailContent], function ($m) use ($emailContent, $input) {
-                //     $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
-                //         $m->to( $input['email'] )->subject('OTP verification');
-                //     });
+                Mail::send('mail/otp', ['emailContent' => $emailContent], function ($m) use ($emailContent, $input) {
+                    $m->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+                        $m->to( $input['email'] )->subject('OTP verification');
+                    });
                     
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Failed to send OTP email. Please try again later.'.$e], 500);
