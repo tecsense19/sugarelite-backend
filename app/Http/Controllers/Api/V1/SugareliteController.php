@@ -128,7 +128,7 @@ class SugareliteController extends BaseController
                 
             }else{
 
-                if($this->formatPhoneNumber($input['mobile_no']) == '+9898989898')
+                if($this->formatPhoneNumber($input['mobile_no']) == '+459898989898')
                 {
                     $otp = 123456;
                     $userArr['verify_otp'] = isset($otp) ? $otp : '';
@@ -201,7 +201,7 @@ class SugareliteController extends BaseController
         ];
         $Otp_check = User::where('id', $input['id'])->first();
 
-        if(isset($Otp_check->mobile_no) && $Otp_check->mobile_no == '+9898989898')
+        if(isset($Otp_check->mobile_no) && $Otp_check->mobile_no == '+459898989898')
         {
             if(isset($input['otp']) && $Otp_check->verify_otp == $input['otp'])
             {
