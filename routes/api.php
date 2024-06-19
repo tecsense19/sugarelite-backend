@@ -29,54 +29,53 @@ Route::group(['prefix' => 'V1'], function () {
     Route::post('/chat/send', [SugareliteController::class, 'sendMessage']);
     Route::get('/chat/list', [SugareliteController::class, 'messageList']);
 
-    ///ProfileList
+    #verify
+    Route::post('/otp', [SugareliteController::class, 'MobileEmailOtp']); 
+    Route::post('/verifyotp', [SugareliteController::class, 'MobileEmailVerifyOtp']); 
+
+    #ProfileList
     Route::get('/profile/list', [SugareliteController::class, 'profileList']);
 
-    //FriendLlist
+    #FriendLlist
     // Route::post('/friends', [SugareliteController::class, 'friend_list']);
     Route::post('/friendsnew', [SugareliteController::class, 'friend_list_new']);
     Route::post('/profile/friends', [SugareliteController::class, 'friend_profile_list']);
 
-    //Access
+    #PrivateimagesAccess
     Route::post('/privateimages/access', [SugareliteController::class, 'private_album']);
-    //private_album_decline
     Route::post('/privateimages/access/decline', [SugareliteController::class, 'privateAlbumAcceptReject']);
-    //Push
     Route::post('/push/privatealbum', [SugareliteController::class, 'push_notifications_private_album']);
     Route::get('/push/friendrequest', [SugareliteController::class, 'push_notifications_friend_request']);
     Route::post('/push/messages', [SugareliteController::class, 'push_notifications_message']);
     
-
-    //Newsletter
+    #Newsletter
     Route::post('/newsletter', [NewslettersController::class, 'newsletter']);
 
-    //Password
+    #Password
     Route::post('/forgot/password', [SugareliteController::class, 'forgotPassword']);
 
-    //blockedUser
+    #blockedUser
     Route::post('/block/user', [SugareliteController::class, 'blockUser']);
     Route::post('/report/user', [SugareliteController::class, 'reportUser']);
 
-    //contactUs
+    #contactUs
     Route::post('/contactus', [SugareliteController::class, 'contactUs']);
 
-    //ReadMessage
+    #ReadMessage
     Route::post('/readmessage', [SugareliteController::class, 'readMessage']);
     Route::post('/readprivatealbum', [SugareliteController::class, 'readPrivateAlbumAccess']);
+    Route::post('/readfriend_request', [SugareliteController::class, 'readFriendRequestNotifiaction']);    
 
-    Route::post('/readfriend_request', [SugareliteController::class, 'readFriendRequestNotifiaction']);
-
-    Route::post('/otp', [SugareliteController::class, 'MobileEmailOtp']); 
-    Route::post('/verifyotp', [SugareliteController::class, 'MobileEmailVerifyOtp']); 
-
+    #EliteSupport
     Route::post('/elitesupport', [SugareliteController::class, 'EliteSupport']); 
     Route::post('/getelitesupport', [SugareliteController::class, 'EliteSupportData']); 
-    
     Route::post('/verifyidentity', [SugareliteController::class, 'IdentityVerification']); 
     
+    #LaguageMaster
     Route::post('/laguage_master', [SugareliteController::class, 'LaguageMaster']); 
     Route::get('/get_laguage_master', [SugareliteController::class, 'GetLaguageMaster']); 
 
+    #Broadcast
     Route::get('/get_broadcast', [SugareliteController::class, 'GetBroadcast']); 
 
     #Twiliow

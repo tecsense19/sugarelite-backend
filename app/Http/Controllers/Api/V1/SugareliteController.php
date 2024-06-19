@@ -259,7 +259,7 @@ class SugareliteController extends BaseController
     }
 
 
-
+    #RegisterAPI function
     public function register(Request $request)
     {
         try {
@@ -523,6 +523,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #CheckUser function
     public function checkUser(Request $request)
     {
         try {
@@ -546,6 +547,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #Logout function
     public function logout(Request $request)
     {
         try {
@@ -567,6 +569,7 @@ class SugareliteController extends BaseController
         }
     }
     
+    #LogIn function
     public function login(Request $request)
     {
         try {
@@ -650,6 +653,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #sendMessage function
     public function sendMessage(Request $request)
     {
         $sender_id = $request->input('sender_id');
@@ -785,6 +789,7 @@ class SugareliteController extends BaseController
        
     }
 
+    #CountMessagesSentToday function
     public function countMessagesSentToday($sender_id)
     {
         $messagesSentToday = Messages::where('sender_id', $sender_id)
@@ -794,12 +799,14 @@ class SugareliteController extends BaseController
         return $messagesSentToday;
     }
 
+    #messageList function
     public function messageList(Request $request)
     {
         $messageList = Messages::with('getAllChatWithImage')->get();
         return response()->json(['success' => true, 'data' => $messageList]);
     }
 
+    #ProfileList function
     public function profileList(Request $request)
     {
         $input = $request->all();
@@ -883,6 +890,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #ForgotPassword function
     public function forgotPassword(Request $request)
     {
         try {
@@ -927,6 +935,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #FriendList function
     public function friend_list(Request $request)
     {
         $input = $request->all();
@@ -1085,6 +1094,7 @@ class SugareliteController extends BaseController
          return response()->json(['success' => true ,'message' => $message, 'data' => $lastRequest], 201);
     }
 
+    #FriendProfileList function
     public function friend_profile_list(Request $request)
     {
         $input = $request->all();
@@ -1123,6 +1133,7 @@ class SugareliteController extends BaseController
    
     }
 
+    #PrivateAlbum function
     public function private_album(Request $request)
     {
         $input = $request->all();
@@ -1155,6 +1166,7 @@ class SugareliteController extends BaseController
         return response()->json(['success' => true ,'message' => $message, 'data' => $lastRequest], 201);
     }
     
+    #privateAlbumAcceptReject function
     public function privateAlbumAcceptReject(Request $request)
     {
         $input = $request->all();
@@ -1179,7 +1191,7 @@ class SugareliteController extends BaseController
         return response()->json(['success' => true ,'message' => $message, 'data' => $lastRequest], 201);
     }
 
-
+    #BlockUser function
     public function blockUser(Request $request)
     {
         $input = $request->all();
@@ -1238,6 +1250,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #ReportUser function
     public function reportUser(Request $request)
     {
         $input = $request->all();
@@ -1295,6 +1308,8 @@ class SugareliteController extends BaseController
             return response()->json(['success' => true, 'message' => 'New report created', 'data' => $newReport], 201);
         }
     }
+
+    #PushNotificationsPrivateAlbum function
     public function push_notifications_private_album(Request $request)
     {
         $input = $request->all();
@@ -1312,6 +1327,8 @@ class SugareliteController extends BaseController
         return $this->sendResponse($push, 'Private album pending records');
     }
 
+
+    #PushNotificationsFriendRequest function
     public function push_notifications_friend_request(Request $request)
     {
 
@@ -1356,7 +1373,7 @@ class SugareliteController extends BaseController
         return $this->sendResponse($response, 'Friend request pending records');
     }
 
-    
+    #PushNotificationsMessage function
     public function push_notifications_message(Request $request)
     {
 
@@ -1383,6 +1400,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #ContactUs function
     public function contactUs(Request $request)
     {
         try {
@@ -1437,6 +1455,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #IdentityVerification function
     public function IdentityVerification(Request $request)
     {
         try {
@@ -1512,6 +1531,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #ReadMessage function
     public function readMessage(Request $request)
     {
         try {
@@ -1552,6 +1572,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #ReadPrivateAlbumAccess function
     public function readPrivateAlbumAccess(Request $request)
     {
         try {
@@ -1574,6 +1595,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #ReadFriendRequestNotifiaction function
     public function readFriendRequestNotifiaction(Request $request)
     {
         try {
@@ -1601,6 +1623,8 @@ class SugareliteController extends BaseController
             return $this->sendError($e->getMessage());
         }
     }
+
+    #EliteSupport function
     public function EliteSupport(Request $request)
     {
         try {
@@ -1642,6 +1666,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #EliteSupportData function
     public function EliteSupportData(Request $request)
     {
         try {
@@ -1676,6 +1701,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #LaguageMaster function
     public function LaguageMaster(Request $request)
     {
         try {
@@ -1709,6 +1735,7 @@ class SugareliteController extends BaseController
         }
     }
 
+    #GetLaguageMaster function
     public function GetLaguageMaster(Request $request)
     {
         try {
@@ -1745,6 +1772,7 @@ class SugareliteController extends BaseController
         }
     }    
 
+    #GetBroadcast function
     public function GetBroadcast(Request $request)
     {
         try {
