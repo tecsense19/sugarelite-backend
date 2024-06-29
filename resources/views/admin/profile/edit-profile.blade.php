@@ -34,7 +34,7 @@
                                     <input type="text" class="form-control" name="username" value="{{$list_profiles->username}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Avatar</label>
+                                    <label for="inputAvatar" class="col-form-label">Avatar</label>
                                     <input class="form-control" type="file" id="formFile" name="avatar_url" accept="image/png, image/jpeg">
                                     <span class="error-message" style="color: red;"></span>
                                     <div>
@@ -44,7 +44,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Public Image</label>
+                                    <label for="inputPUImage" class="col-form-label">Public Image</label>
                                     <input class="form-control" type="file" id="formFile" name="public_images[]" multiple accept="image/png, image/jpeg">
                                     <span class="error-message" style="color: red;"></span>
                                     <div class="d-flex gap-2 mt-2">
@@ -59,7 +59,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Private Image</label>
+                                    <label for="inputPRImage" class="col-form-label">Private Image</label>
                                     <input class="form-control" type="file" id="formFile" name="total_private_images[]" multiple accept="image/png, image/jpeg">
                                     <span class="error-message" style="color: red;"></span>
                                     <div class="d-flex gap-2 mt-2">
@@ -74,7 +74,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Gender</label>
+                                    <label for="inputGender" class="col-form-label">Gender</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="sex" id="sex1" value="Male" {{$list_profiles->sex == 'Male' ? 'checked' : ''}}>
@@ -97,11 +97,11 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputEmail" class="col-form-label">Hight</label>
+                                    <label for="inputHight" class="col-form-label">Hight</label>
                                     <input type="text" class="form-control" name="height" value="{{$list_profiles->height}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Premium</label>
+                                    <label for="inputPremium" class="col-form-label">Premium</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="premium" id="premium1" value="true" {{$list_profiles->premium == 'true' ? 'checked' : ''}}>
@@ -118,20 +118,20 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Age</label>
+                                    <label for="inputAge" class="col-form-label">Age</label>
                                     <input type="number" class="form-control" name="age" value="{{$list_profiles->age}}" min="18" required>
                                 </div>
 
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Weight</label>
+                                    <label for="inputWeight" class="col-form-label">Weight</label>
                                     <input type="number" class="form-control" name="weight" value="{{$list_profiles->weight}}" min="30" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Country</label>
+                                    <label for="inputCountry" class="col-form-label">Country</label>
                                     <input type="text" class="form-control" name="country" value="{{$list_profiles->country}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Sugar Type</label>
+                                    <label for="inputSugartype" class="col-form-label">Sugar Type</label>
                                     <input type="text" class="form-control" name="sugar_type" value="{{$list_profiles->sugar_type}}" required>
                                 </div>
                                 <div class="col-sm-4">
@@ -140,30 +140,36 @@
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="inputEmail" class="col-form-label">Email</label>
-                                    <input type="email" class="form-control" name="email" value="{{$list_profiles->email}}" required>
+                                    <input type="email" readonly class="form-control" name="email" value="{{$list_profiles->email}}" required>
                                 </div>
+
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Region</label>
+                                    <label for="inputMobile" class="col-form-label">Mobile</label>
+                                    <input type="text" readonly class="form-control" name="mobile" value="{{$list_profiles->mobile_no}}" required>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <label for="inputRegion" class="col-form-label">Region</label>
                                     <input type="text" class="form-control" name="region" value="{{$list_profiles->region}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Bio</label>
+                                    <label for="inputBio" class="col-form-label">Bio</label>
                                     <input type="text" class="form-control" name="bio" value="{{$list_profiles->bio}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Ethnicity</label>
+                                    <label for="inputEthnicity" class="col-form-label">Ethnicity</label>
                                     <input type="text" class="form-control" name="ethnicity" value="{{$list_profiles->ethnicity}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Body Structure</label>
+                                    <label for="inputBodyStructure" class="col-form-label">Body Structure</label>
                                     <input type="text" class="form-control" name="body_structure" value="{{$list_profiles->body_structure}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Hair Color</label>
+                                    <label for="inputHairColor" class="col-form-label">Hair Color</label>
                                     <input type="text" class="form-control" name="hair_color" value="{{$list_profiles->hair_color}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Piercings</label>
+                                    <label for="inputPiercings" class="col-form-label">Piercings</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="piercings" id="piercings1" value="Yes" {{$list_profiles->piercings == 'Yes' ? 'checked' : ''}}>
@@ -180,7 +186,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Tattoos</label>
+                                    <label for="inputTattoos" class="col-form-label">Tattoos</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="tattoos" id="tattoos1" value="Yes" {{$list_profiles->tattoos == 'Yes' ? 'checked' : ''}}>
@@ -197,27 +203,27 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Education</label>
+                                    <label for="inputEducation" class="col-form-label">Education</label>
                                     <input type="text" class="form-control" name="education" value="{{$list_profiles->education}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Smoking</label>
+                                    <label for="inputSmoking" class="col-form-label">Smoking</label>
                                     <input type="text" class="form-control" name="smoking" value="{{$list_profiles->smoking}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Drinks</label>
+                                    <label for="inputDrinks" class="col-form-label">Drinks</label>
                                     <input type="text" class="form-control" name="drinks" value="{{$list_profiles->drinks}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Employment</label>
+                                    <label for="inputEmployment" class="col-form-label">Employment</label>
                                     <input type="text" class="form-control" name="employment" value="{{$list_profiles->employment}}" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Civil Status</label>
+                                    <label for="inputCivilStatus" class="col-form-label">Civil Status</label>
                                     <input type="text" class="form-control" name="civil_status" value="{{$list_profiles->civil_status}}" required>
                                 </div>
                                 <div class="col-sm-10">
-                                    <label for="inputPassword" class="col-form-label">User Status</label>
+                                    <label for="inputUserStatus" class="col-form-label">User Status</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="user_status" id="user_status" value="active" {{$list_profiles->user_status == 'active' ? 'checked' : ''}}>

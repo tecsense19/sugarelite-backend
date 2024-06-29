@@ -53,6 +53,7 @@ class SugareliteController extends BaseController
         $this->twilio = new Client($this->twilio_sid, $this->token);
     }
  
+    #FormatPhoneNumber function
     protected function formatPhoneNumber($mobileNo)
     {
         // Trim any whitespace from the phone number
@@ -66,6 +67,7 @@ class SugareliteController extends BaseController
         return $mobileNo;
     }
 
+    #Mobile-EmailSentOTP function
     public function MobileEmailOtp(Request $request)
     {
         $input = $request->all();
@@ -1356,19 +1358,19 @@ class SugareliteController extends BaseController
         
         $response = array_merge($data_notification, $push);
         
-    }else{
-        $push = RequestNotification::whereIn('read_flag', [0])
-        ->selectRaw('id ,sender_id , receiver_id, read_flag,created_at,updated_at,
-            CASE 
-                WHEN read_flag = 0 THEN "false" 
-                ELSE null 
-            END as is_accepted')
-        ->get()->toArray();
+        }else{
+            $push = RequestNotification::whereIn('read_flag', [0])
+            ->selectRaw('id ,sender_id , receiver_id, read_flag,created_at,updated_at,
+                CASE 
+                    WHEN read_flag = 0 THEN "false" 
+                    ELSE null 
+                END as is_accepted')
+            ->get()->toArray();
 
-        $data_notification = UsersNotification::get()->toArray();
-        
-        $response = array_merge($data_notification, $push);
-    }
+            $data_notification = UsersNotification::get()->toArray();
+            
+            $response = array_merge($data_notification, $push);
+        }
     
         return $this->sendResponse($response, 'Friend request pending records');
     }

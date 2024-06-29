@@ -6,6 +6,7 @@
         <th>Profile Pic</th>
         <th>Name</th>
         <th>Email</th>
+        <th>Mobile</th>
         <th>Birth Date</th>
         <th>Gender</th>
         <th>Status</th>
@@ -34,10 +35,11 @@
                         -
                     @endif
                 </td>
-                <td>{{ $list_prof->username }}</td>
-                <td>{{ $list_prof->email }}</td>
+                <td>{{ isset($list_prof->username) ? $list_prof->username : '-'}}</td>
+                <td>{{ isset($list_prof->email) ? $list_prof->email : '-' }}</td>
+                <td>{{ isset($list_prof->mobile_no) ? $list_prof->mobile_no : '-' }}</td>
                 <td>{{ $list_prof->birthdate ? date('d-m-Y', strtotime($list_prof->birthdate)) : '-' }}</td>
-                <td class="text-capitalize"><span class="badge rounded-pill bg-dark">{{ $list_prof->sex }}</span></td>
+                <td class="text-capitalize"><span class="badge rounded-pill bg-dark">{{ isset($list_prof->sex) ? $list_prof->sex : ' ' }}</span></td>
                 <td class="text-capitalize"><span class="badge bg-{{ $badgeColor }}">{{ $list_prof->user_status }}</span></td>
                 <td>
                     @php

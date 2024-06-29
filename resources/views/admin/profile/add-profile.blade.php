@@ -29,26 +29,26 @@
                             {!! csrf_field() !!}
                             <div class="row">
                                 <div class="col-sm-4">
-                                    <label for="inputText" class="col-form-label">Name</label>
+                                    <label for="inputName" class="col-form-label">Name</label>
                                     <input type="text" class="form-control" name="username" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Avatar</label>
+                                    <label for="inputAvatar" class="col-form-label">Avatar</label>
                                     <input class="form-control" type="file" id="formFile" name="avatar_url" accept="image/png, image/jpeg" required>
                                     <span class="error-message" style="color: red;"></span>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Public Images</label>
+                                    <label for="inputPUImage" class="col-form-label">Public Images</label>
                                     <input class="form-control" type="file" id="formFile" name="public_images[]" accept="image/png, image/jpeg" multiple required>
                                     <span class="error-message" style="color: red;"></span>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Private Images</label>
+                                    <label for="inputPRimage" class="col-form-label">Private Images</label>
                                     <input class="form-control" type="file" id="formFile" name="total_private_images[]" accept="image/png, image/jpeg" multiple required>
                                     <span class="error-message" style="color: red;"></span>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Gender</label>
+                                    <label for="inputGender" class="col-form-label">Gender</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="sex" id="sex1" value="male" checked>
@@ -71,11 +71,11 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputEmail" class="col-form-label">Hight</label>
+                                    <label for="inputHight" class="col-form-label">Hight</label>
                                     <input type="text" class="form-control" name="height" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Premium</label>
+                                    <label for="inputPremium" class="col-form-label">Premium</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="premium" id="premium1" value="true" checked>
@@ -92,19 +92,19 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Age</label>
+                                    <label for="inputAge" class="col-form-label">Age</label>
                                     <input type="number" class="form-control" name="age" min="18" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Weight</label>
+                                    <label for="inputWeight" class="col-form-label">Weight</label>
                                     <input type="number" class="form-control" name="weight" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Country</label>
+                                    <label for="inputCountry" class="col-form-label">Country</label>
                                     <input type="text" class="form-control" name="country" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Sugar Type</label>
+                                    <label for="inputSugarType" class="col-form-label">Sugar Type</label>
                                     <input type="text" class="form-control" name="sugar_type" required>
                                 </div>
                                 <div class="col-sm-4">
@@ -120,27 +120,27 @@
                                     <input type="password" class="form-control" name="password" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Region</label>
+                                    <label for="inputRegion" class="col-form-label">Region</label>
                                     <input type="text" class="form-control" name="region" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Bio</label>
+                                    <label for="inputBio" class="col-form-label">Bio</label>
                                     <input type="text" class="form-control" name="bio" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Ethnicity</label>
+                                    <label for="inputEthnicity" class="col-form-label">Ethnicity</label>
                                     <input type="text" class="form-control" name="ethnicity" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Body Structure</label>
+                                    <label for="inputBodyS" class="col-form-label">Body Structure</label>
                                     <input type="text" class="form-control" name="body_structure" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Hair Color</label>
+                                    <label for="inputHair" class="col-form-label">Hair Color</label>
                                     <input type="text" class="form-control" name="hair_color" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Piercings</label>
+                                    <label for="inputPiercings" class="col-form-label">Piercings</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="piercings" id="piercings1" value="yes" checked>
@@ -157,7 +157,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Tattoos</label>
+                                    <label for="inputTattoos" class="col-form-label">Tattoos</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="tattoos" id="tattoos1" value="yes" checked>
@@ -174,27 +174,27 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">Education</label>
+                                    <label for="inputEducation" class="col-form-label">Education</label>
                                     <input type="text" class="form-control" name="education" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Smoking</label>
+                                    <label for="inputSmoking" class="col-form-label">Smoking</label>
                                     <input type="text" class="form-control" name="smoking" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Drinks</label>
+                                    <label for="inputDrinks" class="col-form-label">Drinks</label>
                                     <input type="text" class="form-control" name="drinks" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Employment</label>
+                                    <label for="inputEmployment" class="col-form-label">Employment</label>
                                     <input type="text" class="form-control" name="employment" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputNumber" class="col-form-label">Civil Status</label>
+                                    <label for="inputCivilStatus" class="col-form-label">Civil Status</label>
                                     <input type="text" class="form-control" name="civil_status" required>
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="inputPassword" class="col-form-label">User Status</label>
+                                    <label for="inputUserStatus" class="col-form-label">User Status</label>
                                     <div class="d-flex">
                                         <div class="form-check me-2">
                                             <input class="form-check-input" type="radio" name="user_status" id="user_status" value="active" checked>
